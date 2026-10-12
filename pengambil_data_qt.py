@@ -12,7 +12,7 @@ import serial
 from PySide6.QtCore import QDateTime, QObject, QPointF, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import QBrush, QColor, QFont, QFontDatabase, QKeySequence, QPainter, QPen, QPolygonF, QShortcut
 from PySide6.QtWidgets import (QAbstractItemView, QApplication, QButtonGroup, QCheckBox, QComboBox, QDateTimeEdit, QDialog, QFrame,
-                               QGridLayout, QHBoxLayout, QHeaderView, QLabel, QMessageBox, QProgressBar, QPushButton, QTableWidget,
+                               QGridLayout, QHBoxLayout, QScrollArea, QHeaderView, QLabel, QMessageBox, QProgressBar, QPushButton, QTableWidget,
                                QTableWidgetItem, QToolTip, QVBoxLayout, QWidget)
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -32,6 +32,10 @@ SERIF, SANS = "Cormorant Garamond", "Manrope"
 QSS = f"""
 * {{ font-family: '{SANS}'; color: {IVORY}; font-size: 13px; }}
 QWidget#root {{ background: {NIGHT}; }}
+QScrollArea {{ background: {NIGHT}; border: none; }}
+QScrollBar:vertical {{ background: {NIGHT}; width: 8px; margin: 0; }}
+QScrollBar::handle:vertical {{ background: {LINE}; border-radius: 4px; min-height: 30px; }}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{ height: 0; }}
 QLabel#wordmark {{ font-family: '{SERIF}'; font-size: 34px; font-weight: 600; color: {GOLDHI}; }}
 QLabel#kecil {{ color: {MUTED}; font-size: 10px; font-weight: 700; letter-spacing: 2px; }}
 QLabel#redup {{ color: {MUTED}; font-size: 12px; }}
@@ -50,8 +54,6 @@ QPushButton#jenis:checked {{ color: {GOLDHI}; border-bottom: 2px solid {GOLD}; }
 QPushButton#pot, QPushButton#tit {{ border: 1px solid {LINE}; text-align: center; padding: 6px 0; min-width: 28px; border-radius: 2px; color: {IVORY}; font-weight: 600; }}
 QPushButton#pot[uji="true"] {{ border: 1px dashed {GOLD}; }}
 QPushButton#pot:checked, QPushButton#tit:checked {{ background: {GOLD}; color: {NIGHT}; border: 1px solid {GOLDHI}; }}
-QPushButton#win {{ border: none; padding: 0; background: transparent; }}
-QPushButton#win:hover {{ background: {SURF}; }}
 QPushButton#ambil {{ background: {GOLD}; color: {NIGHT}; text-align: center; font-size: 15px; font-weight: 800;
     letter-spacing: 3px; padding: 16px; border-radius: 2px; }}
 QPushButton#ambil:hover {{ background: {GOLDHI}; color: {NIGHT}; }}
@@ -113,22 +115,6 @@ def kekuatan_pisah(rows):
     return out
 
 
-class TombolJendela(QPushButton):
-    """Tombol kontrol jendela dengan ikon gambar sendiri (tidak bergantung pada font)."""
-    def __init__(self, jenis, tip, fn):
-        super().__init__(); self.jenis = jenis; self.setObjectName("win"); self.setToolTip(tip)
-        self.setFixedSize(34, 26); self.setFocusPolicy(Qt.NoFocus); self.setCursor(Qt.PointingHandCursor); self.clicked.connect(fn)
-        self.pakai_x = jenis == "tutup"
-
-    def paintEvent(self, e):
-        p = QPainter(self); p.setRenderHint(QPainter.Antialiasing)
-        c = QColor(BAD if (self.pakai_x and self.underMouse()) else GOLDHI if self.underMouse() else MUTED)
-        p.setPen(QPen(c, 1.6)); x, y = self.width() / 2, self.height() / 2
-        if self.jenis == "kecil": p.drawLine(QPointF(x - 5, y + 3), QPointF(x + 5, y + 3))
-        elif self.jenis == "penuh": p.drawRect(QRectF(x - 5, y - 4.5, 10, 9))
-        else: p.drawLine(QPointF(x - 4.5, y - 4.5), QPointF(x + 4.5, y + 4.5)); p.drawLine(QPointF(x - 4.5, y + 4.5), QPointF(x + 4.5, y - 4.5))
-
-
 def garis(vertikal=False):
     f = QFrame(); f.setObjectName("vr" if vertikal else "hr"); return f
 
@@ -146,7 +132,7 @@ class Grafik(QWidget):
     def __init__(self):
         super().__init__()
         self.rows, self.mode, self.titik, self.garis = [], 0, [], True
-        self.setMouseTracking(True); self.setMinimumHeight(240)
+        self.setMouseTracking(True); self.setMinimumHeight(200)
 
     def set_data(self, rows): self.rows = rows; self.update()
     def set_mode(self, i): self.mode = i; self.update()
@@ -289,7 +275,7 @@ class SerialIO(QObject):
 class Jendela(QWidget):
     def __init__(self, port, csv_path):
         super().__init__()
-        self.setObjectName("root"); self.setWindowTitle("BeefFresh"); self.resize(1220, 780)
+        self.setObjectName("root"); self.setWindowTitle("BeefFresh"); self.resize(1220, 780); self.setMinimumSize(900, 520)
         self.csv_path, self.sibuk = csv_path, False
         self.rows = self.muat_csv()
         self.t0_path = os.path.join(os.path.dirname(os.path.abspath(csv_path)), "waktu_nol.json")
@@ -378,7 +364,11 @@ class Jendela(QWidget):
 
     # --- ui
     def bangun(self):
-        root = QVBoxLayout(self); root.setContentsMargins(30, 22, 30, 14); root.setSpacing(0)
+        luar = QVBoxLayout(self); luar.setContentsMargins(0, 0, 0, 0)
+        sc = QScrollArea(); sc.setWidgetResizable(True); sc.setFrameShape(QFrame.NoFrame); sc.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        luar.addWidget(sc)
+        inner = QWidget(); inner.setObjectName("root"); sc.setWidget(inner)
+        root = QVBoxLayout(inner); root.setContentsMargins(28, 12, 28, 10); root.setSpacing(0)
 
         head = QHBoxLayout()
         kiri = QVBoxLayout(); kiri.setSpacing(2)
@@ -386,22 +376,17 @@ class Jendela(QWidget):
         self.lbl_status = QLabel(); kiri.addWidget(self.lbl_status)
         head.addLayout(kiri); head.addStretch()
         kan = QVBoxLayout(); kan.setSpacing(0)
-        win = QHBoxLayout(); win.setSpacing(2); win.addStretch()
-        for jenis, tip, fn in (("kecil", "Perkecil (minimize)", self.showMinimized), ("penuh", "Layar penuh  (F11)", self.toggle_penuh),
-                               ("tutup", "Keluar", self.close)):
-            win.addWidget(TombolJendela(jenis, tip, fn))
-        kan.addLayout(win); kan.addSpacing(4)
         kan.addWidget(teks_kecil("UMUR DAGING"), 0, Qt.AlignRight)
         self.lbl_umur = QLabel(); self.lbl_umur.setObjectName("umur"); kan.addWidget(self.lbl_umur, 0, Qt.AlignRight)
         self.lbl_nol = QLabel(); self.lbl_nol.setObjectName("redup"); kan.addWidget(self.lbl_nol, 0, Qt.AlignRight)
         head.addLayout(kan)
-        root.addLayout(head); root.addSpacing(14); root.addWidget(garis()); root.addSpacing(16)
+        root.addLayout(head); root.addSpacing(8); root.addWidget(garis()); root.addSpacing(10)
 
         body = QHBoxLayout(); body.setSpacing(0); root.addLayout(body, 1)
 
         # rel kiri
         rail = QVBoxLayout(); rail.setSpacing(0)
-        rail.addWidget(teks_kecil("KELAS DAGING")); rail.addSpacing(8)
+        rail.addWidget(teks_kecil("KELAS DAGING")); rail.addSpacing(4)
         self.bar = {}; self.grp_kelas = QButtonGroup(self)
         for i, (nk, nama, warna) in enumerate(KELAS):
             b = QPushButton(f"{i + 1}   {nama}"); b.setObjectName("kelas"); b.setCheckable(True); b.setFocusPolicy(Qt.NoFocus)
@@ -413,21 +398,21 @@ class Jendela(QWidget):
                 pb.setStyleSheet(f"QProgressBar::chunk{{background:{warna};}}")
             lbl = QLabel(); lbl.setObjectName("redup")
             self.bar[nk] = (bl, bu, lbl)
-            rail.addSpacing(4); rail.addWidget(lbl); rail.addSpacing(3); rail.addWidget(bl); rail.addSpacing(2); rail.addWidget(bu); rail.addSpacing(14)
+            rail.addSpacing(2); rail.addWidget(lbl); rail.addSpacing(2); rail.addWidget(bl); rail.addSpacing(1); rail.addWidget(bu); rail.addSpacing(8)
         self.grp_kelas.button(0).setChecked(True)
         self.grp_kelas.idToggled.connect(lambda i, on: on and self.pilih(kelas=i))
 
         rail.addWidget(teks_kecil("POTONGAN DAGING")); rail.addSpacing(6)
         gp = QGridLayout(); gp.setSpacing(4); self.grp_pot = QButtonGroup(self)
         for n in range(1, N_POTONGAN + 1):
-            b = QPushButton(str(n)); b.setObjectName("pot"); b.setCheckable(True); b.setFocusPolicy(Qt.NoFocus)
+            b = QPushButton(str(n)); b.setObjectName("pot"); b.setCheckable(True); b.setFocusPolicy(Qt.NoFocus); b.setFixedHeight(28)
             b.setProperty("uji", "true" if n in POTONGAN_UJI else "false")
             self.grp_pot.addButton(b, n); gp.addWidget(b, (n - 1) // 6, (n - 1) % 6)
         self.grp_pot.button(1).setChecked(True)
         self.grp_pot.idToggled.connect(lambda i, on: on and self.pilih(potongan=i))
         rail.addLayout(gp); rail.addSpacing(3)
         ket = QLabel(f"garis putus-putus = potongan UJI ({min(POTONGAN_UJI)}–{max(POTONGAN_UJI)}), tidak dipakai melatih"); ket.setObjectName("redup"); ket.setWordWrap(True); rail.addWidget(ket)
-        rail.addSpacing(14)
+        rail.addSpacing(8)
         rt = QHBoxLayout(); rt.addWidget(teks_kecil("TITIK UKUR")); rt.addStretch()
         self.cb_titik = QComboBox(); self.cb_titik.addItems([f"{n} titik" for n in range(2, 9)]); self.cb_titik.setCurrentIndex(self.titik_max - 2)
         self.cb_titik.currentIndexChanged.connect(self.ubah_jumlah_titik); rt.addWidget(self.cb_titik); rail.addLayout(rt); rail.addSpacing(6)
@@ -439,7 +424,7 @@ class Jendela(QWidget):
         rail.addWidget(garis()); rail.addSpacing(8); rail.addWidget(teks_kecil("ALAT & DATA")); rail.addSpacing(2)
         for teks, fn in (("Kalibrasi putih…", self.kalibrasi), ("Waktu nol daging…", self.dialog_waktu_nol),
                          ("Batalkan sampel terakhir", self.batalkan), ("Reset data uji coba…", self.reset_data)):
-            b = QPushButton(teks); b.setFocusPolicy(Qt.NoFocus); b.setCursor(Qt.PointingHandCursor); b.clicked.connect(fn); rail.addWidget(b)
+            b = QPushButton(teks); b.setFocusPolicy(Qt.NoFocus); b.setCursor(Qt.PointingHandCursor); b.setFixedHeight(26); b.clicked.connect(fn); rail.addWidget(b)
         rail_w = QWidget(); rail_w.setLayout(rail); rail_w.setFixedWidth(250)
         body.addWidget(rail_w); body.addSpacing(22); body.addWidget(garis(True)); body.addSpacing(22)
 
@@ -459,7 +444,7 @@ class Jendela(QWidget):
         self.swatch = QFrame(); self.swatch.setFixedSize(130, 64); self.swatch.setStyleSheet(f"background:{SURF};")
         self.lbl_rgb = QLabel("—"); self.lbl_rgb.setObjectName("redup")
         sw.addWidget(self.swatch); sw.addWidget(self.lbl_rgb); atas.addLayout(sw)
-        isi.addLayout(atas); isi.addSpacing(18); isi.addWidget(garis()); isi.addSpacing(12)
+        isi.addLayout(atas); isi.addSpacing(10); isi.addWidget(garis()); isi.addSpacing(8)
 
         rg = QHBoxLayout(); rg.addWidget(teks_kecil("SEBARAN WARNA")); rg.addStretch()
         self.cb = QComboBox(); self.cb.addItems(Grafik.MODE)
@@ -467,13 +452,13 @@ class Jendela(QWidget):
         self.grafik = Grafik(); isi.addWidget(self.grafik, 3)
         self.cb.currentIndexChanged.connect(self.grafik.set_mode); self.chk_garis.toggled.connect(self.grafik.set_garis)
         self.lbl_pisah = QLabel(); self.lbl_pisah.setObjectName("redup"); self.lbl_pisah.setWordWrap(True)
-        isi.addSpacing(4); isi.addWidget(self.lbl_pisah); isi.addSpacing(14)
+        isi.addSpacing(2); isi.addWidget(self.lbl_pisah); isi.addSpacing(8)
 
         isi.addWidget(teks_kecil("DATA TERSIMPAN")); isi.addSpacing(4)
         self.tabel = QTableWidget(0, len(HEADER)); self.tabel.setHorizontalHeaderLabels(HEADER)
         self.tabel.setEditTriggers(QAbstractItemView.NoEditTriggers); self.tabel.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.tabel.setAlternatingRowColors(True); self.tabel.verticalHeader().hide(); self.tabel.setFocusPolicy(Qt.NoFocus)
-        self.tabel.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch); self.tabel.setMinimumHeight(110)
+        self.tabel.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch); self.tabel.setMinimumHeight(88)
         isi.addWidget(self.tabel, 2)
         self.lbl_file = QLabel(); self.lbl_file.setObjectName("redup"); isi.addSpacing(4); isi.addWidget(self.lbl_file)
 
@@ -519,7 +504,7 @@ class Jendela(QWidget):
             w = self.row_titik.takeAt(0).widget()
             if w is not None: self.grp_tit.removeButton(w); w.deleteLater()
         for n in range(1, self.titik_max + 1):
-            b = QPushButton(str(n)); b.setObjectName("tit"); b.setCheckable(True); b.setFocusPolicy(Qt.NoFocus)
+            b = QPushButton(str(n)); b.setObjectName("tit"); b.setCheckable(True); b.setFocusPolicy(Qt.NoFocus); b.setFixedHeight(28)
             self.grp_tit.addButton(b, n); self.row_titik.addWidget(b)
         self.row_titik.addStretch()
         self.titik = min(self.titik, self.titik_max)
