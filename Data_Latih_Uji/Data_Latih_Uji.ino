@@ -284,15 +284,12 @@ void tampilkanLayarUtama() {
   int idxKelas = pilihanAktif / 2;
   int idxJenis = pilihanAktif % 2;
   int target = (idxJenis == 0) ? TARGET_LATIH : TARGET_UJI;
-  float jamBerjalan = millis() / 3600000.0;
 
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
   display.setTextSize(1);
   display.setCursor(0, 0);
-  display.print("Jam ke-");
-  display.print(jamBerjalan, 2);
-  display.println(" | tekan=ganti");
+  display.println("BeefFresh tekan=ganti");
 
   display.setTextSize(2);
   display.setCursor(0, 18);
