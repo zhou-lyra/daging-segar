@@ -23,7 +23,7 @@ Target: 48 latih + 12 uji per kelas. `arsip/` = data uji coba, bukan dataset.
 
 ## Pindah ke laptop Windows 11
 1. Pasang Python 3 (python.org, centang "Add python.exe to PATH"; 3.12/3.13 paling aman).
-2. Ambil kodenya: `git clone https://github.com/zhou-lyra/daging-segar` (atau Download ZIP dari GitHub), lalu klik dua kali `jalankan.bat` (pertama kali memasang PySide6 + pyserial otomatis).
+2. Ambil kodenya (versi terbaru; kalau sebelumnya gagal, hapus folder `.venv` lalu jalankan lagi): `git clone https://github.com/zhou-lyra/daging-segar` (atau Download ZIP dari GitHub), lalu klik dua kali `jalankan.bat` (pertama kali memasang PySide6 + pyserial otomatis).
 3. Driver USB-serial CP210x: biasanya terpasang otomatis lewat Windows Update; bila di Device Manager muncul tanda seru, pasang "CP210x Universal Windows Driver" dari Silicon Labs.
 4. Port berupa COMx (otomatis dicari; atau `jalankan.bat COM5`). Tidak perlu arduino-cli selama firmware tidak diubah (firmware & kalibrasi tersimpan di ESP32).
 5. Data: salin `data_beeffresh.csv` + `waktu_nol.json` bila ingin melanjutkan. Jangan menjalankan aplikasi di dua laptop sekaligus pada alat yang sama.
