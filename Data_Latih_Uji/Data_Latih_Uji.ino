@@ -278,33 +278,71 @@ void jalankanKalibrasiPenuh() {
 }
 
 // ============================================================
-// TAMPILAN LAYAR UTAMA (IDLE) - MENUNJUKKAN PILIHAN AKTIF
+// TAMPILAN LAYAR UTAMA (IDLE)
+//  - Mode mandiri (belum ada aplikasi): pilihan dari tombol BOOT + hitungan sampel.
+//  - Mode aplikasi (setelah perintah INFO): kelas, potongan, titik, jenis, dan UMUR DAGING
+//    yang berjalan tiap detik. Isinya dikirim aplikasi; alat hanya menampilkan dan menambah detik.
 // ============================================================
+bool modeApp = false;
+int infoPotongan = 0, infoTitik = 0;
+long infoUmurDetik = -1;            // umur daging saat INFO diterima (detik); -1 = waktu nol belum diatur
+unsigned long infoWaktuMs = 0;      // millis() saat INFO diterima
+unsigned long terakhirGambar = 0;
+
 void tampilkanLayarUtama() {
   int idxKelas = pilihanAktif / 2;
   int idxJenis = pilihanAktif % 2;
-  int target = (idxJenis == 0) ? TARGET_LATIH : TARGET_UJI;
+  terakhirGambar = millis();
 
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
   display.setTextSize(1);
   display.setCursor(0, 0);
-  display.println("BeefFresh tekan=ganti");
 
-  display.setTextSize(2);
-  display.setCursor(0, 18);
-  display.print(namaKelasSingkat[idxKelas]);
-  display.setCursor(0, 38);
-  display.print(namaJenisSingkat[idxJenis]);
+  if (modeApp) {
+    display.print("P"); display.print(infoPotongan);
+    display.print("  T"); display.print(infoTitik);
+    display.print("  "); display.print(namaJenisSingkat[idxJenis]);
 
-  display.setTextSize(1);
-  display.setCursor(75, 25);
-  display.print(jumlahTersimpan[idxKelas][idxJenis]);
-  display.print("/");
-  display.print(target);
+    display.setTextSize(2);
+    display.setCursor(0, 13);
+    display.print(namaKelasSingkat[idxKelas]);
 
-  display.setCursor(0, 56);
-  display.println("Tahan sedang = ambil");
+    display.setTextSize(1);
+    display.setCursor(0, 34);
+    display.print("UMUR DAGING");
+
+    char buf[16];
+    if (infoUmurDetik < 0) {
+      snprintf(buf, sizeof(buf), "--");
+    } else {
+      long u = infoUmurDetik + (long)((millis() - infoWaktuMs) / 1000UL);
+      long h = u / 3600, m = (u % 3600) / 60, d = u % 60;
+      if (h > 0) snprintf(buf, sizeof(buf), "%ldj%02ldm%02lds", h, m, d);
+      else       snprintf(buf, sizeof(buf), "%ldm%02lds", m, d);
+    }
+    display.setTextSize(2);
+    display.setCursor(0, 46);
+    display.print(buf);
+  } else {
+    int target = (idxJenis == 0) ? TARGET_LATIH : TARGET_UJI;
+    display.println("BeefFresh tekan=ganti");
+
+    display.setTextSize(2);
+    display.setCursor(0, 18);
+    display.print(namaKelasSingkat[idxKelas]);
+    display.setCursor(0, 38);
+    display.print(namaJenisSingkat[idxJenis]);
+
+    display.setTextSize(1);
+    display.setCursor(75, 25);
+    display.print(jumlahTersimpan[idxKelas][idxJenis]);
+    display.print("/");
+    display.print(target);
+
+    display.setCursor(0, 56);
+    display.println("Tahan sedang = ambil");
+  }
   display.display();
 }
 
@@ -384,6 +422,7 @@ void ambilSampelSesuaiPilihan() {
 //   PING            -> balas "PONG"
 //   AMBIL <k> <j>   -> ambil 1 sampel; k=0 segar,1 mulai,2 busuk; j=0 latih,1 uji
 //   KALIB           -> kalibrasi ulang (kertas putih harus sudah di depan sensor)
+//   INFO k j p t u  -> isi layar: kelas 0-2, jenis 0-1, potongan, titik, umur daging (detik; -1 = belum diatur)
 // Tombol BOOT di alat tetap berfungsi seperti biasa.
 // ============================================================
 void prosesPerintah(String cmd) {
@@ -406,6 +445,16 @@ void prosesPerintah(String cmd) {
     Serial.print(Bwhite, 0); Serial.print(",");
     Serial.println(namaGain[gainIndexTersimpan]);
     Serial.println("SELESAI,KALIB");
+  } else if (cmd.startsWith("INFO")) {
+    int k = -1, j = -1, p = 0, t = 0; long u = -1;
+    if (sscanf(cmd.c_str(), "INFO %d %d %d %d %ld", &k, &j, &p, &t, &u) >= 4 && k >= 0 && k <= 2 && j >= 0 && j <= 1) {
+      modeApp = true;
+      pilihanAktif = k * 2 + j;       // tombol BOOT (tekan sedang) ikut memakai kelas/jenis dari aplikasi
+      infoPotongan = p; infoTitik = t; infoUmurDetik = u; infoWaktuMs = millis();
+      tampilkanLayarUtama();
+    } else {
+      Serial.println("ERR,perintah INFO tidak valid");
+    }
   } else if (cmd.length() > 0) {
     Serial.println("ERR,perintah tidak dikenal");
   }
@@ -464,6 +513,7 @@ unsigned long waktuMulaiTekan = 0;
 
 void loop() {
   cekPerintahSerial();
+  if (modeApp && !sedangDitekan && millis() - terakhirGambar >= 1000) tampilkanLayarUtama();   // detik umur berjalan
   bool statusTombol = (digitalRead(PIN_TOMBOL) == LOW); // true = sedang ditekan
 
   if (statusTombol && !sedangDitekan) {
@@ -487,9 +537,11 @@ void loop() {
       // Tekan sedang -> ambil sampel
       ambilSampelSesuaiPilihan();
     } else {
-      // Tekan singkat -> pindah pilihan
-      pilihanAktif = (pilihanAktif + 1) % 6;
-      tampilkanLayarUtama();
+      // Tekan singkat -> pindah pilihan (hanya mode mandiri; di mode aplikasi pilihan diatur dari aplikasi)
+      if (!modeApp) {
+        pilihanAktif = (pilihanAktif + 1) % 6;
+        tampilkanLayarUtama();
+      }
     }
   }
 }

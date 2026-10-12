@@ -11,7 +11,7 @@ from datetime import datetime
 import serial
 from PySide6.QtCore import QDateTime, QObject, QPointF, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import QBrush, QColor, QFont, QFontDatabase, QKeySequence, QPainter, QPen, QPolygonF, QShortcut
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QButtonGroup, QCheckBox, QComboBox, QDateTimeEdit, QDialog, QFrame,
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QButtonGroup, QCheckBox, QComboBox, QDateTimeEdit, QDialog, QFileDialog, QFrame,
                                QGridLayout, QHBoxLayout, QScrollArea, QHeaderView, QLabel, QMessageBox, QProgressBar, QPushButton, QTableWidget,
                                QTableWidgetItem, QToolTip, QVBoxLayout, QWidget)
 
@@ -285,6 +285,7 @@ class Jendela(QWidget):
         self.titik_max = int(cfg.get("titik", TITIK_DEFAULT))
         self.kelas_i, self.potongan, self.titik = 0, 1, 1
         self.pending = None
+        self._info_kunci = None
         self.timer_sibuk = QTimer(self, singleShot=True); self.timer_sibuk.timeout.connect(self.timeout)
         self.bangun()
         self.io = SerialIO(port)
@@ -343,6 +344,7 @@ class Jendela(QWidget):
             self.lbl_umur.setText(f"{koma(self.umur_jam())} jam"); self.lbl_nol.setText(f"= {durasi(self.umur_jam())}   ·   nol: {self.t0:%d %b %Y, %H:%M}")
         else:
             self.lbl_umur.setText("— jam"); self.lbl_nol.setText("waktu nol belum diatur")
+        self.kirim_info(force=True)   # sinkron ulang umur ke OLED (tiap 30 dtk + saat waktu nol berubah)
 
     def dialog_waktu_nol(self):
         d = QDialog(self); d.setWindowTitle("Waktu nol daging"); v = QVBoxLayout(d); v.setSpacing(10)
@@ -423,7 +425,8 @@ class Jendela(QWidget):
 
         rail.addWidget(garis()); rail.addSpacing(8); rail.addWidget(teks_kecil("ALAT & DATA")); rail.addSpacing(2)
         for teks, fn in (("Kalibrasi putih…", self.kalibrasi), ("Waktu nol daging…", self.dialog_waktu_nol),
-                         ("Batalkan sampel terakhir", self.batalkan), ("Reset data uji coba…", self.reset_data)):
+                         ("Batalkan sampel terakhir", self.batalkan), ("Ekspor Excel (.xlsx)…", self.ekspor_dialog),
+                         ("Reset data uji coba…", self.reset_data)):
             b = QPushButton(teks); b.setFocusPolicy(Qt.NoFocus); b.setCursor(Qt.PointingHandCursor); b.setFixedHeight(26); b.clicked.connect(fn); rail.addWidget(b)
         rail_w = QWidget(); rail_w.setLayout(rail); rail_w.setFixedWidth(250)
         body.addWidget(rail_w); body.addSpacing(22); body.addWidget(garis(True)); body.addSpacing(22)
@@ -477,6 +480,61 @@ class Jendela(QWidget):
     @property
     def jenis_i(self):
         return 1 if self.potongan in POTONGAN_UJI else 0
+
+    def kirim_info(self, force=False):
+        """Kirim isi layar OLED: kelas, jenis, potongan, titik, umur daging (detik). Alat menambah detiknya sendiri."""
+        io = getattr(self, "io", None)
+        if not io or not io.ser: return
+        kunci = (self.kelas_i, self.jenis_i, self.potongan, self.titik, self.t0)
+        if not force and kunci == self._info_kunci: return
+        self._info_kunci = kunci
+        umur = int((datetime.now() - self.t0).total_seconds()) if self.t0 else -1
+        io.kirim(f"INFO {self.kelas_i} {self.jenis_i} {self.potongan} {self.titik} {umur}")
+
+    def ekspor_xlsx(self, path):
+        from openpyxl import Workbook
+        from openpyxl.styles import Alignment, Font, PatternFill
+        from openpyxl.utils import get_column_letter
+
+        def angka(v, tipe=float):
+            try: return tipe(v)
+            except (TypeError, ValueError): return None
+        wb = Workbook(); ws = wb.active; ws.title = "Data"; ws.append(HEADER)
+        for r in self.rows:
+            try: waktu = datetime.fromisoformat(r[7]) if r[7] else None
+            except ValueError: waktu = None
+            ws.append([angka(r[0], int), angka(r[1]), angka(r[2]), angka(r[3]), angka(r[4]), r[5], r[6], waktu, angka(r[8], int), angka(r[9], int)])
+        for c in ws[1]:
+            c.font = Font(bold=True, color="0D1024"); c.fill = PatternFill("solid", fgColor="ECD092"); c.alignment = Alignment(horizontal="center")
+        for row in ws.iter_rows(min_row=2):
+            row[1].number_format = "0.00"
+            for c in row[2:5]: c.number_format = "0.00"
+            row[7].number_format = "yyyy-mm-dd hh:mm:ss"
+        for i, lebar in enumerate((6, 9, 10, 10, 10, 18, 12, 20, 11, 8), 1): ws.column_dimensions[get_column_letter(i)].width = lebar
+        ws.freeze_panes = "A2"; ws.auto_filter.ref = ws.dimensions
+        rg = wb.create_sheet("Ringkasan"); rg.append(["Kelas", "Jumlah latih", "Jumlah uji", "Rata-rata R (latih)", "Rata-rata G (latih)", "Rata-rata B (latih)"])
+        for nk, _, _ in KELAS:
+            latih = [x for x in self.rows if x[5] == nk and x[6] == "latih"]
+            def rata(i): return round(sum(float(x[i]) for x in latih) / len(latih), 2) if latih else None
+            rg.append([nk, len(latih), sum(1 for x in self.rows if x[5] == nk and x[6] == "uji"), rata(2), rata(3), rata(4)])
+        for c in rg[1]:
+            c.font = Font(bold=True, color="0D1024"); c.fill = PatternFill("solid", fgColor="ECD092")
+        for i, lebar in enumerate((18, 14, 12, 20, 20, 20), 1): rg.column_dimensions[get_column_letter(i)].width = lebar
+        wb.save(path)
+
+    def ekspor_dialog(self):
+        if not self.rows:
+            self.status("Belum ada data untuk diekspor", WARN); return
+        awal = os.path.join(os.path.dirname(os.path.abspath(self.csv_path)), f"data_beeffresh_{datetime.now():%Y%m%d_%H%M}.xlsx")
+        path, _ = QFileDialog.getSaveFileName(self, "Ekspor ke Excel", awal, "Excel (*.xlsx)")
+        if not path: return
+        if not path.lower().endswith(".xlsx"): path += ".xlsx"
+        try:
+            self.ekspor_xlsx(path); self.status(f"Diekspor {len(self.rows)} sampel: {path}", OK)
+        except ImportError:
+            self.status("Pustaka openpyxl belum terpasang. Jalankan jalankan.bat / jalankan.sh lagi.", BAD)
+        except Exception as e:
+            self.status(f"Ekspor gagal: {e}", BAD)
 
     def toggle_penuh(self):
         self.showNormal() if self.isFullScreen() else self.showFullScreen()
@@ -603,8 +661,9 @@ class Jendela(QWidget):
                 self.set_sibuk(False); self.status("Alat restart sendiri di tengah proses. Periksa kabel USB, lalu ulangi.", BAD)
             elif line == "SIAP":
                 self.status("Alat siap", OK)
+            if line == "SIAP": self.kirim_info(force=True)   # alat baru boot: isi ulang layarnya
         elif line == "PONG":
-            self.status("Alat siap", OK)
+            self.status("Alat siap", OK); self.kirim_info(force=True)
 
     # --- tampilan
     def refresh(self):
@@ -632,6 +691,7 @@ class Jendela(QWidget):
         self.lbl_pisah.setText("Keterpisahan kelas (skor kasar, ≥3 sampel per kelas):   " + (
             "     ".join(f"{a} ↔ {b}: {koma(s, 1)} ({lab})" for a, b, s, lab in ps) if ps else "belum cukup data"))
         self.lbl_file.setText(f"{len(self.rows)} sampel  ·  {self.csv_path}")
+        self.kirim_info()
 
 
 def main():

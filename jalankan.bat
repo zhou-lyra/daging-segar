@@ -9,7 +9,7 @@ if not exist .venv\Scripts\python.exe (
 )
 if not exist .venv\Scripts\python.exe goto :nopython
 
-.venv\Scripts\python -c "import serial, PySide6" >nul 2>&1
+.venv\Scripts\python -c "import serial, PySide6, openpyxl" >nul 2>&1
 if errorlevel 1 (
   echo Memasang PySide6 dan pyserial ^(sekitar 260 MB, butuh internet^). Mohon tunggu...
   .venv\Scripts\python -m pip install --upgrade pip

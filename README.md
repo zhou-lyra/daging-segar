@@ -5,7 +5,7 @@ Akuisisi data warna daging (TCS34725 + ESP32 + OLED) untuk klasifikasi segar / m
 ```
 ./jalankan.sh        # aplikasi Qt6 (tema Zhou Lyra): tombol, tabel, grafik sebaran -> data_beeffresh.csv
 ```
-Rancangan: 1 daging dipotong 12 (potongan 1-9 = LATIH, 10-12 = UJI, agar tidak ada kebocoran data), tiap potongan diukur di beberapa titik (default 4, bisa 2-8). Setelah tiap sampel, pilihan maju otomatis ke titik/potongan berikutnya.
+Rancangan: 1 daging dipotong 12 (potongan 1-9 = LATIH, 10-12 = UJI, agar tidak ada kebocoran data), tiap potongan diukur di beberapa titik (default 4, bisa 2-8). Data tersimpan otomatis ke CSV tiap sampel; tombol 'Ekspor Excel (.xlsx)' membuat berkas Excel (lembar Data + Ringkasan). Setelah tiap sampel, pilihan maju otomatis ke titik/potongan berikutnya.
 Pintasan: Spasi = ambil, 1/2/3 = kelas, panah atas/bawah = potongan, kiri/kanan = titik, Ctrl+Z = batalkan terakhir. 'Reset data uji coba' mengosongkan CSV dan menyimpan cadangannya di arsip/.
 Grafik: sebaran RGB per kelas + skor keterpisahan kelas (heuristik kasar). Venv: .venv (PySide6, pyserial). Tombol BOOT di alat tetap berfungsi.
 Jam_Ke = umur daging (jam sejak 'waktu nol', dari jam laptop; diatur lewat tombol di aplikasi, tersimpan di waktu_nol.json). Kolom Waktu = cap waktu asli.
@@ -16,7 +16,7 @@ Sebelum mulai / kalau cahaya berubah: tombol "Kalibrasi ulang" dengan kertas put
 arduino-cli compile --fqbn esp32:esp32:esp32doit-devkit-v1 Data_Latih_Uji
 arduino-cli upload  --fqbn esp32:esp32:esp32doit-devkit-v1 -p /dev/ttyUSB0 Data_Latih_Uji
 ```
-Perintah serial 115200: `PING`, `AMBIL <kelas 0-2> <jenis 0-1>`, `KALIB`. Keluaran tetap berformat PLX-DAQ (`DATA,...`).
+Perintah serial 115200: `PING`, `AMBIL <kelas 0-2> <jenis 0-1>`, `KALIB`, `INFO <kelas> <jenis> <potongan> <titik> <umur_detik>` (mengisi layar OLED: kelas, potongan, titik, jenis, umur daging yang berjalan tiap detik; dikirim otomatis oleh aplikasi). Keluaran tetap berformat PLX-DAQ (`DATA,...`).
 Wiring: SDA=GPIO26, SCL=GPIO27, OLED 0x3C, TCS34725 0x29, LED GPIO25.
 
 Target: 48 latih + 12 uji per kelas. `arsip/` = data uji coba, bukan dataset.
