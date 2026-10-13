@@ -14,7 +14,7 @@ yang ditempelkan ke permukaan daging. Satuan mm.
 | `beeffresh_tutup.stl` | tutup + jendela OLED | 1 | sudah benar (sisi atas di meja) |
 | `beeffresh_tabung_D5/D8/D11.stl` | tabung gelap, jarak chip→ujung tabung 5 / 8 / 11 mm | 1 tiap ukuran | sudah benar (flens di meja) |
 | `beeffresh_kupon_uji.stl` | bingkai uji pas ESP32, OLED, sensor + dinding lubang USB | 1 | rata |
-| `pratinjau_*.png` | gambar rakitan (utuh, terbuka, tampak bawah) | | |
+| `../gambar/*.png`, `../gambar/viewer_3d.html` | gambar rakitan dan penampil 3D yang bisa diputar (buka HTML-nya di peramban) | | |
 
 Tiga tabung dicetak untuk **mencari jarak terbaik** (rekomendasi modul 3–10 mm; D11 sedikit di luar rentang itu sebagai pembanding).
 Ukuran badan: **87,6 × 33,6 × 35,5 mm** (tutup terpasang) + tabung 1,6–7,6 mm di bawah. Tanpa penyangga (support).

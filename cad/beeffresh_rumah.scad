@@ -269,6 +269,19 @@ else if (part == "assembly_open") {   // tanpa tutup, untuk melihat susunan di d
   color("#2e9e4f") ghost_esp();
   color("#c9974a") ghost_tcs();
 }
+else if (part == "assembly_cut") {    // potongan memanjang di tengah lebar, untuk melihat susunan dalam
+  difference() {
+    union() {
+      color("#2b2b30") base_final();
+      color("#3a3a42") translate([0, 0, z_cav_top]) lid();
+      color("#111") translate([tube_cx, tube_cy, 0]) tube();
+      color("#2e9e4f") ghost_esp();
+      color("#4a7bd0") ghost_oled();
+      color("#c9974a") ghost_tcs();
+    }
+    translate([-20, -20, -20]) cube([outL + 40, inW/2 + 20, 120]);
+  }
+}
 else if (part == "assembly") {
   color("#2b2b30") base_final();
   color("#3a3a42", 0.85) translate([0, 0, z_cav_top]) lid();
