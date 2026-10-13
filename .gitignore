@@ -6,3 +6,7 @@ data_beeffresh.csv
 waktu_nol.json
 arsip/
 *.tmp
+
+# model 3D: lingkungan uji dan keluaran antara
+.venv-cad/
+cad/stl/

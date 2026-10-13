@@ -31,3 +31,6 @@ Target: 48 latih + 12 uji per kelas. `arsip/` = data uji coba, bukan dataset.
 ## Lisensi
 Kode: MIT (lihat LICENSE). Font Cormorant Garamond dan Manrope di `assets/fonts/` berlisensi SIL Open Font License (OFL-*.txt).
 Data pengukuran (`data_beeffresh.csv`, `waktu_nol.json`, `arsip/`) tidak disertakan di repositori.
+
+## Rumah alat (model 3D)
+`cad/` berisi model OpenSCAD parametrik rumah alat (ESP32 + OLED + sensor + tabung gelap), berkas STL siap cetak, dan pemeriksa otomatis. Baca `cad/README.md`. Ukuran komponen masih standar/perkiraan: ukur dulu, lalu cetak kupon uji pas.
