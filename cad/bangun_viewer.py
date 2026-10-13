@@ -28,6 +28,8 @@ data = {k: base64.b64encode(stl_biner(p)).decode() for k, _, p, _, _, _ in BAGIA
 scene = trimesh.Scene()
 for k, l, p, c, a, _ in BAGIAN:
     m = trimesh.load(os.path.join(HERE, 'stl', p + '.stl')); rgba = [int(c[i:i+2], 16)/255 for i in (1, 3, 5)] + [a]
+    # glTF: satuan METER dan sumbu atas Y. Modelku: milimeter, sumbu atas Z. Konversi: (x,y,z)->(x,z,-y), lalu x0,001.
+    m.apply_transform(trimesh.transformations.rotation_matrix(-np.pi/2, [1, 0, 0])); m.apply_scale(0.001)
     m.visual = trimesh.visual.TextureVisuals(material=trimesh.visual.material.PBRMaterial(name=l, baseColorFactor=rgba, metallicFactor=0.0, roughnessFactor=0.8, alphaMode='BLEND' if a < 1 else 'OPAQUE'))
     scene.add_geometry(m, node_name=l, geom_name=l)
 os.makedirs(os.path.join(HERE, 'model-3d'), exist_ok=True)

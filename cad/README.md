@@ -16,6 +16,7 @@ yang ditempelkan ke permukaan daging. Satuan mm.
 | `beeffresh_kupon_uji.stl` | bingkai uji pas ESP32, OLED, sensor + dinding lubang USB | 1 | rata |
 | `../gambar/*.png`, `../gambar/viewer_3d.html` | gambar rakitan dan penampil 3D yang bisa diputar (buka HTML-nya di peramban) | | |
 | `../model-3d/beeffresh_rakitan.glb` | seluruh rakitan, tiap bagian objek terpisah berwarna; **buka di Blender**: File → Import → glTF 2.0 | | |
+| `../model-3d/beeffresh_rakitan.blend` | adegan Blender siap pakai (kamera, lampu, objek bernama, **modifier Boolean "Potong"** mati: nyalakan ikon monitor di tiap objek untuk melihat isi) | | |
 
 Tiga tabung dicetak untuk **mencari jarak terbaik** (rekomendasi modul 3–10 mm; D11 sedikit di luar rentang itu sebagai pembanding).
 Ukuran badan: **87,6 × 33,6 × 35,5 mm** (tutup terpasang) + tabung 1,6–7,6 mm di bawah. Tanpa penyangga (support).
@@ -78,3 +79,9 @@ Semua bagian berbentuk tertutup (siap cetak); tidak ada tabrakan ESP32/OLED/sens
 - Akses tombol **BOOT/EN** tidak dibuat: perlu posisi tombol pada boardmu. Selama aplikasi desktop dipakai, tombol itu tidak diperlukan.
 - Kebocoran cahaya di sambungan tutup, papan sensor, dan tabung: tutup dengan pita/busa hitam bila ternyata bocor (cek: angka sensor berubah saat lampu ruangan dimatikan).
 - Badan setinggi 35 mm dengan dasar rata 4,6 mm di atas daging: permukaan daging yang cembung bisa menyentuh bagian bawah badan.
+
+## Gambar dan Blender
+- `gambar/*.png`: render Blender (Cycles, 48 sampel): utuh, terbuka dari atas, potongan samping, urai, tampak bawah.
+- Membuat ulang: `blender -b -P blender/render.py -- model-3d/beeffresh_rakitan.glb gambar 48` (Blender 4.5 LTS; tersedia versi portabel tanpa sudo di blender.org).
+- `blender/cek_impor.py` dan `blender/cek_blend.py` memeriksa GLB/.blend (ukuran harus 87,6 x 33,6 x 40,1 mm, tegak).
+- GLB dikonversi dari milimeter + sumbu Z-atas ke meter + sumbu Y-atas (`bangun_viewer.py`), kalau tidak model terbuka 1000x lebih besar dan rebah.
