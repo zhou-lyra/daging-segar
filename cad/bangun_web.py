@@ -30,11 +30,37 @@ daging = trimesh.creation.box(extents=[dx, dy, tebal]); daging.apply_translation
 titik = trimesh.creation.cylinder(radius=tube_od / 2 + 0.2, height=0.3, sections=48); titik.apply_translation([tcx, tcy, ztip + 0.05])
 M["daging"], M["titik"] = daging, titik
 
+# ---- jalur kabel (contoh skematis: 4 kabel dari ESP32 ke OLED dan ke sensor)
+def kabel(titik_, r=0.7):
+    bagian = []
+    for a, b in zip(titik_[:-1], titik_[1:]):
+        bagian.append(trimesh.creation.cylinder(radius=r, segment=[a, b], sections=12))
+    for q in titik_:
+        bola = trimesh.creation.icosphere(radius=r, subdivisions=1); bola.apply_translation(q); bagian.append(bola)
+    return trimesh.util.concatenate(bagian)
+ob, tb = M["oled"].bounds, M["tcs"].bounds
+ocx = (ob[0][0] + ob[1][0]) / 2; scy = (tb[0][1] + tb[1][1]) / 2
+KABEL = [  # (kunci, sinyal, warna, pin ESP32, pin OLED, urutan di OLED, pin sensor, urutan di sensor)
+ ("w_vcc", "Daya 3,3 V", "#e0245e", "3V3", "VCC", 1, "VIN", 0), ("w_gnd", "Tanah (GND)", "#2b2b2b", "GND", "GND", 0, "GND", 1),
+ ("w_scl", "Clock I2C (SCL)", "#8e44ad", "GPIO 27", "SCL", 2, "SCL", 2), ("w_sda", "Data I2C (SDA)", "#e67e22", "GPIO 26", "SDA", 3, "SDA", 3)]
+zesp, zoled_pin, zs_pin = float(M["esp"].bounds[1][2]) - 0.2, float(ob[0][2]) - 0.1, float(tb[1][2]) + 0.2
+bw = []
+for key, nm, wr, pe, po, io, ps, js_ in KABEL:
+    xo = ocx + (io - 1.5) * 2.54; ys = scy + (js_ - 1.5) * 2.54
+    ke_oled = [[xo, 3.0, zesp + 0.3], [xo, 5.2, zesp + 1.2], [xo, 3.0, zoled_pin]]
+    ke_sensor = [[47.0, ys, zesp + 0.3], [55.0, ys, zesp + 0.3], [55.0, ys, 9.0], [60.0, ys, 9.0], [60.0, ys, zs_pin]]
+    M[key] = trimesh.util.concatenate([kabel(ke_oled), kabel(ke_sensor)])
+allw = trimesh.util.concatenate([M[k[0]] for k in KABEL]); wb = allw.bounds
+TABEL = [dict(sinyal=nm, warna=wr, esp=pe, oled=po, sensor=ps) for key, nm, wr, pe, po, io, ps, js_ in KABEL]
+
 def pusat(k): b = M[k].bounds; return ((b[0] + b[1]) / 2).tolist()
 def atas(k): b = M[k].bounds; return [(b[0][0] + b[1][0]) / 2, (b[0][1] + b[1][1]) / 2, b[1][2]]
 def ukuran(k): b = M[k].bounds; return [round(float(v), 1) for v in (b[1] - b[0])]
 
 INFO = [
+ dict(k="kabel", nama="Kabel", warna="#e0245e", alpha=1.0, jangkar=[ocx, 5.2, zesp + 1.2], urai=0, tampil=True, virtual=True,
+      judul="Jalur kabel (contoh)", ringkas="4 kabel: daya, tanah, dan dua jalur data.",
+      teks="Hanya empat kabel yang dibutuhkan. Kabel yang sama dibagi ke OLED dan sensor (paralel), dan semuanya disolder langsung ke pin modul, tanpa PCB. Jalur di gambar adalah contoh skematis: posisi pin di papanmu bisa berbeda, tetapi sambungannya sama. Kabel hanya terlihat saat 'Urai' = 0."),
  dict(k="daging", nama="Daging", warna="#c0392b", alpha=1.0, jangkar=[tcx+dx*0.2, tcy-dy*0.38, ztip], urai=-0.55, tampil=True,
       judul="Daging yang diperiksa", ringkas="Diletakkan di bawah alat, bukan di dalam kotak.",
       teks=f"Taruh daging di permukaan yang rata, misalnya talenan atau piring. Lingkaran merah muda adalah titik yang disentuh ujung tabung ({tube_od:.0f} mm). Pilih bagian yang datar, tidak berlemak tebal, tanpa genangan darah, dan selalu bagian yang sama setiap kali. Balok merah di gambar hanya contoh, bukan bentuk daging sebenarnya."),
@@ -61,10 +87,12 @@ INFO = [
 LANGKAH = ["Letakkan daging di permukaan rata.", "Tempelkan ujung tabung ke daging, ringan dan tegak lurus, tanpa menekan sampai cekung.",
            "Alat membaca warna, hasilnya muncul di layar OLED dan di komputer.", "Ulangi di titik yang sama setiap kali agar hasilnya bisa dibandingkan."]
 
-data = {i["k"]: stl_b64(M[i["k"]]) for i in INFO}
-for i in INFO: i["ukuran"] = ukuran(i["k"])
+for key, nm, wr, pe, po, io, ps, js_ in KABEL:
+    INFO.append(dict(k=key, nama=nm, warna=wr, alpha=1.0, jangkar=None, urai=0, tampil=True, judul="", ringkas="", teks=""))
+data = {i["k"]: stl_b64(M[i["k"]]) for i in INFO if not i.get("virtual")}
+for i in INFO: i["ukuran"] = ukuran(i["k"]) if not i.get("virtual") else [round(float(v), 1) for v in (wb[1] - wb[0])]
 
 HTML = open(os.path.join(HERE, "web_template.html")).read()
-HTML = HTML.replace("__INFO__", json.dumps(INFO)).replace("__DATA__", json.dumps(data)).replace("__LANGKAH__", json.dumps(LANGKAH, ensure_ascii=False))
+HTML = HTML.replace("__INFO__", json.dumps(INFO)).replace("__DATA__", json.dumps(data)).replace("__LANGKAH__", json.dumps(LANGKAH, ensure_ascii=False)).replace("__TABEL__", json.dumps(TABEL, ensure_ascii=False))
 out = os.path.join(HERE, "gambar", "beeffresh_3d.html"); open(out, "w").write(HTML)
 print(f"ditulis {out} ({len(HTML)//1024} KB) | jarak papan sensor->ujung tabung {jarak} mm | tabung ({tcx:.1f},{tcy:.1f}) ujung z={ztip:.1f}")
