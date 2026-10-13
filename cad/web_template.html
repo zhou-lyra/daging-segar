@@ -21,6 +21,7 @@
  input[type=range]{width:150px;accent-color:var(--red)} input[type=checkbox]{width:17px;height:17px;accent-color:var(--red)}
   table{width:100%;border-collapse:collapse;font-size:15px}th{text-align:left;color:var(--mut);font-weight:600;font-size:13px;padding:0 6px 6px}td{padding:6px;border-top:1px solid var(--line)}
  td i{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:7px;border:1px solid rgba(0,0,0,.2)}
+ .tag{position:absolute;display:none;padding:1px 7px;border-radius:6px;font-size:14px;font-weight:700;background:#fff;border:2px solid;white-space:nowrap;pointer-events:none;box-shadow:0 1px 4px rgba(0,0,0,.18)}
  .hint{margin:8px 2px 0;color:var(--mut);font-size:14px}
  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px;box-shadow:0 1px 3px rgba(60,40,30,.05)}
  h2{margin:0 0 10px;font-size:19px} h3{margin:0 0 4px;font-size:21px}
@@ -43,15 +44,15 @@
   <p class="hint">Seret untuk memutar · roda mouse untuk zoom · Shift + seret untuk menggeser · klik label untuk penjelasan.</p><div id="err"></div></section>
  <aside id="side">
   <div class="card" id="info"></div>
-  <div class="card"><h2>Jalur kabel</h2><table id="tab"></table><p class="meta" style="margin-top:8px">Sambungan paralel: kabel yang sama dibagi ke OLED dan sensor. Disolder langsung ke pin modul.</p></div>
+  <div class="card"><h2>Jalur kabel</h2><table id="tab"></table><p class="meta" style="margin-top:8px">Kabel disambung berantai: ESP32 → OLED → sensor, disolder langsung ke pin. Di sensor, pin 3V3, INT, dan LED tidak dipakai (LED dibiarkan kosong).</p></div>
   <div class="card"><h2>Bagian-bagian</h2><div id="list"></div></div>
   <div class="card"><h2>Cara memakai</h2><ol class="st" id="steps"></ol></div>
   <div class="note"><b>Catatan:</b> komponen di model ini adalah benda tiruan berukuran standar, dan daging hanya balok contoh. Rancangan belum dicetak dan belum diuji dengan daging sungguhan.</div>
  </aside>
 </main>
 <script>
-const INFO=__INFO__, DATA=__DATA__, LANGKAH=__LANGKAH__, TABEL=__TABEL__;
-const GROUP={kabel:['w_vcc','w_gnd','w_scl','w_sda']};
+const INFO=__INFO__, DATA=__DATA__, LANGKAH=__LANGKAH__, TABEL=__TABEL__, TAGS=__TAGS__, WC=__WC__;
+const GROUP={kabel:['w_vcc','w_gnd','w_scl','w_sda','w_pin','w_hdr']};
 const ORDER=['tutup','oled','esp','base','tcs','tabung','kabel','daging'];
 const cv=document.getElementById('c'), gl=cv.getContext('webgl',{antialias:true,alpha:true,premultipliedAlpha:false});
 if(!gl)document.getElementById('err').textContent='WebGL tidak tersedia di tampilan ini.';
@@ -78,14 +79,16 @@ const tools=document.getElementById('tools');
 function grp(h){const d=document.createElement('div');d.className='grp';d.innerHTML=h;tools.appendChild(d);return d}
 function fit(d){const a=cv.clientWidth/cv.clientHeight;return size*d*Math.max(1,1.35/a)}
 function view(y,p,d){yaw=y;pit=p;dist=fit(d);draw()}
-const gv=grp('Sudut pandang');for(const [t,y,p,d] of [['Atas',0,1.45,2.1],['Samping',0,0.05,1.8],['Bawah',-0.7,-0.9,2.4],['Isometrik',-0.7,0.5,1.8]]){const b=document.createElement('button');b.textContent=t;b.onclick=()=>view(y,p,d);gv.appendChild(b)}
+function fokus(){yaw=0;pit=1.15;dist=fit(0.8);pan=[WC[0]-ctr[0],WC[1]-ctr[1],WC[2]-ctr[2]];expl=0;ex.querySelector('input').value=0;draw()}
+const gv=grp('Sudut pandang');for(const [t,y,p,d] of [['Fokus kabel',null],['Atas',0,1.45,2.1],['Samping',0,0.05,1.8],['Bawah',-0.7,-0.9,2.4],['Isometrik',-0.7,0.5,1.8]]){const b=document.createElement('button');b.textContent=t;b.onclick=()=>{if(y===null){select('kabel');if(sel!=='kabel')select('kabel');fokus()}else{pan=[0,0,-size*0.1];view(y,p,d)}};gv.appendChild(b)}
 const cs=grp('Potong <select><option value="-1">mati</option><option value="0">memanjang (X)</option><option value="1">melebar (Y)</option><option value="2">mendatar (Z)</option></select><input type="range" min="0" max="1000" value="500"><label style="font-weight:400"><input type="checkbox"> balik</label>');
 const se=cs.querySelector('select'),sl=cs.querySelector('input[type=range]'),fl=cs.querySelector('input[type=checkbox]');
 function setCut(){cutAx=+se.value;if(cutAx>=0)cutPos=mn[cutAx]+(mx[cutAx]-mn[cutAx])*(sl.value/1000);cutFlip=fl.checked?1:0;draw()}
 se.onchange=()=>{sl.value=500;setCut()};sl.oninput=setCut;fl.onchange=setCut;
 const ex=grp('Urai <input type="range" min="0" max="100" value="0">');ex.querySelector('input').oninput=e=>{expl=e.target.value/100;draw()};
 const list=document.getElementById('list'),info=document.getElementById('info'),labs=document.getElementById('labs');
-const rows={},labEl={};
+const rows={},labEl={},tagEl=[];
+TAGS.forEach((g,i)=>{const e=document.createElement('div');e.className='tag';e.textContent=g.t;e.style.borderColor=g.c;labs.appendChild(e);tagEl.push(e)});
 ORDER.forEach((k,i)=>{const m=INFO.find(x=>x.k===k),n=i+1;
  const r=document.createElement('div');r.className='row';r.innerHTML='<em style="background:'+m.warna+'">'+n+'</em><span>'+m.nama+'<small>'+m.ringkas+'</small></span><input type="checkbox" checked title="Tampilkan / sembunyikan">';
  r.querySelector('input').onclick=e=>{e.stopPropagation();parts[k].on=e.target.checked;if(k==='daging')parts.titik.on=e.target.checked;for(const w of (GROUP[k]||[]))parts[w].on=e.target.checked;draw()};
@@ -96,6 +99,7 @@ function select(k){sel=(sel===k)?null:k;
   parts[q].alpha=(sel&&q!==sel)?Math.min(parts[q].a0,0.12):parts[q].a0}
  parts.titik.alpha=(sel&&sel!=='daging')?0.12:1;
  for(const w of GROUP.kabel)parts[w].alpha=(sel&&sel!=='kabel')?0.12:1;
+ if(sel==='kabel')fokus();
  const m=INFO.find(x=>x.k===sel);
  info.innerHTML=m?('<h3>'+m.judul+'</h3><p class="lead">'+m.ringkas+'</p><p class="body">'+m.teks+'</p><p class="meta">Ukuran: '+m.ukuran.map(v=>v.toFixed(1)).join(' × ')+' mm</p>'):
   '<h3>Apa ini?</h3><p class="lead">Alat kecil yang menempel ke daging dan membaca warnanya.</p><p class="body">Sensor menyinari daging, lalu membaca warna yang kembali. Hasilnya muncul di layar kecil dan dikirim ke komputer. <b>Klik bagian mana pun</b> di gambar atau di daftar untuk membaca fungsinya.</p>';
@@ -130,6 +134,16 @@ function draw(){const dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clien
   for(const o of g){const ty=o.ty;const w=o.l.offsetWidth;
    o.l.style.top=(ty-o.l.offsetHeight/2)+'px';o.l.style.left=side?(W-w-10)+'px':'10px';
    const ex=side?W-w-10:10+w;svg+='<line x1="'+ex+'" y1="'+ty+'" x2="'+o.x+'" y2="'+o.y+'" stroke="'+o.m.warna+'" stroke-width="1.6" opacity=".75"/><circle cx="'+o.x+'" cy="'+o.y+'" r="4.5" fill="#fff" stroke="'+o.m.warna+'" stroke-width="2"/>'}}
+ const mostag=(sel==='kabel')&&expl<=0.02&&parts.kabel.on;
+ if(mostag)for(const k of ORDER)labEl[k].style.display='none';
+ svg=mostag?'':svg;const placed=[];
+ TAGS.forEach((g,i)=>{const e=tagEl[i];if(!mostag){e.style.display='none';return}const c=[0,1,2,3].map(r=>VP[r]*g.p[0]+VP[4+r]*g.p[1]+VP[8+r]*g.p[2]+VP[12+r]*1);if(c[3]<=0){e.style.display='none';return}
+  const ax=(c[0]/c[3]*0.5+0.5)*W,ay=(1-(c[1]/c[3]*0.5+0.5))*H;e.style.display='block';e.style.transform='none';const w=e.offsetWidth,h=e.offsetHeight;
+  let best=null;for(const [ox,oy] of [[0,-30],[0,-58],[-46,-44],[46,-44],[0,30],[-60,-70],[60,-70],[0,-86],[0,58],[-70,0],[70,0]]){let x=Math.min(Math.max(ax+ox-w/2,4),W-w-4),y=Math.min(Math.max(ay+oy-h/2,4),H-h-4);
+   if(!placed.some(q=>x<q[0]+q[2]+3&&q[0]<x+w+3&&y<q[1]+q[3]+3&&q[1]<y+h+3)){best=[x,y];break}}
+  if(!best)best=[Math.min(Math.max(ax-w/2,4),W-w-4),Math.min(Math.max(ay-48,4),H-h-4)];
+  placed.push([best[0],best[1],w,h]);e.style.left=best[0]+'px';e.style.top=best[1]+'px';
+  svg+='<line x1="'+(best[0]+w/2)+'" y1="'+(best[1]+h/2)+'" x2="'+ax+'" y2="'+ay+'" stroke="'+g.c+'" stroke-width="1.5"/><circle cx="'+ax+'" cy="'+ay+'" r="3" fill="'+g.c+'"/>'});
  sv.innerHTML=svg}
 let drag=null;cv.onpointerdown=e=>{drag={x:e.clientX,y:e.clientY,s:e.shiftKey};cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing'};
 cv.onpointerup=()=>{drag=null;cv.style.cursor='grab'};
