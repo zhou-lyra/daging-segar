@@ -248,6 +248,7 @@ module ghost_tcs() {
 }
 
 echo(derived = [inL, inW, outL, outW, z_cav_top, z_pcb_bot, tube_cx, tube_cy, tube_len, chip_z]);
+echo(posisi = [esp_x0, z_pcb_bot, z_pcb_top, esp_pin_down, esp_pin_row_gap, oled_cx, oled_cy, pocket_cx, pocket_cy, z_b, floor_t, wall, chamber_id, tube_od, d_ukur, esp_L, esp_W, boss_x, usb_cut_w]);
 
 // ===================== PEMILIH =====================
 if (part == "base")            base_final();
