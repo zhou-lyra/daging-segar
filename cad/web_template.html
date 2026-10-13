@@ -1,11 +1,11 @@
-<!doctype html><meta charset="utf-8">
+<!doctype html><meta charset="utf-8"><title>BeefFresh 3D</title>
 <style>
  *{box-sizing:border-box}
  body{margin:0;font:13px var(--font,system-ui);color:var(--foreground,#f6efe2)}
  #app{display:flex;flex-wrap:wrap;gap:10px;max-width:1100px}
  #stage{position:relative;flex:2 1 560px;min-width:320px}
- canvas{width:100%;height:520px;display:block;background:#0d1024;border:1px solid var(--border,#262c5a);border-radius:6px;cursor:grab;touch-action:none}
- .lab{position:absolute;transform:translate(-50%,-50%);padding:2px 7px;border-radius:10px;font-size:11px;white-space:nowrap;cursor:pointer;background:rgba(13,16,36,.82);border:1px solid;color:#f6efe2}
+ canvas{width:100%;height:max(380px,calc(100vh - 100px));display:block;background:#0d1024;border:1px solid var(--border,#262c5a);border-radius:6px;cursor:grab;touch-action:none}
+ .lab{position:absolute;padding:2px 7px;border-radius:10px;font-size:11px;white-space:nowrap;cursor:pointer;background:rgba(13,16,36,.82);border:1px solid;color:#f6efe2}
  .lab.sel{background:#f6efe2;color:#0d1024;font-weight:600}
  #side{flex:1 1 280px;min-width:260px}
  .card{border:1px solid var(--border,#262c5a);border-radius:6px;padding:10px;margin-bottom:8px;background:rgba(255,255,255,.03)}
@@ -18,7 +18,7 @@
  #err{color:#d9594c}
 </style>
 <div id="app">
- <div id="stage"><canvas id="c"></canvas><div id="labs"></div>
+ <div id="stage"><canvas id="c"></canvas><svg id="sv" style="position:absolute;left:0;top:0;width:100%;pointer-events:none"></svg><div id="labs"></div>
   <div class="bar" id="bar"></div><div class="m">Seret = putar · roda = zoom · Shift+seret = geser · klik label atau daftar untuk penjelasan.</div><div id="err"></div></div>
  <div id="side"><div class="card" id="list"></div><div class="card" id="info"></div><div class="card"><h4>Cara memakai</h4><ol id="steps"></ol></div></div>
 </div>
@@ -44,12 +44,12 @@ for(const m of INFO){const dv=new DataView(b64(DATA[m.k])),nt=dv.getUint32(80,tr
  const bn=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bn);gl.bufferData(gl.ARRAY_BUFFER,nor,gl.STATIC_DRAW);
  const c=m.warna;parts[m.k]={bp,bn,n:nt*3,on:m.tampil,alpha:m.alpha,a0:m.alpha,col:[1,3,5].map(i=>parseInt(c.slice(i,i+2),16)/255)}}
 const ctr=[0,1,2].map(i=>(mn[i]+mx[i])/2), size=Math.max(mx[0]-mn[0],mx[1]-mn[1],mx[2]-mn[2]);
-let yaw=-0.7,pit=0.5,dist=size*2.3,pan=[0,0,-size*0.12],cutAx=-1,cutPos=0,cutFlip=0,expl=0.4,sel=null;
+let yaw=-0.7,pit=0.5,dist=size*1.55,pan=[0,0,-size*0.1],cutAx=-1,cutPos=0,cutFlip=0,expl=0.4,sel=null;
 const bar=document.getElementById('bar');
 function ctl(h){const d=document.createElement('label');d.style.cssText='display:flex;gap:6px;align-items:center';d.innerHTML=h;bar.appendChild(d);return d}
 function btn(t,f){const b=document.createElement('button');b.textContent=t;b.onclick=f;bar.appendChild(b)}
 function view(y,p,d){yaw=y;pit=p;dist=size*d;draw()}
-btn('Atas',()=>view(0,1.45,2.2));btn('Samping',()=>view(0,0.05,2.3));btn('Bawah',()=>view(-0.7,-0.9,2.3));btn('Isometrik',()=>view(-0.7,0.5,2.3));
+btn('Atas',()=>view(0,1.45,1.5));btn('Samping',()=>view(0,0.05,1.6));btn('Bawah',()=>view(-0.7,-0.9,1.6));btn('Isometrik',()=>view(-0.7,0.5,1.55));
 const cs=ctl('Potong: <select><option value="-1">mati</option><option value="0">X</option><option value="1">Y</option><option value="2">Z</option></select><input type="range" min="0" max="1000" value="500" style="width:110px"><input type="checkbox">balik');
 const se=cs.querySelector('select'),sl=cs.querySelector('input[type=range]'),fl=cs.querySelector('input[type=checkbox]');
 function setCut(){cutAx=+se.value;if(cutAx>=0)cutPos=mn[cutAx]+(mx[cutAx]-mn[cutAx])*(sl.value/1000);cutFlip=fl.checked?1:0;draw()}
@@ -87,9 +87,15 @@ function draw(){const dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clien
   gl.bindBuffer(gl.ARRAY_BUFFER,p.bn);gl.enableVertexAttribArray(aN);gl.vertexAttribPointer(aN,3,gl.FLOAT,false,0,0);gl.drawArrays(gl.TRIANGLES,0,p.n)}
  gl.depthMask(true);
  const VP=mul(P,V),W=cv.clientWidth,H=cv.clientHeight;
+ const sv=document.getElementById('sv');sv.setAttribute('height',H);let ls=[],svg='';
  for(const m of INFO){if(!m.judul)continue;const l=labEl[m.k];if(!parts[m.k].on||!m.jangkar){l.style.display='none';continue}
   const q=[m.jangkar[0],m.jangkar[1],m.jangkar[2]+offz(m.k),1],c=[0,1,2,3].map(r=>VP[r]*q[0]+VP[4+r]*q[1]+VP[8+r]*q[2]+VP[12+r]*q[3]);
-  if(c[3]<=0){l.style.display='none';continue}l.style.display='';l.style.left=((c[0]/c[3]*0.5+0.5)*W)+'px';l.style.top=((1-(c[1]/c[3]*0.5+0.5))*H)+'px'}}
+  if(c[3]<=0){l.style.display='none';continue}l.style.display='';ls.push({m,l,x:(c[0]/c[3]*0.5+0.5)*W,y:(1-(c[1]/c[3]*0.5+0.5))*H})}
+ for(const side of [0,1]){const g=ls.filter(o=>(o.x>=W/2?1:0)===side).sort((a,b)=>a.y-b.y);let prev=-1e9;
+  for(const o of g){let ty=Math.max(o.y,prev+26);ty=Math.min(ty,H-16);prev=ty;const w=o.l.offsetWidth;
+   o.l.style.top=(ty-o.l.offsetHeight/2)+'px';o.l.style.left=side?(W-w-8)+'px':'8px';
+   const ex=side?W-w-8:8+w;svg+='<line x1="'+ex+'" y1="'+ty+'" x2="'+o.x+'" y2="'+o.y+'" stroke="'+o.m.warna+'" stroke-width="1" opacity=".8"/><circle cx="'+o.x+'" cy="'+o.y+'" r="3" fill="'+o.m.warna+'"/>'}}
+ sv.innerHTML=svg}
 let drag=null;cv.onpointerdown=e=>{drag={x:e.clientX,y:e.clientY,s:e.shiftKey};cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing'};
 cv.onpointerup=()=>{drag=null;cv.style.cursor='grab'};
 cv.onpointermove=e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
