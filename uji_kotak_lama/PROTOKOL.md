@@ -20,6 +20,8 @@ Tujuan: mencari **sumber pembacaan dasar** (R, G, B sama-sama sekitar 65 sampai 
 | F | **Daging dengan jarak** | Cincin penyangga setinggi 6 mm dari kertas hitam doff mengelilingi sensor. Daging di atas cincin, **tanpa** kertas bening. Kalibrasi putih ulang dengan kertas putih di atas cincin yang sama. |
 | G | F + pelat ditutup | Seperti F, tetapi pelat mengilap di sekitar sensor ditutup selotip atau kain beludru hitam doff. Kalibrasi putih ulang. |
 | H | Pintu terbuka 1 cm | Seperti E, tetapi pintu dibuka sedikit. Tampak seberapa besar cahaya ruangan masuk. |
+| I | Akrilik dibersihkan | Lap lembar akrilik dan permukaan hitam di sekitar sensor dengan kain mikrofiber (foto 17.00 menunjukkan banyak debu dan baret). Ulangi B dan C. |
+| J | Pisahkan dua LED | Foto menunjukkan dua sumber cahaya: LED putih di papan sensor dan satu LED 5 mm sekitar satu lebar papan di sampingnya (kemungkinan GPIO 25). Tutup LED papan dengan potongan selotip hitam, ukur B dan C. Lalu lepas tutup itu dan cabut kabel LED 5 mm, ukur B dan C. Selisihnya menunjukkan LED mana yang menyumbang pembacaan dasar. |
 
 ## Cara membaca hasilnya
 - **B ≈ 0 sampai 10:** tidak ada pembacaan dasar. Penyebabnya di tempat lain (kalibrasi putih atau LED).
@@ -28,6 +30,12 @@ Tujuan: mencari **sumber pembacaan dasar** (R, G, B sama-sama sekitar 65 sampai 
   - F naik ke G: pelat mengilap ikut menyumbang.
   - H jauh lebih tinggi dari E: pintu bocor cahaya.
 - **Target setelah perbaikan:** B ≤ 10 dan R/G daging ≥ 1,4 dengan simpangan R/G ≤ 0,03.
+
+## Temuan dari empat foto (17.00, galeri ponsel, EXIF utuh)
+- Sensor TCS34725 (papan ungu, pin LED INT SDA SCL 3V3 GND VIN) dipasang dengan dua sekrup di permukaan hitam yang mengilap, berdebu, dan berbaret.
+- Ada satu LED 5 mm terpisah sekitar satu lebar papan dari sensor, dan LED putih di papan sensor sendiri.
+- Daging diletakkan di atas lembar akrilik bening tepat di atas sensor, jarak belum terukur. Akrilik berdebu dan berbaret.
+- Pintu tertutup menampilkan garis putih di tepi: bisa celah cahaya atau hanya tepi cat. Uji H menjawabnya.
 
 ## Ukuran yang diperlukan untuk adaptor (jangka sorong)
 - Ruang dalam: panjang, lebar, tinggi.
