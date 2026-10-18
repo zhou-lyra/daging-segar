@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kepala ukur BeefFresh, rakitan manual</title>
+<style>
+:root{--bg:#faf7f3;--card:#fff;--ink:#2a2226;--mut:#6c6469;--line:#e2dad0;--red:#b3262e;--green:#2e8b57;--gold:#9a6b1e}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header,main{max-width:1180px;margin:0 auto;padding:0 24px}
+header{padding-top:22px}
+h1{margin:0;font-size:30px;letter-spacing:-.01em} h1 b{color:var(--red)}
+.sub{margin:4px 0 14px;color:var(--mut)}
+h2{margin:30px 0 10px;font-size:22px;border-bottom:1px solid var(--line);padding-bottom:6px}
+h3{margin:0 0 6px;font-size:17px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.note{background:#fff6e5;border:1px solid #f0d9a8;border-radius:10px;padding:10px 14px;font-size:15px;color:#6b5320;margin:10px 0}
+.warn{background:#fdeceb;border:1px solid #f0b8b4;color:#8a1f1a}
+.ok{background:#e9f6ee;border:1px solid #b6dfc6;color:#1d6a3d}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.inp{display:grid;grid-template-columns:1fr 92px;gap:6px 12px;align-items:center}
+.inp label{font-size:15px}.inp small{display:block;color:var(--mut);font-size:13px;line-height:1.3}
+input[type=number]{width:92px;font:inherit;padding:5px 8px;border:1px solid #cfc6bc;border-radius:6px;background:#fff;text-align:right}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{text-align:left;color:var(--mut);font-weight:600;font-size:13px;padding:0 8px 6px}
+td{padding:7px 8px;border-top:1px solid var(--line);vertical-align:top}
+td.n{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:700}
+.res td:first-child{color:var(--mut)}
+ol.st{margin:0;padding:0;list-style:none;counter-reset:s}
+ol.st>li{counter-increment:s;display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+ol.st>li:first-child{border-top:0}
+ol.st>li:before{content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:var(--green);color:#fff;font-weight:700;font-size:14px;display:grid;place-items:center;margin-top:2px}
+ol.st p{margin:2px 0}.mut{color:var(--mut)}
+svg text{font-family:inherit}
+.drw{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px;overflow:auto}
+.leg{columns:2;font-size:14px;margin:8px 4px 0;padding-left:20px}
+.pr{overflow:auto;border:1px solid var(--line);border-radius:10px;background:#fff;padding:8px}
+button{font:inherit;font-size:15px;border:1px solid #cfc6bc;background:#fff;border-radius:8px;padding:6px 14px;cursor:pointer}
+button:hover{background:#f3ede6}
+@media print{
+  body.cetak header,body.cetak main>*:not(#tmpl){display:none!important}
+  body.cetak{background:#fff} body.cetak #tmpl{margin:0} body.cetak .pr{border:0;padding:0;overflow:visible} body.cetak .noprint{display:none}
+}
+</style>
+</head>
+<body>
+<header>
+ <h1>Kepala ukur <b>BeefFresh</b>, rakitan manual</h1>
+ <p class="sub">Perbaikan kotak lama dari tutup cat semprot, busa, dan sisa PVC. Tidak memakai cetak 3D. Semua ukuran dihitung dari angka yang kamu masukkan di bawah.</p>
+ <div class="note"><b>Status:</b> ini rancangan di atas kertas dan belum pernah dibangun atau diuji dengan alatmu. Angka bawaan adalah perkiraan dari foto dan ukuran umum. Ukur komponenmu dengan jangka sorong atau penggaris, masukkan di kotak, dan semua gambar dan angka di halaman ini ikut berubah.</div>
+ <div class="note warn"><b>Lakukan dulu uji J (5 menit):</b> lepas akrilik, ukur kosong 3 kali dengan LED menyala, lalu bandingkan dengan kosong yang berakrilik. Kalau pembacaan turun jauh, akrilik memang penyebabnya dan rakitan ini layak dibuat. Kalau tidak turun, hentikan dan kabari Lyra sebelum memotong apa pun.</div>
+</header>
+<main>
+
+<h2>1. Apa yang berubah dari kotak lama</h2>
+<div class="grid">
+ <div class="card"><h3>Masalah di foto</h3>
+  <p>Akrilik menyebarkan cahaya LED dan membuat halo di seluruh lembar. Sensor ada di dalam halo itu, jadi ia membaca akrilik meski tidak ada daging. LED tegak lurus dan dekat. Dinding hitam mengilap memantulkan cahaya ke segala arah. Daging tipis meneruskan cahaya, jadi yang kembali ke sensor sedikit.</p></div>
+ <div class="card"><h3>Perbaikan</h3>
+  <p>Tutup cat semprot dipotong rendah, diberi lubang di atas chip, lalu dipasang menutupi sensor dan LED. Daging menempel langsung di bidang atas tutup, tanpa akrilik. LED dimiringkan sekitar 55 derajat dari tegak dan diberi sekat, jadi pantulan permukaan tidak jatuh ke chip. Pintu diberi busa hitam yang menekan daging pelan dan menutup celah cahaya.</p></div>
+</div>
+
+<h2>2. Masukkan ukuranmu</h2>
+<div class="grid">
+ <div class="card"><h3>Benda berbentuk lingkaran (tutup cat semprot)</h3>
+  <div class="inp" id="in1"></div></div>
+ <div class="card"><h3>Sensor, LED, daging</h3>
+  <div class="inp" id="in2"></div></div>
+</div>
+<div id="warns"></div>
+<div class="grid">
+ <div class="card"><h3>Hasil hitungan</h3><table class="res" id="res"></table></div>
+ <div class="card"><h3>Ukuran untuk dipotong dan dibor</h3><table class="res" id="res2"></table></div>
+</div>
+
+<h2>3. Gambar</h2>
+<div class="drw"><div id="sec"></div></div>
+<ol class="leg" id="legSec"></ol>
+<div class="drw" style="margin-top:12px"><div id="top"></div></div>
+<p class="mut" style="font-size:14px">Gambar atas: tutup dilihat dari atas, tanpa bidang atasnya supaya isinya terlihat. Lubang di tengah bidang atas ada tepat di atas chip, jadi pusat tutup bergeser dari pusat lubang.</p>
+
+<h2>4. Bahan dan alat</h2>
+<div class="grid">
+ <div class="card"><h3>Bahan</h3><ul id="bahan" style="margin:0;padding-left:20px"></ul></div>
+ <div class="card"><h3>Alat</h3><ul style="margin:0;padding-left:20px">
+  <li>Gergaji besi kecil atau cutter tajam, amplas 240 dan 400</li>
+  <li>Bor tangan atau listrik, mata bor 3 mm dan 6 mm, kikir bulat</li>
+  <li>Penggaris atau jangka sorong, spidol, selotip kertas</li>
+  <li>Solder dan penyedot timah, selongsong susut</li>
+  <li>Printer untuk template (atau gambar sendiri dengan angka di tabel)</li></ul>
+  <p class="mut" style="font-size:14px;margin-top:10px">Pengganti tutup cat semprot: tutup kaleng semprot besar, tutup toples hitam, atau potongan pipa PVC yang diameter dalamnya cukup (lihat batas minimum di tabel hasil).</p></div>
+</div>
+
+<h2>5. Langkah merakit</h2>
+<div class="card"><ol class="st" id="steps"></ol></div>
+
+<h2>6. Uji penerimaan</h2>
+<div class="card">
+ <p class="mut">Jalankan setelah rakitan kering. Pintu tertutup rapat dan busa menekan, kecuali dinyatakan lain. Setiap kondisi 3 kali.</p>
+ <table>
+ <tr><th>Uji</th><th>Cara</th><th>Lulus bila</th></tr>
+ <tr><td>Kalibrasi putih</td><td>Kertas HVS putih doff di atas lubang, di tempat daging. Tekan Kalibrasi.</td><td>Selesai tanpa pesan galat</td></tr>
+ <tr><td>Hitam</td><td>Kertas hitam doff di atas lubang.</td><td class="n">R, G, B masing-masing 10 atau kurang</td></tr>
+ <tr><td>Kosong</td><td>Tanpa apa pun di atas lubang, busa pintu menutup.</td><td class="n">10 atau kurang</td></tr>
+ <tr><td>Kertas abu-abu</td><td>Kertas abu-abu doff (cetak abu-abu 50% di kertas HVS).</td><td>R, G, B hampir sama, sekitar sepertiga sampai setengah dari putih</td></tr>
+ <tr><td>Daging tebal</td><td>Irisan daging 8 mm atau lebih, titik yang sama 3 kali.</td><td class="n">R per G 1,4 atau lebih, simpangan 0,03 atau kurang</td></tr>
+ <tr><td>Opasitas</td><td>Daging yang sama, bantalan hitam lalu bantalan putih di belakangnya.</td><td>Selisih kecil: daging cukup tebal. Selisih besar: gunakan irisan lebih tebal</td></tr>
+ <tr><td>Celah cahaya</td><td>Ukur kosong, lalu buka pintu 1 cm.</td><td>Kosong tertutup jauh lebih rendah dari terbuka</td></tr>
+ </table>
+ <p class="mut" style="margin-bottom:0">Kalau hitam masih di atas 10, ikuti urutan di <code>uji_kotak_lama/PROTOKOL.md</code> untuk mencari sumbernya.</p>
+</div>
+
+<h2 id="tmpl-h">7. Template ukuran asli (cetak)</h2>
+<div id="tmpl">
+ <p class="noprint">Cetak di kertas A4 dengan skala 100% (jangan pilih Fit to page). Periksa garis 50 mm di template: harus tepat 50 mm di penggaris. <button onclick="document.body.classList.add('cetak');window.print();setTimeout(()=>document.body.classList.remove('cetak'),500)">Cetak template saja</button></p>
+ <div class="pr"><div id="tm"></div></div>
+</div>
+
+<h2>8. Yang belum teruji</h2>
+<div class="card"><ul style="margin:0;padding-left:20px">
+ <li>Jarak daging 15 mm dari chip belum diukur di alatmu. Sinyal bisa lebih lemah dari jarak dekat. Kalibrasi putih dan penguatan otomatis di firmware membantu, tetapi hasilnya baru diketahui setelah uji.</li>
+ <li>Sudut LED miring dihitung dari bentuk LED 5 mm umum dan dari anggapan kubahnya bundar. LED sungguhan bisa menyebar lebih sempit atau lebih lebar.</li>
+ <li>Bidang pandang sensor tidak saya ketahui pasti. Lubang di tutup yang membatasinya, jadi bidang yang diukur adalah lubang itu.</li>
+ <li>Daging menempel langsung di plastik tutup yang bukan bahan pangan. Jangan memakan sampel yang sudah menyentuhnya. Lap bidang atas tutup dengan tisu alkohol setiap ganti sampel.</li>
+ <li>Cat semprot butuh sekitar satu hari sampai kering penuh dan tidak berbau. Bau cat bisa terserap daging, jadi jangan mengecat bidang atas tutup.</li>
+</ul></div>
+</main>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const F=[ // [id, label, catatan, nilai awal]
+ ["capIn","Diameter dalam tutup (mm)","ukur bagian dalam, di mulut tutup",50],
+ ["wall","Tebal dinding tutup (mm)","",1.5],
+ ["capH","Tinggi luar tutup (mm)","dari bidang atas sampai tepi bawah",30],
+ ["capTop","Tebal bidang atas tutup (mm)","",1.5],
+ ["W","Sisi papan sensor (mm)","papan persegi",20],
+ ["zChip","Tinggi permukaan chip dari dasar (mm)","dasar sampai bagian atas chip",2.6],
+ ["h","Jarak chip ke daging (mm)","rekomendasi 14 sampai 18",15.5],
+ ["da","Diameter lubang (mm)","di bidang atas tutup",14],
+ ["meatW","Lebar daging terkecil (mm)","untuk memeriksa lubang",28],
+ ["meatT","Tebal daging (mm)","untuk gambar saja",10]
+];
+$("in1").innerHTML=F.slice(0,4).map(f=>`<label for="${f[0]}">${f[1]}<small>${f[2]}</small></label><input type="number" step="0.1" id="${f[0]}" value="${f[3]}">`).join("");
+$("in2").innerHTML=F.slice(4).map(f=>`<label for="${f[0]}">${f[1]}<small>${f[2]}</small></label><input type="number" step="0.1" id="${f[0]}" value="${f[3]}">`).join("");
+const g=id=>parseFloat($(id).value);
+const D=Math.PI/180, Lw=12, rL=2.5;
+
+function solve(P){
+  const Hc=P.zChip+P.h; let beta=45*D, ad=0;
+  for(let k=0;k<12;k++){
+    ad=P.W/2+1.7+rL*Math.cos(beta)+0.3;
+    const f=b=>Lw*Math.sin(b)+rL*Math.cos(b)+ad*Math.tan(b)-Hc;
+    let lo=3*D,hi=80*D; if(f(lo)>0){beta=lo}else if(f(hi)<0){beta=hi}else{for(let i=0;i<60;i++){const m=(lo+hi)/2;f(m)>0?hi=m:lo=m}beta=(lo+hi)/2}
+  }
+  const phi=90-beta/D, Hw=Lw*Math.sin(beta), run=Lw*Math.cos(beta);
+  const xi=ad-rL*Math.sin(beta), xo=xi+run, zL=Hw+rL*Math.cos(beta);
+  const xback=ad+6.1*Math.cos(beta), xe=Math.max(xo,xback)+1.5;
+  // lingkaran terkecil yang memuat papan dan LED, pusat di sumbu x
+  const pts=[[-P.W/2,P.W/2],[-P.W/2,-P.W/2],[P.W/2,P.W/2],[P.W/2,-P.W/2],[xe,rL],[xe,-rL],[ad-rL*Math.cos(beta),rL],[ad-rL*Math.cos(beta),-rL]];
+  let best={R:1e9,x0:0};
+  for(let x0=-P.W/2;x0<=xe;x0+=0.05){const R=Math.max(...pts.map(p=>Math.hypot(p[0]-x0,p[1])));if(R<best.R)best={R,x0}}
+  const idMin=2*(best.R+2), Ro=P.capIn/2+P.wall;
+  return {Hc,beta,phi,ad,Hw,run,xi,xo,zL,xe,Rmin:best.R,x0:best.x0,idMin,Ro,cut:P.capH-Hc,hb:P.zChip+2.5};
+}
+function params(){const P={};F.forEach(f=>P[f[0]]=g(f[0]));return P}
+
+function warns(P,C){
+  const w=[];
+  if(F.some(f=>!isFinite(P[f[0]])))return ['Ada kotak yang kosong.'];
+  if(C.beta/D<28||C.beta/D>52)w.push(`Sudut baji ${(C.beta/D).toFixed(0)} derajat di luar 28 sampai 52. Ubah jarak chip ke daging (rekomendasi 14 sampai 18 mm).`);
+  if(C.cut<0)w.push(`Tutup terlalu pendek: butuh tinggi ${C.Hc.toFixed(1)} mm, tutupmu ${P.capH} mm. Ganjal dengan cincin hitam di bawahnya, atau pilih tutup lain.`);
+  if(P.capIn<C.idMin)w.push(`Diameter dalam tutup ${P.capIn} mm kurang. Minimum ${C.idMin.toFixed(1)} mm supaya papan dan LED muat.`);
+  if(P.da>P.meatW-8)w.push(`Lubang ${P.da} mm terlalu lebar untuk daging selebar ${P.meatW} mm. Kecilkan lubang sampai ${(P.meatW-8).toFixed(0)} mm atau kurang, supaya tepi daging bertumpu pada tutup.`);
+  if(P.da<10)w.push(`Lubang di bawah 10 mm bisa memotong bidang pandang sensor.`);
+  if(P.h<12||P.h>20)w.push(`Jarak chip ke daging ${P.h} mm di luar kisaran 12 sampai 20 mm yang masuk akal untuk susunan ini.`);
+  return w;
+}
+function fmt(x,d=1){return x.toFixed(d).replace(".",",")}
+
+function render(){
+  const P=params(),C=solve(P),w=warns(P,C);
+  $("warns").innerHTML=w.length?w.map(x=>`<div class="note warn">${x}</div>`).join(""):'<div class="note ok">Semua pemeriksaan ukuran lolos untuk angka yang kamu masukkan.</div>';
+  $("res").innerHTML=`
+   <tr><td>Tinggi tutup setelah dipotong</td><td class="n">${fmt(C.Hc)} mm</td></tr>
+   <tr><td>Dipotong dari tutup</td><td class="n">${fmt(Math.max(0,C.cut))} mm</td></tr>
+   <tr><td>Jarak chip ke daging</td><td class="n">${fmt(P.h)} mm</td></tr>
+   <tr><td>Sudut baji LED (dari datar)</td><td class="n">${fmt(C.beta/D,0)} derajat</td></tr>
+   <tr><td>Sudut sinar LED dari tegak</td><td class="n">${fmt(C.phi,0)} derajat</td></tr>
+   <tr><td>Diameter dalam tutup minimum</td><td class="n">${fmt(C.idMin)} mm</td></tr>`;
+  $("res2").innerHTML=`
+   <tr><td>Lubang di bidang atas</td><td class="n">Ø ${fmt(P.da,0)} mm</td></tr>
+   <tr><td>Pusat lubang dari pusat tutup</td><td class="n">${fmt(Math.abs(C.x0))} mm ke arah papan sensor</td></tr>
+   <tr><td>Pusat kubah LED dari chip</td><td class="n">${fmt(C.ad)} mm</td></tr>
+   <tr><td>Tinggi pusat kubah LED</td><td class="n">${fmt(C.zL)} mm</td></tr>
+   <tr><td>Baji: tinggi, panjang dasar, lereng</td><td class="n">${fmt(C.Hw)} / ${fmt(C.run)} / ${Lw} mm, lebar 8</td></tr>
+   <tr><td>Sekat hitam: tinggi, panjang</td><td class="n">${fmt(C.hb)} mm, ${fmt(P.W+2,0)} mm</td></tr>
+   <tr><td>Takik kabel di dinding tutup</td><td class="n">14 mm lebar, 5 mm tinggi</td></tr>`;
+  $("bahan").innerHTML=`
+   <li>Tutup cat semprot hitam, diameter dalam ${fmt(C.idMin,0)} mm atau lebih (1 buah)</li>
+   <li>Cat semprot hitam doff (sudah ada)</li>
+   <li>Busa EVA atau karet busa hitam tebal 6 sampai 8 mm, sekitar 10 x 10 cm</li>
+   <li>Karton atau kertas hitam doff untuk sekat, 25 x 12 mm</li>
+   <li>Sisa PVC, kayu, atau karton keras untuk baji, 3 buah bila perlu cadangan</li>
+   <li>Lem epoksi atau lem tembak, silikon hitam</li>
+   <li>Kabel tipis 30 cm dan selongsong susut untuk menyambung LED</li>
+   <li>Selotip hitam untuk menutup celah pintu</li>
+   <li>Kertas HVS putih doff dan kertas hitam doff untuk kalibrasi dan uji</li>`;
+  $("steps").innerHTML=steps(P,C).map(s=>`<li><div><b>${s[0]}</b>${s[1].map(x=>`<p>${x}</p>`).join("")}</div></li>`).join("");
+  drawSec(P,C);drawTop(P,C);drawTmpl(P,C);
+}
+
+function steps(P,C){return [
+ ["Ukur dan masukkan angka",[`Isi semua kotak di atas. Perbaiki sampai tidak ada peringatan merah. Ukur tinggi chip dengan menempelkan penggaris di samping papan.`]],
+ ["Bersihkan dan lepas akrilik",[`Lepas lembar akrilik dan simpan, jangan dibuang dulu. Bersihkan debu di dasar dengan kain mikrofiber. Foto dasar yang bersih sebelum merakit, sebagai bukti kondisi awal.`]],
+ [`Potong tutup menjadi ${fmt(C.Hc)} mm`,[`Letakkan tutup terbalik (bidang atas di bawah). Lilitkan selotip kertas dengan tepi bawah selotip tepat ${fmt(C.Hc)} mm dari permukaan atas luar, di empat titik lalu sambung, sebagai garis potong.`,`Gergaji sepanjang tepi selotip, lalu amplas tepi sampai rata. Buang serutan plastik.`]],
+ ["Lubangi bidang atas",[`Cetak template (bagian 7). Gunting lingkaran besarnya, tempelkan di bidang atas tutup dengan pusat lingkaran di pusat tutup. Tandai pusat lubang yang ada pada template (${fmt(Math.abs(C.x0))} mm dari pusat, ke arah papan sensor).`,`Bor pilot 3 mm, lalu perlebar dengan mata bor 6 mm, lalu kikir bulat sampai Ø ${fmt(P.da,0)} mm. Tepi luar lubang dihaluskan dengan amplas.`]],
+ ["Cat bagian dalam tutup, dasar, dan dinding",[`Amplas dalam tutup dengan amplas 400 sampai kusam, lalu semprot cat hitam doff tipis dua lapis. Cat juga dasar tempat sensor (di luar papan) dan dinding ruang ukur sampai hitam kusam. Jangan cat bidang atas luar tutup dan jangan cat chip atau papan.`,`Biarkan kering sekitar satu hari di tempat berangin sebelum dirakit.`]],
+ ["Pindahkan LED ke baji miring",[`Cetak template baji. Tempelkan di kardus sebagai pola, lalu potong baji dari sisa PVC, kayu, atau karton keras: sudut ${fmt(C.beta/D,0)} derajat, tinggi ${fmt(C.Hw)} mm, lebar 8 mm.`,`Lepas solder LED dari posisi lama. Sambung kabel baru (selongsong susut). Rekatkan baji di dasar, pusat kubah ${fmt(C.ad)} mm dari chip pada garis papan sensor, sisi yang kosong. Letakkan LED di lereng baji dengan kubah mengarah ke chip dan ke atas, rekatkan dengan epoksi hitam atau lem tembak.`,`Pegang pola baji di samping LED sebagai penggaris sudut selama lem mengeras. Sudut sinar dari tegak harus ${fmt(C.phi,0)} derajat.`]],
+ ["Pasang sekat hitam",[`Lipat kertas hitam 4 mm di bawah sebagai kaki. Rekatkan di dasar di antara papan dan LED, 0,5 mm di luar tepi papan. Tinggi sekat ${fmt(C.hb)} mm, panjang ${fmt(P.W+2,0)} mm. Sekat menghalangi cahaya LED yang menyebar ke samping agar tidak jatuh ke permukaan papan.`]],
+ ["Pasang tutup di atas sensor dan LED",[`Beri takik kabel (14 x 5 mm) di tepi bawah tutup pada sisi header papan sensor. Letakkan tutup tanpa lem dulu. Lihat dari atas: pusat lubang harus tepat di atas jendela chip dan LED harus ada di dalam tutup. Geser bila perlu.`,`Rekatkan tepi tutup ke dasar dengan silikon hitam. Jangan biarkan silikon masuk ke lubang atau ke chip. Tutup celah takik dengan potongan busa hitam yang dilubangi untuk kabel.`]],
+ ["Pasang busa dan tutup celah pintu",[`Rekatkan busa hitam 6 sampai 8 mm di sisi dalam pintu, tepat di atas lubang. Pintu tertutup harus menekan daging pelan, tidak sampai memerasnya. Tempelkan selotip hitam di celah dan tepi pintu yang berwarna putih di foto.`]],
+ ["Kalibrasi dan uji",[`Letakkan kertas HVS putih doff di atas lubang sebagai pengganti daging. Pintu tertutup. Kalibrasi putih. Lalu jalankan semua uji di bagian 6 dan kirim hasilnya ke Lyra.`]]
+]}
+
+// ---------- gambar potongan samping ----------
+function drawSec(P,C){
+  const S=9, xmin=Math.min(-P.W/2-3,C.x0-C.Ro-3), xmax=Math.max(C.xe+4,C.x0+C.Ro+3,16), zmax=C.Hc+P.meatT+16;
+  const X=x=>(x-xmin)*S+12, Y=z=>(zmax+4-z)*S, Wd=(xmax-xmin)*S+24, Ht=(zmax+8)*S;
+  const poly=(pts,fill,stroke="none",sw=1,extra="")=>`<polygon points="${pts.map(p=>X(p[0]).toFixed(1)+","+Y(p[1]).toFixed(1)).join(" ")}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" ${extra}/>`;
+  const rect=(x1,z1,x2,z2,fill,stroke,sw)=>poly([[x1,z1],[x2,z1],[x2,z2],[x1,z2]],fill,stroke,sw);
+  const line=(a,b,c,d,col,sw,dash="")=>`<line x1="${X(a)}" y1="${Y(b)}" x2="${X(c)}" y2="${Y(d)}" stroke="${col}" stroke-width="${sw}" ${dash?`stroke-dasharray="${dash}"`:""}/>`;
+  const mark=(n,x,z)=>`<circle cx="${X(x)}" cy="${Y(z)}" r="9" fill="#fff" stroke="#2a2226" stroke-width="1.3"/><text x="${X(x)}" y="${Y(z)+4}" text-anchor="middle" font-size="12" font-weight="700">${n}</text>`;
+  let s=`<svg viewBox="0 0 ${Wd} ${Ht}" width="100%" style="max-width:${Wd*1.9}px">`;
+  const dx=C.x0, Ro=C.Ro, Ri=P.capIn/2;
+  // pintu + busa
+  s+=rect(xmin,C.Hc+P.meatT+6,xmax,C.Hc+P.meatT+9,"#3a3a3a");
+  s+=rect(xmin,C.Hc+P.meatT,xmax,C.Hc+P.meatT+6,"#1d1d1d");
+  // daging
+  s+=poly([[-14,C.Hc],[14,C.Hc],[14,C.Hc+P.meatT],[-14,C.Hc+P.meatT]],"#b5483f","#7c2a24",1.2);
+  // dasar
+  s+=rect(xmin,-3,xmax,0,"#8a8f99","#555",1);
+  // tutup: dua dinding + dua potongan atas
+  s+=rect(dx-Ro,0,dx-Ri,C.Hc,"#262626");
+  s+=rect(dx+Ri,0,dx+Ro,C.Hc,"#262626");
+  s+=rect(dx-Ro,C.Hc-P.capTop,-P.da/2,C.Hc,"#262626");
+  s+=rect(P.da/2,C.Hc-P.capTop,dx+Ro,C.Hc,"#262626");
+  // papan + chip
+  s+=rect(-P.W/2,0,P.W/2,1.6,"#7b3fa0","#4c2468",1);
+  s+=rect(-1.5,1.6,1.5,P.zChip,"#d9c27a","#8a7632",1);
+  // sekat
+  s+=rect(P.W/2+0.4,0,P.W/2+1.2,C.hb,"#111");
+  // baji
+  s+=poly([[C.xi,0],[C.xo,0],[C.xi,C.Hw]],"#c9b48a","#7d6a3e",1);
+  // LED (persegi panjang miring + kubah)
+  const bt=C.beta, dx_=-Math.cos(bt), dz_=Math.sin(bt), nx=Math.sin(bt), nz=Math.cos(bt);
+  const Cx=C.ad, Cz=C.zL, back=[Cx-dx_*6.1,Cz-dz_*6.1], front=[Cx+dx_*0,Cz+dz_*0];
+  const q=(t,u)=>[Cx+dx_*t+nx*u, Cz+dz_*t+nz*u];
+  s+=poly([q(-6.1,-2.5),q(0,-2.5),q(0,2.5),q(-6.1,2.5)],"#f2f2f2","#555",1.2);
+  const dome=[];for(let i=0;i<=12;i++){const a=-Math.PI/2+Math.PI*i/12;dome.push(q(2.5*Math.cos(a),2.5*Math.sin(a)))}
+  s+=poly(dome,"#fffbe8","#555",1.2);
+  // sinar LED dan bidang pandang
+  const tgt=[0,C.Hc];
+  s+=line(Cx,Cz,tgt[0]-dx_*8,tgt[1]-dz_*8,"#e08a00",2,"6 4");
+  s+=line(0,P.zChip,-P.da/2,C.Hc-P.capTop,"#8a8f99",1.3,"4 3")+line(0,P.zChip,P.da/2,C.Hc-P.capTop,"#8a8f99",1.3,"4 3");
+  // ukuran h
+  const xh=-P.W/2-1.6;
+  s+=line(xh,P.zChip,xh,C.Hc,"#2e8b57",1.5)+line(xh-.8,P.zChip,xh+.8,P.zChip,"#2e8b57",1.5)+line(xh-.8,C.Hc,xh+.8,C.Hc,"#2e8b57",1.5);
+  s+=`<text x="${X(xh)-6}" y="${Y((P.zChip+C.Hc)/2)+4}" text-anchor="end" font-size="13" fill="#2e8b57" font-weight="700">h ${fmt(P.h)} mm</text>`;
+  s+=`<text x="${X(C.ad)+14}" y="${Y(C.zL)-10}" font-size="12" fill="#b36a00" font-weight="700">${fmt(C.phi,0)} derajat dari tegak</text>`;
+  s+=mark(1,xmax-3,C.Hc+P.meatT+3)+mark(2,12,C.Hc+P.meatT/2)+mark(3,dx+Ro-.8,C.Hc-.5)+mark(4,-P.W/2+2,3.6)+mark(5,Cx+nx*5,Cz+nz*5)+mark(6,C.xo-1.5,1.2)+mark(7,P.W/2+3,C.hb+1.2)+mark(8,xmin+4,-1.5);
+  s+=mark(9,(Cx+0)/2+1,(Cz+C.Hc)/2+4)+mark(10,P.da/2+1.5,(P.zChip+C.Hc)/2-1);
+  s+=`</svg>`; $("sec").innerHTML=s;
+  $("legSec").innerHTML=["Pintu dengan busa hitam yang menekan daging pelan","Daging, menempel langsung di bidang atas tutup","Tutup cat semprot yang dipotong, dengan lubang di atas chip","Papan sensor dan chip, LED bawaan papan dimatikan","LED 5 mm, miring ke arah chip","Baji penahan LED","Sekat hitam antara papan dan LED","Dasar PVC kotak lama","Sinar LED mengenai bagian bawah daging di lubang","Bidang pandang sensor, dibatasi lubang"].map(x=>`<li>${x}</li>`).join("");
+}
+
+// ---------- denah atas ----------
+function drawTop(P,C){
+  const S=9, xmin=C.x0-C.Ro-3, xmax=C.x0+C.Ro+3, ymax=C.Ro+3.5, ymin=-(C.Ro+4), Wd=(xmax-xmin)*S+10, Ht=(ymax-ymin)*S+10;
+  const X=x=>(x-xmin)*S+5, Y=y=>(ymax-y)*S+5;
+  const circ=(cx,cy,r,fill,stroke,sw,dash="")=>`<circle cx="${X(cx)}" cy="${Y(cy)}" r="${r*S}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" ${dash?`stroke-dasharray="${dash}"`:""}/>`;
+  const rect=(x1,y1,x2,y2,fill,stroke,sw)=>`<rect x="${X(Math.min(x1,x2))}" y="${Y(Math.max(y1,y2))}" width="${Math.abs(x2-x1)*S}" height="${Math.abs(y2-y1)*S}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+  const T=(x,y,t,sz=12,col="#2a2226",anc="middle",wt=600)=>`<text x="${X(x)}" y="${Y(y)}" font-size="${sz}" fill="${col}" text-anchor="${anc}" font-weight="${wt}">${t}</text>`;
+  let s=`<svg viewBox="0 0 ${Wd} ${Ht}" width="100%" style="max-width:${Wd*1.3}px">`;
+  s+=circ(C.x0,0,C.Ro,"#262626","none",0)+circ(C.x0,0,P.capIn/2,"#f4f1ec","none",0);
+  // takik kabel di sisi -y
+  s+=rect(C.x0-7,-C.Ro-.1,C.x0+7,-P.capIn/2+.1,"#faf7f3","#2a2226",.8);
+  // papan, chip
+  s+=rect(-P.W/2,-P.W/2,P.W/2,P.W/2,"#7b3fa0","#4c2468",1.2)+rect(-1.5,-1.5,1.5,1.5,"#d9c27a","#8a7632",1);
+  s+=rect(-P.W/2+1,-P.W/2-.2,P.W/2-1,-P.W/2+1.4,"#444","none",0);
+  // sekat
+  s+=rect(P.W/2+.4,-(P.W+2)/2,P.W/2+1.2,(P.W+2)/2,"#111","none",0);
+  // baji dan LED (tampak atas)
+  s+=rect(C.xi,-4,C.xo,4,"#c9b48a","#7d6a3e",1);
+  s+=rect(C.ad-2.5*Math.cos(C.beta),-2.5,C.ad+6.1*Math.cos(C.beta),2.5,"#f2f2f2","#555",1.2);
+  s+=circ(C.ad-2.5*Math.cos(C.beta)+.6,0,2.4,"#fffbe8","#555",1);
+  // lubang (dilihat dari atas) bergaris putus
+  s+=circ(0,0,P.da/2,"none","#2a2226",1.6,"6 4");
+  s+=`<line x1="${X(-4)}" y1="${Y(0)}" x2="${X(4)}" y2="${Y(0)}" stroke="#2a2226" stroke-width="1"/><line x1="${X(0)}" y1="${Y(-4)}" x2="${X(0)}" y2="${Y(4)}" stroke="#2a2226" stroke-width="1"/>`;
+  s+=T(0,P.da/2+1.2,"lubang di atas chip",12)+T(C.x0,-C.Ro-1.2,"takik kabel sensor (header papan di sisi ini)",11,"#6c6469")+T(C.ad+1,5.5,"LED",12,"#b36a00")+T(C.xi+(C.xo-C.xi)/2,-5.4,"baji",11)+T(P.W/2+1,-(P.W+2)/2-1.4,"sekat",11)+T(-P.W/4,P.W/2+1.5,"papan sensor",11,"#4c2468");
+  s+=`<line x1="${X(C.x0)}" y1="${Y(0)}" x2="${X(C.x0)}" y2="${Y(0)+0}" /><circle cx="${X(C.x0)}" cy="${Y(0)}" r="2.5" fill="#b3262e"/>${T(C.x0+4,-4.2,"pusat tutup",11,"#b3262e")}`;
+  s+=`</svg>`; $("top").innerHTML=s;
+}
+
+// ---------- template 1:1 ----------
+function drawTmpl(P,C){
+  const Ro=C.Ro, pad=10; let y0=pad;
+  const Wd=190; let s="", H=0;
+  // skala 50 mm
+  s+=`<line x1="${pad}" y1="${y0+3}" x2="${pad+50}" y2="${y0+3}" stroke="#000" stroke-width=".5"/><line x1="${pad}" y1="${y0}" x2="${pad}" y2="${y0+6}" stroke="#000" stroke-width=".5"/><line x1="${pad+50}" y1="${y0}" x2="${pad+50}" y2="${y0+6}" stroke="#000" stroke-width=".5"/><text x="${pad+54}" y="${y0+4.5}" font-size="3.6">garis ini harus tepat 50 mm</text>`;
+  // T4 cakram tutup
+  const cx=pad+Ro+2, cy=y0+14+Ro;
+  s+=`<circle cx="${cx}" cy="${cy}" r="${Ro}" fill="none" stroke="#000" stroke-width=".6"/>`;
+  s+=`<circle cx="${cx}" cy="${cy}" r="${P.capIn/2}" fill="none" stroke="#888" stroke-width=".3" stroke-dasharray="2 1.5"/>`;
+  s+=`<line x1="${cx-Ro}" y1="${cy}" x2="${cx+Ro}" y2="${cy}" stroke="#888" stroke-width=".3"/><line x1="${cx}" y1="${cy-Ro}" x2="${cx}" y2="${cy+Ro}" stroke="#888" stroke-width=".3"/>`;
+  const hxx=cx-C.x0; // lubang digeser ke arah papan sensor (kiri)
+  s+=`<circle cx="${hxx}" cy="${cy}" r="${P.da/2}" fill="none" stroke="#000" stroke-width=".5" stroke-dasharray="1.6 1"/><line x1="${hxx-3}" y1="${cy}" x2="${hxx+3}" y2="${cy}" stroke="#000" stroke-width=".5"/><line x1="${hxx}" y1="${cy-3}" x2="${hxx}" y2="${cy+3}" stroke="#000" stroke-width=".5"/>`;
+  s+=`<text x="${pad}" y="${cy+Ro+5}" font-size="3.6">Cakram bidang atas tutup, Ø ${fmt(2*Ro)} mm.</text><text x="${pad}" y="${cy+Ro+9.5}" font-size="3.6">Tempel di tutup, tandai pusat lubang (silang).</text>`;
+  s+=`<text x="${cx-Ro+12}" y="${cy-Ro+16}" font-size="3.4">papan sensor</text><text x="${cx+Ro-12}" y="${cy-Ro+16}" font-size="3.4" text-anchor="end">arah LED</text>`;
+  s+=`<text x="${cx+2}" y="${cy+5}" font-size="3" fill="#b3262e">pusat tutup</text>`;
+  s+=`<circle cx="${cx}" cy="${cy}" r=".6" fill="#b3262e"/>`;
+  // T2 baji
+  const bx=cx+Ro+22, by=y0+14, bh=Math.max(C.Hw,6), br=C.run;
+  const ox=bx, oy=by+25; // titik sudut siku kiri-bawah
+  s+=`<polygon points="${ox},${oy} ${ox+br*2},${oy} ${ox},${oy-C.Hw*2}" fill="none" stroke="#000" stroke-width=".6"/>`;
+  s+=`<text x="${ox}" y="${by+2}" font-size="3.6">Baji LED (skala 2:1, lihat angka)</text>`;
+  s+=`<text x="${ox+br*2+2}" y="${oy+1}" font-size="3.4">sudut ${fmt(C.beta/D,0)} derajat</text>`;
+  // baji 1:1
+  const ox2=bx, oy2=oy+C.Hw+14;
+  s+=`<polygon points="${ox2},${oy2} ${ox2+br},${oy2} ${ox2},${oy2-C.Hw}" fill="none" stroke="#000" stroke-width=".6"/>`;
+  s+=`<text x="${ox2}" y="${oy2+5}" font-size="3.6">1:1, dasar ${fmt(br)} mm, tinggi ${fmt(C.Hw)} mm, lereng ${Lw} mm, lebar 8 mm</text>`;
+  s+=`<line x1="${ox2}" y1="${oy2}" x2="${ox2+br}" y2="${oy2}" stroke="#000" stroke-width=".3"/>`;
+  // T3 sekat
+  const sx=bx, sy=oy2+14, sl=P.W+2, sh=C.hb+4;
+  s+=`<rect x="${sx}" y="${sy}" width="${sl}" height="${sh}" fill="none" stroke="#000" stroke-width=".6"/><line x1="${sx}" y1="${sy+sh-4}" x2="${sx+sl}" y2="${sy+sh-4}" stroke="#000" stroke-width=".4" stroke-dasharray="2 1.2"/>`;
+  s+=`<text x="${sx}" y="${sy+sh+5}" font-size="3.6">Sekat hitam: ${fmt(sl,0)} x ${fmt(sh)} mm. Garis putus: lipat 4 mm sebagai kaki.</text>`;
+  H=Math.max(cy+Ro+14, sy+sh+12);
+  $("tm").innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${Wd} ${H}" width="${Wd}mm" height="${H}mm" style="max-width:none;display:block;background:#fff">${s}</svg>`;
+}
+
+document.querySelectorAll("input[type=number]").forEach(e=>e.addEventListener("input",render));
+render();
+</script>
+</body>
+</html>

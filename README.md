@@ -34,3 +34,6 @@ Data pengukuran (`data_beeffresh.csv`, `waktu_nol.json`, `arsip/`) tidak diserta
 
 ## Rumah alat (model 3D)
 `cad/` berisi model OpenSCAD parametrik rumah alat (ESP32 + OLED + sensor + tabung gelap), berkas STL siap cetak, dan pemeriksa otomatis. Baca `cad/README.md`. Ukuran komponen masih standar/perkiraan: ukur dulu, lalu cetak kupon uji pas.
+
+## Perbaikan kotak lama (tanpa cetak 3D)
+`kotak_lama/rancangan.html` berisi rancangan kepala ukur dari tutup cat semprot, busa, dan sisa PVC: kalkulator ukuran, gambar potongan dan denah, daftar bahan, langkah merakit, uji penerimaan, dan template cetak 1:1. `uji_kotak_lama/PROTOKOL.md` berisi urutan uji untuk mencari sumber pembacaan dasar sebelum merakit.
