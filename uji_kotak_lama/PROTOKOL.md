@@ -21,7 +21,8 @@ Tujuan: mencari **sumber pembacaan dasar** (R, G, B sama-sama sekitar 65 sampai 
 | G | F + pelat ditutup | Seperti F, tetapi pelat mengilap di sekitar sensor ditutup selotip atau kain beludru hitam doff. Kalibrasi putih ulang. |
 | H | Pintu terbuka 1 cm | Seperti E, tetapi pintu dibuka sedikit. Tampak seberapa besar cahaya ruangan masuk. |
 | I | Akrilik dibersihkan | Lap lembar akrilik dan permukaan hitam di sekitar sensor dengan kain mikrofiber (foto 17.00 menunjukkan banyak debu dan baret). Ulangi B dan C. |
-| J | Pisahkan dua LED | Foto menunjukkan dua sumber cahaya: LED putih di papan sensor dan satu LED 5 mm sekitar satu lebar papan di sampingnya (kemungkinan GPIO 25). Tutup LED papan dengan potongan selotip hitam, ukur B dan C. Lalu lepas tutup itu dan cabut kabel LED 5 mm, ukur B dan C. Selisihnya menunjukkan LED mana yang menyumbang pembacaan dasar. |
+| J | **Lepas akrilik, ukur kosong** | Dengan LED 5 mm tetap menyala, angkat lembar akrilik dan ukur kosong 3 kali. Bandingkan dengan C (kosong, akrilik terpasang). Kalau J jauh lebih rendah dari C, akrilik adalah sumber utama pembacaan dasar. |
+| K | **Tandai titik sensor** | Beri tanda kecil (spidol atau selotip hitam tipis) di akrilik tepat di atas chip sensor, lalu letakkan daging **berpusat pada tanda itu**. Ulangi E. Foto saat hidup menunjukkan daging bisa jadi bergeser dari atas sensor. |
 
 ## Cara membaca hasilnya
 - **B ≈ 0 sampai 10:** tidak ada pembacaan dasar. Penyebabnya di tempat lain (kalibrasi putih atau LED).
@@ -33,8 +34,9 @@ Tujuan: mencari **sumber pembacaan dasar** (R, G, B sama-sama sekitar 65 sampai 
 
 ## Temuan dari empat foto (17.00, galeri ponsel, EXIF utuh)
 - Sensor TCS34725 (papan ungu, pin LED INT SDA SCL 3V3 GND VIN) dipasang dengan dua sekrup di permukaan hitam yang mengilap, berdebu, dan berbaret.
-- Ada satu LED 5 mm terpisah sekitar satu lebar papan dari sensor, dan LED putih di papan sensor sendiri.
+- Hanya satu LED yang menyala: LED putih 5 mm di samping sensor (GPIO 25). LED kuning bawaan papan sensor dimatikan oleh Zhou, dan sorot putih di foto 17.00 adalah senter ponsel.
 - Daging diletakkan di atas lembar akrilik bening tepat di atas sensor, jarak belum terukur. Akrilik berdebu dan berbaret.
+- Foto 17.10 (alat hidup, ruangan gelap): LED 5 mm menyinari akrilik dengan halo lebar. Tanpa daging, kecerahan masih sekitar 43% dari titik LED pada jarak 40% lebar akrilik. Daging tipis tampak menyala jingga dari dalam karena cahaya menembusnya.
 - Pintu tertutup menampilkan garis putih di tepi: bisa celah cahaya atau hanya tepi cat. Uji H menjawabnya.
 
 ## Ukuran yang diperlukan untuk adaptor (jangka sorong)
