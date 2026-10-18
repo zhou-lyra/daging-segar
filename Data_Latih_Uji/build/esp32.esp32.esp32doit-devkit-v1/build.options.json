@@ -1,0 +1,9 @@
+{
+  "additionalFiles": "",
+  "compiler.optimization_flags": "-Os",
+  "customBuildProperties": "",
+  "fqbn": "esp32:esp32:esp32doit-devkit-v1",
+  "hardwareFolders": "/home/zhou/.arduino15/packages/esp32/hardware/esp32/3.3.12,/home/zhou/.arduino15/packages/esp32/hardware/esp32/3.3.12",
+  "otherLibrariesFolders": "/home/zhou/Arduino/libraries",
+  "sketchLocation": "/home/zhou/Projects/daging-segar/Data_Latih_Uji"
+}

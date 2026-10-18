@@ -422,6 +422,8 @@ void ambilSampelSesuaiPilihan() {
 //   PING            -> balas "PONG"
 //   AMBIL <k> <j>   -> ambil 1 sampel; k=0 segar,1 mulai,2 busuk; j=0 latih,1 uji
 //   KALIB           -> kalibrasi ulang (kertas putih harus sudah di depan sensor)
+//   RAW             -> rata-rata 5 bacaan mentah: RAW,R,G,B,C,gain,Rputih,Gputih,Bputih,led
+//   LED 0|1         -> matikan/nyalakan pin LED (GPIO 25)
 //   INFO k j p t u  -> isi layar: kelas 0-2, jenis 0-1, potongan, titik, umur daging (detik; -1 = belum diatur)
 // Tombol BOOT di alat tetap berfungsi seperti biasa.
 // ============================================================
@@ -445,6 +447,21 @@ void prosesPerintah(String cmd) {
     Serial.print(Bwhite, 0); Serial.print(",");
     Serial.println(namaGain[gainIndexTersimpan]);
     Serial.println("SELESAI,KALIB");
+  } else if (cmd == "RAW") {
+    // Diagnosis: rata-rata 5 bacaan MENTAH (hitungan sensor, bukan 0-255) + gain + referensi putih + keadaan LED.
+    uint16_t r, g, b, c; unsigned long sr = 0, sg = 0, sb = 0, sc = 0;
+    for (int i = 0; i < 5; i++) { tcs.getRawData(&r, &g, &b, &c); sr += r; sg += g; sb += b; sc += c; delay(80); }
+    Serial.print("RAW,");
+    Serial.print(sr / 5.0, 1); Serial.print(","); Serial.print(sg / 5.0, 1); Serial.print(",");
+    Serial.print(sb / 5.0, 1); Serial.print(","); Serial.print(sc / 5.0, 1); Serial.print(",");
+    Serial.print(namaGain[gainIndexTersimpan]); Serial.print(",");
+    Serial.print(Rwhite, 0); Serial.print(","); Serial.print(Gwhite, 0); Serial.print(","); Serial.print(Bwhite, 0); Serial.print(",");
+    Serial.println(digitalRead(PIN_LED));
+    Serial.println("SELESAI,RAW");
+  } else if (cmd.startsWith("LED")) {
+    int v = -1; sscanf(cmd.c_str(), "LED %d", &v);
+    if (v == 0 || v == 1) { digitalWrite(PIN_LED, v); Serial.print("LED,"); Serial.println(v); }
+    else Serial.println("ERR,perintah LED tidak valid (LED 0 atau LED 1)");
   } else if (cmd.startsWith("INFO")) {
     int k = -1, j = -1, p = 0, t = 0; long u = -1;
     if (sscanf(cmd.c_str(), "INFO %d %d %d %d %ld", &k, &j, &p, &t, &u) >= 4 && k >= 0 && k <= 2 && j >= 0 && j <= 1) {
