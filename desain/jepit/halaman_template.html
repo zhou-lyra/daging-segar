@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BeefFresh Jepit: desain E</title>
+<style>
+:root{--bg:#faf7f3;--card:#fff;--ink:#2a2226;--mut:#6c6469;--line:#e2dad0;--red:#b3262e;--green:#2e8b57;--blue:#1f5fa8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header,main{max-width:1240px;margin:0 auto;padding:0 24px}
+header{padding-top:22px}
+h1{margin:0;font-size:30px;letter-spacing:-.01em} h1 b{color:var(--red)}
+.sub{margin:4px 0 12px;color:var(--mut)}
+h2{margin:34px 0 12px;font-size:23px;border-bottom:1px solid var(--line);padding-bottom:6px}
+h3{margin:0 0 6px;font-size:18px}
+p{margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.note{background:#fff6e5;border:1px solid #f0d9a8;border-radius:10px;padding:10px 14px;font-size:15px;color:#6b5320;margin:10px 0}
+.warn{background:#fdeceb;border:1px solid #f0b8b4;color:#8a1f1a}
+.ok{background:#e9f6ee;border:1px solid #b6dfc6;color:#1d6a3d}
+.g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media(max-width:860px){.g2{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{text-align:left;color:var(--mut);font-weight:600;font-size:13px;padding:0 8px 6px;vertical-align:bottom}
+td{padding:7px 8px;border-top:1px solid var(--line);vertical-align:top}
+td.n,th.n{text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
+.mut{color:var(--mut);font-size:14px}
+code{background:#f1ece5;padding:0 4px;border-radius:4px;font-size:14px}
+.drw{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px}
+.drw svg{width:100%;height:auto;display:block}
+.cap{font-size:14px;color:var(--mut);margin:0 0 18px}
+iframe{width:100%;height:820px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.gal{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media(max-width:860px){.gal{grid-template-columns:1fr}}
+figure{margin:0;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+figure img{width:100%;display:block}
+figcaption{padding:8px 12px;font-size:15px;font-weight:600}
+ol.st{margin:0;padding:0;list-style:none;counter-reset:s}
+ol.st>li{counter-increment:s;display:flex;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+ol.st>li:first-child{border-top:0}
+ol.st>li:before{content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:var(--green);color:#fff;font-weight:700;font-size:14px;display:grid;place-items:center;margin-top:1px}
+ol.st b{display:block}
+a{color:var(--blue)}
+</style>
+</head>
+<body>
+<header>
+ <h1>Beef<b>Fresh</b> Jepit: desain E</h1>
+ <p class="sub">Penjepit berengsel dari lembaran PVC. Daging dijepit di antara busa dan tutup cat semprot, sensor memakai LED bawaannya sendiri. Tidak perlu dipegang, tidak perlu ditekan, tidak perlu printer 3D.</p>
+ <div class="note"><b>Status:</b> rancangan dan model 3D. Belum dibuat dan belum diuji dengan daging. Ukuran papan sensor dari berkas desain resmi Adafruit, respons sudut chip dari lembar data TCS3472. Ukuran lain yang belum diukur ditandai di bagian 9.</div>
+</header>
+<main>
+
+<h2>1. Inti rancangan</h2>
+<div class="g2">
+ <div class="card"><h3>Cara kerja</h3>
+  <p>Buka kepala, letakkan irisan daging 10 mm di atas busa, tutup, kunci kaitnya, tekan Ambil. Busa mendorong daging rata ke muka tutup cat, jadi jarak ke sensor dan tekanan selalu sama. Cahaya luar terhalang tiga lapis: dinding baki, tutup cat, dan daging itu sendiri yang menutup lubang ukur. Sisanya dibuang firmware dengan membaca sekali saat LED menyala dan sekali saat LED mati.</p>
+  <p>Ukuran tertutup 86 x 86 x __TINGGI__ mm (tanpa engsel dan kait). Berat sekitar 160 g bila memakai PVC busa (foamboard), sekitar 310 g bila PVC padat.</p></div>
+ <div class="card"><h3>Koreksi dari Lyra: miring 15° tidak cukup</h3>
+  <p>Sebelumnya Lyra menyarankan papan sensor dimiringkan sekitar 15° dengan ganjal mur. Perhitungan jalan cahaya untuk desain ini menunjukkan saran itu <b>salah</b>: pada 15° kilap daging basah masih jatuh di dalam lubang ukur dan menambah sekitar 60 % ke kanal hijau. Pada 40° titik kilap jatuh __SISA__ mm di luar tepi lubang. Karena itu papan dipasang miring 40° di atas dudukan pelat dan pipi.</p>
+  <p class="mut">Hitungan: <code>desain/optik_jepit.py</code>, pantulan tunggal, permukaan Lambert, kilap 2 % seperti air. Angka ini perkiraan, bukan pengukuran.</p></div>
+</div>
+<div class="card"><table>
+ <tr><th>Letak papan sensor</th><th class="n">Kilap dari tepi lubang</th><th class="n">Kilap / sinyal daging (G)</th><th class="n">Sinyal daging</th><th class="n">Dinding hitam / daging (beludru)</th><th class="n">(cat doff)</th></tr>
+ <tr><td>Datar di tengah (desain D dengan LED bawaan)</td><td class="n">-5,4 mm (di dalam)</td><td class="n">0,61</td><td class="n">1,00</td><td class="n">0,27</td><td class="n">1,09</td></tr>
+ <tr><td>Miring 15°</td><td class="n">-2,7 mm (di dalam)</td><td class="n">0,62</td><td class="n">0,99</td><td class="n">0,30</td><td class="n">1,18</td></tr>
+ <tr><td>Miring 30°</td><td class="n">+0,9 mm</td><td class="n">0</td><td class="n">0,93</td><td class="n">0,38</td><td class="n">1,53</td></tr>
+ <tr><td><b>Miring 40° (dipilih)</b></td><td class="n"><b>+3,1 mm</b></td><td class="n"><b>0</b></td><td class="n">0,86</td><td class="n">0,52</td><td class="n">2,06</td></tr>
+</table>
+<p class="mut" style="margin:8px 0 0">Kilap tidak bisa dibuang dengan kalibrasi karena berubah-ubah menurut basahnya daging. Pantulan dinding hitam tetap besarnya, jadi dibuang dengan kalibrasi hitam. Beludru hitam membuatnya 4 kali lebih kecil daripada cat doff.</p></div>
+
+<h2>2. Model 3D interaktif</h2>
+<iframe src="jepit/penampil_3d.html" title="Model 3D BeefFresh Jepit"></iframe>
+<p class="cap">Geser <b>Buka engsel</b> untuk melihat cara memasukkan daging. Pilih <b>Potong: tengah (Y)</b> untuk melihat papan sensor miring di dalam tutup cat.</p>
+
+<h2>3. Gambar kerja</h2>
+<div class="drw">__SVG1__</div>
+<p class="cap">Potongan tengah, alat tertutup. 1 daging, 2 busa, 3 tutup cat, 4 sensor, 5 pipi (garis putus, di belakang bidang potong), 6 soket dupont lewat jendela kabel, 7 ESP32, 8 OLED, 9 engsel, 10 kait, 11 lantai baki. Semua ukuran dalam mm.</p>
+<div class="drw">__SVG2__</div>
+<p class="cap">Ruang ukur. Chip berada __CHX__ mm di belakang pusat lubang dan __CHZ__ mm di atas muka tutup cat. Jalan kilap (merah) mengenai muka hitam, bukan daging.</p>
+<div class="drw">__SVG3__</div>
+<p class="cap">Lantai kepala dilihat dari atas. Jendela kabel x __JX0__ sampai __JX1__ mm dari depan, y __JY0__ sampai __JY1__ mm dari kiri. Pipi direkatkan di sisi bawah lantai pada x __PX0__ sampai __PX1__ dan y __PY__ mm.</p>
+<div class="drw">__SVG4__</div>
+<p class="cap">Kepala dibuka 100°. Titik berat alat tetap di atas alas baki sampai sudut ini (dihitung untuk PVC busa dan PVC padat), jadi alat tidak terguling ke belakang.</p>
+
+<h2>4. Pola potong 1:1</h2>
+<div class="drw" style="max-width:820px">__SVG5__</div>
+<p class="cap">Buka <a href="jepit/gambar/5_pola_1banding1.svg" target="_blank">5_pola_1banding1.svg</a> dan cetak di kertas A4 dengan skala 100 %. Ukur garis uji 50 mm dengan penggaris sebelum memakai pola.</p>
+
+<h2>5. Render Blender</h2>
+<div class="gal">__RENDER__</div>
+<p class="cap">Berkas Blender: <code>desain/jepit/model/jepit.blend</code> (setiap komponen objek terpisah, dikelompokkan dalam koleksi Baki bawah, Kepala, dan Aksesori). Putar objek <b>Poros engsel</b> pada sumbu Y untuk membuka kepala. Scene kedua, <b>Katalog komponen</b>, berisi setiap komponen yang dibaringkan. Model glTF: <code>model/jepit.glb</code> dan <code>model/katalog.glb</code>.</p>
+
+<h2>6. Bahan dan potongan</h2>
+<div class="g2">
+ <div class="card"><h3>Potongan lembaran PVC 3 mm</h3>
+  <table><tr><th>Bagian</th><th class="n">Ukuran (mm)</th><th class="n">Jumlah</th><th>Catatan</th></tr>__POTONG__</table>
+  <p class="mut" style="margin:8px 0 0">Luas total sekitar __LUAS__ cm², kira-kira selembar 25 x 25 cm. Ditambah 6 keping 60 x 60 mm untuk dua balok kalibrasi (3 lapis masing-masing).</p></div>
+ <div class="card"><h3>Bahan lain</h3><ul style="margin:0;padding-left:20px">
+  <li>ESP32 DOIT DevKit V1, TCS34725, OLED SSD1306 0,96 inci (sudah ada)</li>
+  <li>Tutup cat semprot Ø 65 mm (sudah ada)</li>
+  <li>Busa ati atau EVA lunak hitam, 3 lembar 78 x 78 x 10 mm</li>
+  <li>Kertas beludru hitam (flocking) sekitar 20 x 20 cm. Pengganti: kain flanel hitam, atau cat semprot hitam doff</li>
+  <li>2 engsel kupu-kupu 25 mm, 1 kait kotak kecil, tali nilon 15 cm (pembatas buka)</li>
+  <li>2 baut M2,5 x 10 hitam + mur (sensor), 4 baut M2 x 12 + 8 mur (OLED), 8 baut M3 x 10 + mur (engsel)</li>
+  <li>9 kabel dupont betina-betina 10 cm</li>
+  <li>Lem PVC atau lem tembak, silikon hitam, selotip hitam, busa dobel tape 3 mm</li>
+  <li>Kertas HVS putih doff dan beludru hitam untuk tatakan kalibrasi</li>
+  <li>Plastik wrap (satu lembar baru tiap sampel)</li></ul></div>
+</div>
+<div class="card"><h3>Sambungan kabel</h3><table>
+ <tr><th>ESP32</th><th>TCS34725</th><th>OLED</th><th>Catatan</th></tr>
+ <tr><td><b>3V3</b></td><td>VIN</td><td>VCC</td><td class="mut">LED bawaan dinyalakan regulator 3,3 V di papan sensor, jadi 3V3 cukup</td></tr>
+ <tr><td><b>GND</b></td><td>GND</td><td>GND</td><td></td></tr>
+ <tr><td><b>GPIO 21</b></td><td>SDA</td><td>SDA</td><td></td></tr>
+ <tr><td><b>GPIO 22</b></td><td>SCL</td><td>SCL</td><td></td></tr>
+ <tr><td><b>GPIO 26</b></td><td>LED</td><td></td><td class="mut">HIGH = LED menyala, LOW = mati</td></tr>
+ <tr><td></td><td>3V3, INT</td><td></td><td class="mut">Tidak dipakai</td></tr>
+</table><p class="mut" style="margin:8px 0 0">Urutan pin header sensor menurut skema Adafruit: VIN, GND, 3V3, SCL, SDA, INT, LED. Modul tiruan bisa berbeda, jadi baca tulisan di papanmu.</p></div>
+
+<h2>7. Langkah merakit</h2>
+<div class="card"><ol class="st">
+ <li><div><b>Cetak pola 1:1</b>Periksa garis uji 50 mm. Tempel pola di PVC dengan selotip kertas.</div></li>
+ <li><div><b>Potong panel PVC</b>Ikuti daftar potongan. Amplas tepi sampai lurus dan siku. Periksa dengan penggaris siku sebelum mengelem.</div></li>
+ <li><div><b>Siapkan tutup cat</b>Lilitkan selotip di sekeliling tutup 22 mm dari muka sebagai garis potong, lalu gergaji. Bor lubang ukur di pusat muka bertahap (4, 8, 12 mm), lalu kikir sampai Ø 14 dan haluskan tepinya. Jangan cat muka luarnya.</div></li>
+ <li><div><b>Lapisi bagian dalam tutup cat</b>Tempel kertas beludru hitam di muka dalam (sisakan lubang Ø 16) dan di dinding. Kalau memakai cat doff, semprot 2 lapis tipis dan biarkan kering sekitar sehari sampai tidak berbau.</div></li>
+ <li><div><b>Buat dudukan miring</b>Bor 2 lubang Ø 2,8 di pelat dudukan sesuai pola. Rekatkan kedua pipi di punggung pelat, di sisi tepi panjangnya, dengan sisi miring 40° menempel pelat.</div></li>
+ <li><div><b>Pasang sensor</b>Baut papan sensor ke pelat dengan 2 baut M2,5 hitam dari sisi komponen, mur di punggung pelat. Header menghadap punggung. Colok 5 soket dupont di VIN, GND, SCL, SDA, dan LED.</div></li>
+ <li><div><b>Siapkan lantai kepala</b>Potong jendela kabel __JW__ x __JH__ mm sesuai pola dan denah. Tandai pusat tutup cat di sisi bawah lantai: 43 mm dari depan dan 43 mm dari kiri.</div></li>
+ <li><div><b>Rekatkan dudukan di bawah lantai</b>Masukkan soket dupont lewat jendela dari bawah, lalu rekatkan sisi atas pipi ke lantai pada posisi denah. Chip harus menghadap ke depan dan ke bawah, ke arah pusat lubang.</div></li>
+ <li><div><b>Periksa, lalu rekatkan tutup cat</b>Letakkan tutup cat di atas tanda pusat dan intip lewat lubang Ø 14: chip harus terlihat di sisi belakang lubang. Kalau sudah benar, rekatkan tepi tutup cat dengan silikon hitam di sekelilingnya.</div></li>
+ <li><div><b>Rakit baki dan kotak kepala</b>Baki: lantai dan 4 dinding. Kepala: 4 dinding di atas lantai kepala. Potong takik USB 13 x 10 mm di tepi bawah dinding kiri kepala, pusatnya 20 mm dari depan. Lem bibir di sisi bawah tutup atas.</div></li>
+ <li><div><b>Pasang ESP32 dan OLED</b>ESP32 terbalik di atas busa dobel tape, colokan USB menghadap takik. Tutup lampu merah dayanya dengan selotip hitam. OLED dibaut ke tutup atas menghadap jendela, dengan ganjal 4 mm (2 mur M2) di tiap baut.</div></li>
+ <li><div><b>Sambung kabel dan tutup jendela</b>Pasang kabel sesuai tabel. Tutup jendela kabel dari atas dengan selotip hitam di sekeliling kabel, supaya cahaya dari dalam kotak tidak bocor ke ruang ukur.</div></li>
+ <li><div><b>Engsel, kait, tali pembatas</b>Tempatkan kepala di atas baki. Pasang 2 engsel di sisi belakang dengan baut M3 dan mur, poros tepat di garis sambungan. Pasang kait di sisi depan. Ikat tali pembatas antara sisi kepala dan sisi baki supaya kepala berhenti di sekitar 100°.</div></li>
+ <li><div><b>Masukkan busa, unggah firmware, uji</b>Tiga lapis busa di baki. Unggah firmware (pin 21, 22, 26), lalu jalankan uji di bagian 8.</div></li>
+</ol></div>
+
+<h2>8. Cara memakai dan uji penerimaan</h2>
+<div class="g2">
+ <div class="card"><h3>Setiap pengukuran</h3><ol class="st">
+  <li><div><b>Kalibrasi sekali per sesi</b>Balok putih di atas busa, tutup, kalibrasi putih. Balok hitam, tutup, kalibrasi hitam.</div></li>
+  <li><div><b>Siapkan daging</b>Potong setebal 10 mm dan seluas minimal 30 x 30 mm. Letakkan di tengah busa yang sudah dilapisi plastik wrap baru.</div></li>
+  <li><div><b>Tutup dan kunci</b>Tutup kepala, kunci kait, tunggu 3 detik supaya LED stabil, lalu tekan Ambil.</div></li>
+  <li><div><b>Bersihkan</b>Buka, ganti plastik wrap, lap muka tutup cat dengan tisu alkohol, tunggu kering.</div></li>
+ </ol></div>
+ <div class="card"><h3>Uji penerimaan</h3><table>
+  <tr><th>Uji</th><th>Lulus bila</th></tr>
+  <tr><td>Balok hitam, 3 kali</td><td>R, G, B masing-masing 10 atau kurang</td></tr>
+  <tr><td>Lampu ruangan nyala lalu mati</td><td>Selisih R/G 0,02 atau kurang</td></tr>
+  <tr><td>Kilap: daging basah, lalu daging yang sama dilap tisu</td><td>Selisih R/G 0,03 atau kurang</td></tr>
+  <tr><td>Ulangan: buka-tutup 5 kali, daging sama</td><td>Simpangan R/G 0,03 atau kurang</td></tr>
+  <tr><td>Daging segar 10 mm</td><td>R/G 1,4 atau lebih (alat lama 1,1)</td></tr>
+  <tr><td>LED: balok putih tiap menit, 15 menit</td><td>Perubahan 2 % atau kurang</td></tr>
+ </table></div>
+</div>
+<div class="note warn"><b>Firmware belum lengkap untuk desain ini:</b> pengurangan bacaan LED mati dan pin 21, 22, 26 sudah ada. Kalibrasi hitam (dua titik) belum ada dan perlu ditambahkan sebelum uji.</div>
+
+<h2>9. Yang belum diketahui</h2>
+<div class="card"><ul style="margin:0;padding-left:20px">
+ <li>Tebal lembaran PVC dan jenisnya (busa atau padat). Rancangan memakai 3 mm.</li>
+ <li>Diameter dalam tutup cat (dianggap 62 mm) dan tebal mukanya (dianggap 1,5 mm).</li>
+ <li>Arah header di papan sensormu. Rancangan membutuhkan pin menghadap ke punggung papan supaya soket dupont bisa naik lewat jendela kabel.</li>
+ <li>Apakah modul sensormu memakai tata letak Adafruit (chip dan LED di posisi yang sama). Modul ungu tiruan biasanya meniru tata letak ini, tetapi belum pasti.</li>
+ <li>Kekerasan busa yang tepat dan seberapa banyak daging menonjol ke lubang Ø 14 saat ditekan. Tonjolan besar mengurangi jarak kilap dari tepi lubang. Uji ulangan dan uji kilap akan memperlihatkannya.</li>
+ <li>Hitungan optik hanya memperhitungkan satu kali pantulan. Pantulan berganda di dalam ruang ukur diabaikan.</li>
+ <li>Daging menyentuh plastik wrap dan tutup cat yang bukan bahan pangan. Sampel ukur jangan dimakan.</li>
+</ul></div>
+<p class="mut" style="margin:24px 0 40px">Sumber ukuran: <code>desain/jepit/geometri.py</code> (satu sumber untuk gambar, model 3D, dan Blender). Pemeriksaan otomatis: tidak ada bagian yang bertabrakan pada sudut buka 0 sampai 105°, chip dan LED melihat seluruh lubang kecuali garis paling tepi, titik berat tetap di atas alas sampai 100°.</p>
+</main>
+</body>
+</html>

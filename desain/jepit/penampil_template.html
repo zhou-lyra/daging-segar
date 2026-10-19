@@ -1,0 +1,104 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BeefFresh Jepit 3D</title>
+<style>
+:root{--bg:#faf7f3;--card:#fff;--ink:#2a2226;--mut:#6c6469;--line:#e2dad0;--red:#b3262e;--green:#2e8b57}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(300px,1fr);gap:16px;padding:12px;align-items:start}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+#stage{position:relative}
+canvas{width:100%;height:clamp(420px,calc(100vh - 170px),640px);display:block;background:radial-gradient(ellipse at 50% 35%,#fff 0%,#efe9e1 100%);border:1px solid var(--line);border-radius:14px;cursor:grab;touch-action:none}
+#sv{position:absolute;left:0;top:0;width:100%;pointer-events:none}
+.lab{position:absolute;display:flex;align-items:center;gap:7px;padding:4px 11px 4px 5px;border-radius:999px;font-size:14px;font-weight:600;white-space:nowrap;cursor:pointer;background:#fff;border:2px solid;box-shadow:0 2px 6px rgba(60,40,30,.12)}
+.lab em,.row em{font-style:normal;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700}
+.lab em{width:22px;height:22px;font-size:13px}.lab.sel{color:#fff}.lab.sel em{background:#fff!important;color:var(--ink)}
+.tools{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;margin-top:10px;padding:10px 12px;background:var(--card);border:1px solid var(--line);border-radius:12px}
+.grp{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600}
+button,select{font:inherit;font-size:15px;color:var(--ink);background:#fff;border:1px solid #cfc6bc;border-radius:8px;padding:5px 11px;cursor:pointer}button:hover{background:#f3ede6}
+input[type=range]{width:140px;accent-color:var(--red)}input[type=checkbox]{width:17px;height:17px;accent-color:var(--red)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+h2{margin:0 0 8px;font-size:18px}h3{margin:0 0 4px;font-size:20px}
+.row{display:flex;align-items:center;gap:10px;padding:7px 8px;margin:0 -8px;border-radius:10px;cursor:pointer}
+.row:hover{background:#f6f1ea}.row.sel{background:#f1e9df}.row em{flex:none;width:26px;height:26px;font-size:13px}
+.row span{flex:1;font-size:15px;font-weight:600}.row small{display:block;font-weight:400;color:var(--mut);font-size:14px;line-height:1.35}
+.lead{font-weight:600;font-size:16px;margin:0 0 6px}.body{margin:0 0 6px;font-size:15px;line-height:1.6}.meta{color:var(--mut);font-size:14px;margin:0}
+.hint{margin:6px 2px 0;color:var(--mut);font-size:14px}#err{color:var(--red);font-size:14px}
+</style></head><body><main>
+<section id="stage"><canvas id="c"></canvas><svg id="sv"></svg><div id="labs"></div><div class="tools" id="tools"></div>
+<p class="hint">Seret untuk memutar, roda mouse untuk zoom, Shift + seret untuk menggeser, klik label untuk penjelasan.</p><div id="err"></div></section>
+<aside><div class="card" id="info"></div><div class="card"><h2>Bagian-bagian</h2><div id="list"></div></div></aside></main>
+<script>
+"use strict";
+const PARTS=__PARTS__, GROUPS=__GROUPS__, DATA=__DATA__, HINGE=__HINGE__;
+const cv=document.getElementById('c'),gl=cv.getContext('webgl',{antialias:true,alpha:true,premultipliedAlpha:false});
+if(!gl)document.getElementById('err').textContent='WebGL tidak tersedia di tampilan ini.';
+const VS=`attribute vec3 p;attribute vec3 n;uniform mat4 M;uniform mat4 V;uniform mat4 P;varying vec3 vn;varying vec3 wp;
+void main(){vec4 w=M*vec4(p,1.0);wp=w.xyz;vn=mat3(M)*n;gl_Position=P*V*w;}`;
+const FS=`precision mediump float;varying vec3 vn;varying vec3 wp;uniform vec3 col;uniform float alpha;uniform float cut;uniform float ax;uniform float flip;uniform vec3 L;uniform float emis;
+void main(){if(ax>-0.5){float v=ax<0.5?wp.x:(ax<1.5?wp.y:wp.z);if(flip<0.5?(v>cut):(v<cut))discard;}
+vec3 N=normalize(vn);if(!gl_FrontFacing)N=-N;float d=max(dot(N,normalize(L)),0.0);float f=0.5+0.5*N.z;
+vec3 c=col*(0.40+0.28*f+0.45*d)+vec3(0.07)*pow(max(dot(N,normalize(L+vec3(0,0,1))),0.0),16.0);c=mix(c,col,emis);gl_FragColor=vec4(c,alpha);}`;
+function sh(t,s){const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))document.getElementById('err').textContent+=gl.getShaderInfoLog(o);return o}
+const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);gl.useProgram(pr);
+const loc=n=>gl.getUniformLocation(pr,n),aP=gl.getAttribLocation(pr,'p'),aN=gl.getAttribLocation(pr,'n');
+function b64(s){const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u.buffer}
+const P={};let mn=[1e9,1e9,1e9],mx=[-1e9,-1e9,-1e9];
+for(const [k,m] of Object.entries(PARTS)){const dv=new DataView(b64(DATA[k])),nt=dv.getUint32(80,true),pos=new Float32Array(nt*9),nor=new Float32Array(nt*9);
+ for(let t=0;t<nt;t++){const o=84+t*50;for(let v=0;v<3;v++)for(let a=0;a<3;a++){const x=dv.getFloat32(o+12+v*12+a*4,true);pos[t*9+v*3+a]=x;nor[t*9+v*3+a]=dv.getFloat32(o+a*4,true);if(m.grup!=='aksesori'){if(x<mn[a])mn[a]=x;if(x>mx[a])mx[a]=x}}}
+ const bp=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bp);gl.bufferData(gl.ARRAY_BUFFER,pos,gl.STATIC_DRAW);const bn=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bn);gl.bufferData(gl.ARRAY_BUFFER,nor,gl.STATIC_DRAW);
+ P[k]={bp,bn,n:nt*3,col:[1,3,5].map(i=>parseInt(m.warna.slice(i,i+2),16)/255),a0:m.alpha,alpha:m.alpha,on:m.grup!=='aksesori',m}}
+const ctr=[0,1,2].map(i=>(mn[i]+mx[i])/2),size=Math.max(mx[0]-mn[0],mx[1]-mn[1],mx[2]-mn[2]);
+let yaw=-0.75,pit=0.42,dist=1,pan=[0,0,0],cutAx=-1,cutPos=0,cutFlip=0,expl=0,hinge=0,sel=null;
+const tools=document.getElementById('tools');function grp(h){const d=document.createElement('div');d.className='grp';d.innerHTML=h;tools.appendChild(d);return d}
+function fit(d){const a=cv.clientWidth/cv.clientHeight;return size*d*Math.max(1,1.3/a)}
+function view(y,p,d){yaw=y;pit=p;dist=fit(d);pan=[0,0,0];draw()}
+const gv=grp('Pandang');for(const [t,y,p,d] of [['Isometrik',-0.75,0.42,2.0],['Samping',0,0.02,1.9],['Atas',0,1.5,2.0],['Bawah',-0.6,-0.8,2.2]]){const b=document.createElement('button');b.textContent=t;b.onclick=()=>view(y,p,d);gv.appendChild(b)}
+const hg=grp('Buka engsel <input type="range" min="0" max="100" value="0"><span id="hv">0°</span>');hg.querySelector('input').oninput=e=>{hinge=+e.target.value;document.getElementById('hv').textContent=hinge+'°';draw()};
+const ex=grp('Urai <input type="range" min="0" max="100" value="0">');ex.querySelector('input').oninput=e=>{expl=e.target.value/100;draw()};
+const cs=grp('Potong <select><option value="-1">mati</option><option value="1">tengah (Y)</option><option value="0">memanjang (X)</option><option value="2">mendatar (Z)</option></select><input type="range" min="0" max="1000" value="500"><label style="font-weight:400"><input type="checkbox"> balik</label>');
+const se=cs.querySelector('select'),sl=cs.querySelector('input[type=range]'),fl=cs.querySelector('input[type=checkbox]');
+function setCut(){cutAx=+se.value;if(cutAx===1&&sl.dataset.init!=='1'){sl.value=Math.round((HINGE.yc-mn[1])/(mx[1]-mn[1])*1000);sl.dataset.init='1'}if(cutAx>=0)cutPos=mn[cutAx]+(mx[cutAx]-mn[cutAx])*(sl.value/1000);cutFlip=fl.checked?1:0;draw()}
+se.onchange=()=>{sl.dataset.init='0';sl.value=500;fl.checked=(+se.value!==2);setCut()};  // buang separuh yang menghadap kamerasl.oninput=setCut;fl.onchange=setCut;
+const kb=grp('<label><input type="checkbox" checked> kabel</label> <label><input type="checkbox"> tatakan kalibrasi</label>');const [ckK,ckA]=kb.querySelectorAll('input');
+ckK.onchange=()=>{for(const k in P)if(k.startsWith('kabel'))P[k].on=ckK.checked;draw()};ckA.onchange=()=>{for(const k in P)if(P[k].m.grup==='aksesori')P[k].on=ckA.checked;draw()};
+const list=document.getElementById('list'),info=document.getElementById('info'),labs=document.getElementById('labs'),rows={},labEl={};
+GROUPS.forEach((g,i)=>{const r=document.createElement('div');r.className='row';r.innerHTML='<em style="background:'+g.warna+'">'+(i+1)+'</em><span>'+g.nama+'<small>'+g.ringkas+'</small></span>';r.onclick=()=>select(i);list.appendChild(r);rows[i]=r;
+ const l=document.createElement('div');l.className='lab';l.style.borderColor=g.warna;l.innerHTML='<em style="background:'+g.warna+'">'+(i+1)+'</em>'+g.nama;l.onclick=()=>select(i);labs.appendChild(l);labEl[i]=l});
+function select(i){sel=(sel===i)?null:i;GROUPS.forEach((g,j)=>{rows[j].classList.toggle('sel',j===sel);labEl[j].classList.toggle('sel',j===sel);labEl[j].style.background=j===sel?g.warna:'#fff'});
+ const ins=sel===null?null:new Set(GROUPS[sel].bagian);for(const k in P)P[k].alpha=(ins&&!ins.has(k))?Math.min(P[k].a0,0.10):P[k].a0;
+ const g=GROUPS[sel];info.innerHTML=g?('<h3>'+g.nama+'</h3><p class="lead">'+g.ringkas+'</p><p class="body">'+g.teks+'</p><p class="meta">Ukuran: '+g.ukuran.map(v=>v.toFixed(1).replace('.',',')).join(' × ')+' mm</p>'):
+ '<h3>BeefFresh Jepit</h3><p class="lead">Penjepit berengsel: daging dijepit antara busa dan tutup cat.</p><p class="body">Geser <b>Buka engsel</b> untuk melihat cara memasukkan daging, <b>Urai</b> untuk memisahkan bagian, dan <b>Potong: tengah (Y)</b> untuk melihat sensor miring di dalam tutup cat. Klik nama bagian untuk penjelasannya.</p>';draw()}
+function mul(a,b){const o=new Float32Array(16);for(let i=0;i<4;i++)for(let j=0;j<4;j++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+j]*b[i*4+k];o[i*4+j]=s}return o}
+function persp(f,a,n,fa){const t=1/Math.tan(f/2),o=new Float32Array(16);o[0]=t/a;o[5]=t;o[10]=(fa+n)/(n-fa);o[11]=-1;o[14]=2*fa*n/(n-fa);return o}
+function look(e,c,u){let z=[e[0]-c[0],e[1]-c[1],e[2]-c[2]],l=Math.hypot(...z);z=z.map(v=>v/l);let x=[u[1]*z[2]-u[2]*z[1],u[2]*z[0]-u[0]*z[2],u[0]*z[1]-u[1]*z[0]];l=Math.hypot(...x);x=x.map(v=>v/l);const y=[z[1]*x[2]-z[2]*x[1],z[2]*x[0]-z[0]*x[2],z[0]*x[1]-z[1]*x[0]];
+ return new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-(x[0]*e[0]+x[1]*e[1]+x[2]*e[2]),-(y[0]*e[0]+y[1]*e[1]+y[2]*e[2]),-(z[0]*e[0]+z[1]*e[1]+z[2]*e[2]),1])}
+function modelM(m){const dz=m.urai*expl;if(m.grup!=='atas'||hinge===0)return new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,dz,1]);
+ const a=hinge*Math.PI/180,c=Math.cos(a),s=Math.sin(a),hx=HINGE.x,hz=HINGE.z;
+ // putar pada sumbu Y lewat (hx, hz): x' = hx + (x-hx)c + (z-hz)s ; z' = hz - (x-hx)s + (z-hz)c ; lalu geser urai
+ return new Float32Array([c,0,-s,0, 0,1,0,0, s,0,c,0, hx-hx*c-hz*s, 0, hz+hx*s-hz*c+dz, 1])}
+function apply(M,p){return [M[0]*p[0]+M[4]*p[1]+M[8]*p[2]+M[12],M[1]*p[0]+M[5]*p[1]+M[9]*p[2]+M[13],M[2]*p[0]+M[6]*p[1]+M[10]*p[2]+M[14]]}
+function draw(){const dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;if(cv.width!=w*dpr||cv.height!=h*dpr){cv.width=w*dpr;cv.height=h*dpr}
+ gl.viewport(0,0,cv.width,cv.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);
+ const t=[ctr[0]+pan[0],ctr[1]+pan[1],ctr[2]+pan[2]],e=[t[0]+dist*Math.cos(pit)*Math.sin(yaw),t[1]-dist*Math.cos(pit)*Math.cos(yaw),t[2]+dist*Math.sin(pit)];
+ const V=look(e,t,[0,0,1]),PP=persp(0.75,cv.width/cv.height,size*0.03,size*30);
+ gl.uniformMatrix4fv(loc('V'),false,V);gl.uniformMatrix4fv(loc('P'),false,PP);gl.uniform3f(loc('L'),0.4,-0.6,0.9);gl.uniform1f(loc('cut'),cutPos);gl.uniform1f(loc('ax'),cutAx);gl.uniform1f(loc('flip'),cutFlip);
+ const ks=Object.keys(P).sort((a,b)=>(P[a].alpha<1)-(P[b].alpha<1));
+ for(const k of ks){const p=P[k];if(!p.on)continue;if(k.startsWith('kabel')&&expl>0.02)continue;gl.uniform3fv(loc('col'),p.col);gl.uniform1f(loc('alpha'),p.alpha);gl.uniform1f(loc('emis'),p.m.bahan==='led'?0.8:0.0);
+  gl.uniformMatrix4fv(loc('M'),false,modelM(p.m));
+  if(p.alpha<1){gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false)}else{gl.disable(gl.BLEND);gl.depthMask(true)}
+  gl.bindBuffer(gl.ARRAY_BUFFER,p.bp);gl.enableVertexAttribArray(aP);gl.vertexAttribPointer(aP,3,gl.FLOAT,false,0,0);gl.bindBuffer(gl.ARRAY_BUFFER,p.bn);gl.enableVertexAttribArray(aN);gl.vertexAttribPointer(aN,3,gl.FLOAT,false,0,0);gl.drawArrays(gl.TRIANGLES,0,p.n)}
+ gl.depthMask(true);
+ const VP=mul(PP,V),W=cv.clientWidth,H=cv.clientHeight,sv=document.getElementById('sv');sv.setAttribute('height',H);let ls=[],svg='';
+ GROUPS.forEach((g,i)=>{const l=labEl[i],m=P[g.jangkar_bagian].m;if(!P[g.jangkar_bagian].on){l.style.display='none';return}
+  const q=apply(modelM(m),g.jangkar),c=[0,1,2,3].map(r=>VP[r]*q[0]+VP[4+r]*q[1]+VP[8+r]*q[2]+VP[12+r]);if(c[3]<=0){l.style.display='none';return}
+  l.style.display='';ls.push({g,l,x:(c[0]/c[3]*0.5+0.5)*W,y:(1-(c[1]/c[3]*0.5+0.5))*H})});
+ for(const side of [0,1]){const gg=ls.filter(o=>(o.x>=W/2?1:0)===side).sort((a,b)=>a.y-b.y);let prev=-1e9;
+  for(const o of gg){o.ty=Math.max(o.y,prev+38,20);prev=o.ty}for(let i=gg.length-1;i>=0;i--){const lim=i===gg.length-1?H-20:gg[i+1].ty-38;gg[i].ty=Math.min(gg[i].ty,lim)}
+  for(const o of gg){const w2=o.l.offsetWidth;o.l.style.top=(o.ty-o.l.offsetHeight/2)+'px';o.l.style.left=side?(W-w2-8)+'px':'8px';const exx=side?W-w2-8:8+w2;
+   svg+='<line x1="'+exx+'" y1="'+o.ty+'" x2="'+o.x+'" y2="'+o.y+'" stroke="'+o.g.warna+'" stroke-width="1.5" opacity=".75"/><circle cx="'+o.x+'" cy="'+o.y+'" r="4" fill="#fff" stroke="'+o.g.warna+'" stroke-width="2"/>'}}
+ sv.innerHTML=svg}
+let drag=null;cv.onpointerdown=e=>{drag={x:e.clientX,y:e.clientY,s:e.shiftKey};cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing'};
+cv.onpointerup=()=>{drag=null;cv.style.cursor='grab'};
+cv.onpointermove=e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
+ if(drag.s){const k=dist*0.0016;pan[0]-=dx*k*Math.cos(yaw);pan[1]-=dx*k*Math.sin(yaw);pan[2]+=dy*k}else{yaw-=dx*0.008;pit=Math.max(-1.5,Math.min(1.5,pit+dy*0.008))}draw()};
+cv.onwheel=e=>{e.preventDefault();dist*=Math.exp(e.deltaY*0.0012);draw()};
+window.addEventListener('resize',()=>{dist=fit(2.0);draw()});dist=fit(2.0);select(null);window.__siap=true;
+</script></body></html>
