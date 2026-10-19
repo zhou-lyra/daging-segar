@@ -6,7 +6,7 @@
   Board   : ESP32 DOIT DEVKIT V1
   Sensor  : TCS34725 (via library Adafruit_TCS34725)
   Display : OLED SSD1306 (I2C)
-  LED     : GPIO 25
+  LED     : LED bawaan papan sensor, pin LED papan ke GPIO 26
   Tombol  : BOOT (bawaan board, terhubung ke GPIO 0) - TIDAK PERLU
             tombol tambahan apa pun.
 
@@ -37,7 +37,7 @@
   48 data latih + 12 data uji per kelas = 60 per kelas,
   total 3 kelas = 180 sampel.
 
-  Wiring I2C: SDA = GPIO 26, SCL = GPIO 27
+  Wiring I2C: SDA = GPIO 21, SCL = GPIO 22
   ============================================================
 */
 
@@ -51,9 +51,9 @@
 // ============================================================
 // KONFIGURASI PIN & OLED
 // ============================================================
-#define PIN_SDA     26
-#define PIN_SCL     27
-#define PIN_LED     25
+#define PIN_SDA     21
+#define PIN_SCL     22
+#define PIN_LED     26    // ke pin LED papan TCS34725 (LED bawaan; HIGH = nyala, LOW = mati)
 #define PIN_TOMBOL  0     // Tombol BOOT bawaan board, aktif LOW
 #define OLED_ADDR   0x3C
 
@@ -143,6 +143,20 @@ float cariMedian(float data[], int n) {
 // ============================================================
 // AMBIL 1 SAMPEL MENTAH DENGAN PENYARINGAN PENCILAN
 // ============================================================
+// Bacaan saat LED bawaan mati = cahaya ruangan yang ikut masuk. Dikurangkan dari bacaan LED menyala.
+// Satu bacaan dibuang setiap kali LED berganti keadaan, karena siklus integrasi yang sedang berjalan masih tercampur.
+#define JUMLAH_BACA_GELAP 3
+void bacaGelap(float &rG, float &gG, float &bG) {
+  uint16_t r, g, b, c;
+  digitalWrite(PIN_LED, LOW);
+  tcs.getRawData(&r, &g, &b, &c);            // dibuang
+  float tr = 0, tg = 0, tb = 0;
+  for (int i = 0; i < JUMLAH_BACA_GELAP; i++) { tcs.getRawData(&r, &g, &b, &c); tr += r; tg += g; tb += b; }
+  digitalWrite(PIN_LED, HIGH);
+  tcs.getRawData(&r, &g, &b, &c);            // dibuang
+  rG = tr / JUMLAH_BACA_GELAP; gG = tg / JUMLAH_BACA_GELAP; bG = tb / JUMLAH_BACA_GELAP;
+}
+
 void ambilSampelMentahBersih(float &rHasil, float &gHasil, float &bHasil) {
   float bufR[JUMLAH_PEMBACAAN_MENTAH], bufG[JUMLAH_PEMBACAAN_MENTAH], bufB[JUMLAH_PEMBACAAN_MENTAH];
   uint16_t r, g, b, c;
@@ -178,6 +192,12 @@ void ambilSampelMentahBersih(float &rHasil, float &gHasil, float &bHasil) {
   rHasil = (nR > 0) ? (totalR / nR) : medR;
   gHasil = (nG > 0) ? (totalG / nG) : medG;
   bHasil = (nB > 0) ? (totalB / nB) : medB;
+
+  float rG, gG, bG;
+  bacaGelap(rG, gG, bG);
+  rHasil = max(rHasil - rG, 0.0f);
+  gHasil = max(gHasil - gG, 0.0f);
+  bHasil = max(bHasil - bG, 0.0f);
 }
 
 // ============================================================
@@ -253,9 +273,11 @@ void kalibrasiWhiteBalance() {
     delay(JEDA_KALIBRASI_PUTIH);
   }
 
-  Rwhite = max(totalR / JUMLAH_SAMPEL_PUTIH, 1.0f);
-  Gwhite = max(totalG / JUMLAH_SAMPEL_PUTIH, 1.0f);
-  Bwhite = max(totalB / JUMLAH_SAMPEL_PUTIH, 1.0f);
+  float rG, gG, bG;
+  bacaGelap(rG, gG, bG);                     // referensi putih juga tanpa cahaya ruangan
+  Rwhite = max(totalR / JUMLAH_SAMPEL_PUTIH - rG, 1.0f);
+  Gwhite = max(totalG / JUMLAH_SAMPEL_PUTIH - gG, 1.0f);
+  Bwhite = max(totalB / JUMLAH_SAMPEL_PUTIH - bG, 1.0f);
 
   simpanKalibrasi();
 
@@ -422,8 +444,8 @@ void ambilSampelSesuaiPilihan() {
 //   PING            -> balas "PONG"
 //   AMBIL <k> <j>   -> ambil 1 sampel; k=0 segar,1 mulai,2 busuk; j=0 latih,1 uji
 //   KALIB           -> kalibrasi ulang (kertas putih harus sudah di depan sensor)
-//   RAW             -> rata-rata 5 bacaan mentah: RAW,R,G,B,C,gain,Rputih,Gputih,Bputih,led
-//   LED 0|1         -> matikan/nyalakan pin LED (GPIO 25)
+//   RAW             -> RAW,R,G,B,C,gain,Rputih,Gputih,Bputih,led,Rgelap,Ggelap,Bgelap (mentah LED nyala, lalu bacaan LED mati)
+//   LED 0|1         -> matikan/nyalakan LED bawaan sensor (GPIO 26)
 //   INFO k j p t u  -> isi layar: kelas 0-2, jenis 0-1, potongan, titik, umur daging (detik; -1 = belum diatur)
 // Tombol BOOT di alat tetap berfungsi seperti biasa.
 // ============================================================
@@ -456,7 +478,9 @@ void prosesPerintah(String cmd) {
     Serial.print(sb / 5.0, 1); Serial.print(","); Serial.print(sc / 5.0, 1); Serial.print(",");
     Serial.print(namaGain[gainIndexTersimpan]); Serial.print(",");
     Serial.print(Rwhite, 0); Serial.print(","); Serial.print(Gwhite, 0); Serial.print(","); Serial.print(Bwhite, 0); Serial.print(",");
-    Serial.println(digitalRead(PIN_LED));
+    Serial.print(digitalRead(PIN_LED)); Serial.print(",");
+    float rG, gG, bG; bacaGelap(rG, gG, bG);
+    Serial.print(rG, 1); Serial.print(","); Serial.print(gG, 1); Serial.print(","); Serial.println(bG, 1);
     Serial.println("SELESAI,RAW");
   } else if (cmd.startsWith("LED")) {
     int v = -1; sscanf(cmd.c_str(), "LED %d", &v);

@@ -17,7 +17,7 @@ arduino-cli compile --fqbn esp32:esp32:esp32doit-devkit-v1 Data_Latih_Uji
 arduino-cli upload  --fqbn esp32:esp32:esp32doit-devkit-v1 -p /dev/ttyUSB0 Data_Latih_Uji
 ```
 Perintah serial 115200: `PING`, `AMBIL <kelas 0-2> <jenis 0-1>`, `KALIB`, `INFO <kelas> <jenis> <potongan> <titik> <umur_detik>` (mengisi layar OLED: kelas, potongan, titik, jenis, umur daging yang berjalan tiap detik; dikirim otomatis oleh aplikasi). Keluaran tetap berformat PLX-DAQ (`DATA,...`).
-Wiring: SDA=GPIO26, SCL=GPIO27, OLED 0x3C, TCS34725 0x29, LED GPIO25.
+Wiring: SDA=GPIO21, SCL=GPIO22, OLED 0x3C, TCS34725 0x29, LED bawaan sensor: pin LED papan ke GPIO26 (HIGH nyala, LOW mati). LED 5 mm eksternal tidak dipakai lagi.
 
 Target: 48 latih + 12 uji per kelas. `arsip/` = data uji coba, bukan dataset.
 

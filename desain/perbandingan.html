@@ -64,7 +64,7 @@ details{margin-top:8px} summary{cursor:pointer;font-weight:600;color:var(--blue)
 <div class="card">
  <p><b>Usulan: desain D, "BeefFresh Genggam".</b> Kotak kecil dari lembaran PVC (110 x 72 x 48 mm) dengan kepala ukur dari tutup cat semprot di bawahnya. Cara pakai: taruh daging di meja, letakkan alat di atasnya, baca hasil di layar. Sensor menghadap ke bawah ke ruang gelap, jaraknya ke daging selalu 15,5 mm, LED menyinari dari samping, dan tidak ada akrilik.</p>
  <p><b>Urutan kerja yang tidak membuang tenaga:</b> kepala ukur (tutup cat, sensor, LED, sekat) dibuat sekali sebagai satu modul. Modul itu diuji dulu di dalam kotak lama (desain C). Kalau lulus uji, modul yang sama dipindah ke kotak genggam (desain D). Tidak ada bagian yang dibuang.</p>
- <div class="note warn" style="margin-bottom:0"><b>Pin di gambar rangkaianmu berbeda dengan firmware di repo.</b> Gambar: SDA GPIO 21, SCL GPIO 22, LED GPIO 26. Firmware <code>Data_Latih_Uji.ino</code>: SDA 26, SCL 27, LED 25. Alat hanya bekerja bila keduanya sama. Kabari Lyra mana yang sebenarnya tersolder di alatmu, supaya firmware atau gambarnya disamakan.</div>
+ <div class="note ok" style="margin-bottom:0"><b>Keputusan 19 Oktober:</b> desain baru memakai <b>LED bawaan papan sensor</b>, tanpa LED 5 mm dan tanpa baji. Papan sensor dimiringkan sekitar 15 derajat dengan ganjal mur supaya kilap daging tidak masuk ke chip. Pin mengikuti rangkaianmu: SDA GPIO 21, SCL GPIO 22, pin LED papan ke GPIO 26. Firmware sudah disamakan. Gambar potongan di bawah masih versi LED 5 mm dan akan diganti di desain berikutnya (penjepit engsel).</div>
 </div>
 
 <h2>2. Empat desain</h2>
@@ -96,6 +96,7 @@ details{margin-top:8px} summary{cursor:pointer;font-weight:600;color:var(--blue)
 </div>
 
 <h2>4. LED: lampu papan sensor atau LED 5 mm?</h2>
+<div class="note ok"><b>Kesimpulan:</b> LED bawaan dipakai. Pengalaman pengguna TCS34725 yang dikutip Adafruit dan ProtoSupplies sama: LED bawaan bekerja baik bila jarak tetap sekitar 10 sampai 15 mm, cahaya luar ditutup bahan hitam doff, dan sensor dimiringkan 15 sampai 20 derajat untuk benda mengilap. Ketiganya ada di desain baru. Belum ada data uji di alatmu sendiri.</div>
 <div class="g2">
  <div class="card"><h3>LED papan sensor (yang tampak kuning)</h3>
   <p>Menurut berkas desain Adafruit, LED papan adalah LED putih kecil (Everlight seri 45-21). LED putih memakai lapisan fosfor kuning, jadi saat mati ia tampak kuning atau jingga. Warnanya saat menyala tetap putih. Jadi warna kuning yang terlihat kemungkinan besar bukan masalah (keyakinan sekitar 80%, karena modul tiruan bisa memakai LED lain).</p>
@@ -120,7 +121,7 @@ details{margin-top:8px} summary{cursor:pointer;font-weight:600;color:var(--blue)
  <div class="card"><h3>Bahan lain</h3><ul style="margin:0;padding-left:20px">
   <li>Komponen yang sudah ada: ESP32 DevKit, TCS34725, OLED SSD1306, LED putih 5 mm</li>
   <li>Tutup cat semprot Ø 65 mm (sudah ada)</li>
-  <li>Transistor NPN (BC547 atau S8050) dan resistor 100 ohm dan 1 kilo ohm</li>
+  <li>2 mur M2,5 tambahan sebagai ganjal untuk memiringkan papan sensor</li>
   <li>Kabel dupont betina-betina 10 cm, sekitar 12 buah</li>
   <li>2 sekrup M2,5 x 8 mm dengan mur (sensor), 2 sekrup M2 x 6 mm (OLED)</li>
   <li>Lem PVC atau lem tembak, silikon hitam, selotip hitam</li>
@@ -367,8 +368,8 @@ $("cut").innerHTML=`<tr><th>Bagian</th><th class="n">Ukuran (mm)</th><th class="
  ["Bibir tutup atas, panjang","100 x 6",2],["Bibir tutup atas, pendek","60 x 6",2],["Baji LED (segitiga, bisa ditumpuk 3 lapis)","10 x 6,6",3],["Tatakan kalibrasi","90 x 90",2]
 ].map(r=>`<tr><td>${r[0]}</td><td class="n">${r[1]}</td><td class="n">${r[2]}</td></tr>`).join("");
 $("wire").innerHTML=`<tr><th>Dari ESP32</th><th>Ke TCS34725</th><th>Ke OLED</th><th>Catatan</th></tr>`+[
- ["3V3","VIN","VCC",""],["GND","GND","GND",""],["GPIO 21","SDA","SDA","Firmware repo memakai GPIO 26"],["GPIO 22","SCL","SCL","Firmware repo memakai GPIO 27"],
- ["GPIO 26","","","Ke basis transistor lewat 1 kilo ohm. Firmware repo memakai GPIO 25"],["VIN (5 V)","","","Lewat 100 ohm ke anoda LED, katoda ke kolektor transistor, emitor ke GND"],["","LED (pin papan)","","Biarkan kosong, LED papan tidak dipakai"]
+ ["VIN (5 V)","VIN","","LED bawaan menyala dari VIN papan sensor. Periksa dulu: pin 3V3 papan sensor harus terbaca sekitar 3,3 V"],["3V3","","VCC",""],["GND","GND","GND",""],["GPIO 21","SDA","SDA",""],["GPIO 22","SCL","SCL",""],
+ ["GPIO 26","LED","","HIGH = LED bawaan menyala, LOW = mati. Firmware mematikannya sebentar untuk mengukur cahaya ruangan"]
 ].map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td class="mut" style="font-size:14px">${r[3]}</td></tr>`).join("");
 $("steps").innerHTML=[
  ["Buat dan uji modul kepala ukur dulu","Ikuti kotak_lama/rancangan.html sampai langkah 9, tetapi letakkan papan sensor di sepotong PVC 75 x 75 mm, bukan langsung di dasar kotak lama. Uji di kotak lama. Kalau lulus, pelat itu dipakai sebagai pola untuk melubangi lantai kotak genggam, karena posisi semua lubangnya sudah terbukti."],

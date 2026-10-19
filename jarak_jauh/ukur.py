@@ -7,7 +7,7 @@ Pemakaian (tutup dulu aplikasi Qt: satu port serial hanya boleh dipakai satu pro
   python ukur.py ping
   python ukur.py raw                  # rata-rata 5 bacaan MENTAH + gain + referensi putih + keadaan LED
   python ukur.py ambil 0 0            # ambil 1 sampel: kelas 0=segar 1=mulai_membusuk 2=busuk, jenis 0=latih 1=uji
-  python ukur.py led 0                # matikan LED sensor (GPIO 25), led 1 = nyalakan
+  python ukur.py led 0                # matikan LED bawaan sensor (GPIO 26), led 1 = nyalakan
   python ukur.py kalib                # kalibrasi putih (kertas putih HARUS sudah di depan sensor)
   python ukur.py --port COM5 ping     # pilih port sendiri
 Prasyarat: pip install pyserial. Firmware harus yang berisi perintah RAW/LED (jarak_jauh/firmware)."""
@@ -72,6 +72,7 @@ def main(argv):
         if f[0] == "RAW" and len(f) >= 10:
             r, g, bl, c = map(float, f[1:5]); out["raw"] = dict(R=r, G=g, B=bl, C=c, gain=f[5], Rputih=float(f[6]), Gputih=float(f[7]), Bputih=float(f[8]), led=int(f[9]),
                                                                R_per_G=round(r / g, 3) if g else None)
+            if len(f) >= 13: out["raw"].update(Rgelap=float(f[10]), Ggelap=float(f[11]), Bgelap=float(f[12]))
         if f[0] == "DATA" and len(f) >= 8:
             out["data"] = dict(no=int(f[1]), R=float(f[3]), G=float(f[4]), B=float(f[5]), kelas=f[6], jenis=f[7], R_per_G=round(float(f[3]) / float(f[4]), 3))
     print(json.dumps(out, ensure_ascii=False)); return 0 if out["ok"] else 1
