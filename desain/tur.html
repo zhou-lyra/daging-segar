@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0F1012">
+<title>BeefFresh: tur desain alat</title>
+<style>
+:root{--bg:#0F1012;--panel:#1A1C1F;--ink:#EDE8E1;--mut:#9A958E;--line:#2A2D31;--meat:#C8463D;--fresh:#5FB38A}
+*{box-sizing:border-box}
+html{background:var(--bg);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--ink)}
+#bar{position:fixed;left:0;top:0;height:3px;width:0;background:linear-gradient(90deg,var(--meat),var(--fresh));z-index:20}
+nav{position:fixed;top:0;left:0;right:0;z-index:15;display:flex;align-items:center;gap:18px;padding:14px 26px;background:linear-gradient(180deg,rgba(15,16,18,.92),rgba(15,16,18,0));pointer-events:none}
+nav b{font-size:18px;letter-spacing:-.01em;pointer-events:auto}nav b span{color:var(--meat)}
+nav .lk{margin-left:auto;display:flex;gap:6px;pointer-events:auto}
+nav .lk a{font-size:14px;font-weight:600;color:var(--mut);text-decoration:none;padding:5px 11px;border-radius:999px}
+nav .lk a.on,nav .lk a:hover{color:var(--ink);background:rgba(255,255,255,.07)}
+.hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:90px 8vw 60px;position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;inset:-20%;background:radial-gradient(ellipse at 70% 55%,rgba(200,70,61,.16),transparent 55%),radial-gradient(ellipse at 20% 80%,rgba(95,179,138,.10),transparent 50%);pointer-events:none}
+.kick{font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
+.hero h1{font-size:clamp(44px,8vw,104px);line-height:.98;letter-spacing:-.035em;margin:14px 0 18px;font-weight:800;max-width:12ch}
+.hero h1 em{font-style:normal;color:var(--meat)}
+.hero p{max-width:560px;color:#c9c4bd;font-size:19px;margin:0}
+.cue{position:absolute;bottom:28px;left:8vw;font-size:14px;color:var(--mut);display:flex;align-items:center;gap:10px}
+.cue i{width:22px;height:36px;border:2px solid var(--mut);border-radius:12px;position:relative}
+.cue i:after{content:"";position:absolute;left:50%;top:6px;width:4px;height:8px;margin-left:-2px;border-radius:2px;background:var(--ink);animation:jatuh 1.6s infinite}
+@keyframes jatuh{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(12px)}}
+.film{position:relative}
+.stage{position:sticky;top:0;height:100svh;overflow:hidden}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stage:after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 60% 50%,transparent 55%,rgba(0,0,0,.45));pointer-events:none}
+.cap{position:absolute;left:7vw;top:50%;width:min(390px,34vw);transform:translateY(-50%);opacity:0;transition:none;z-index:2;pointer-events:none}
+.cap h2{font-size:clamp(28px,3.4vw,46px);line-height:1.05;letter-spacing:-.02em;margin:10px 0 14px;font-weight:780}
+.cap p{margin:0;color:#c9c4bd;font-size:17px}
+.cap:before{content:"";position:absolute;inset:-60px -80px -60px -90px;background:radial-gradient(ellipse at 40% 50%,rgba(15,16,18,.82) 30%,rgba(15,16,18,0) 72%);z-index:-1}
+.cap .num{display:inline-block;font-size:13px;font-weight:700;color:var(--bg);background:var(--ink);border-radius:999px;padding:2px 10px;margin-right:8px}
+.cap.e .num{background:var(--meat);color:#fff}.cap.a .num{background:var(--fresh)}
+.load{position:absolute;right:22px;bottom:18px;font-size:13px;color:var(--mut);z-index:3}
+.blok{max-width:1180px;margin:0 auto;padding:90px 26px}
+.blok h2{font-size:clamp(30px,4vw,52px);letter-spacing:-.025em;line-height:1.05;margin:10px 0 16px}
+.blok>p{color:#c9c4bd;max-width:720px}
+.dua{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}
+.kartu{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 24px}
+.kartu h3{margin:6px 0 8px;font-size:23px;letter-spacing:-.01em}
+.kartu ul{margin:10px 0 0;padding-left:20px;color:#c9c4bd}
+.kartu .kick.e{color:var(--meat)}.kartu .kick.a{color:var(--fresh)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 14px}
+.tabs button{font:inherit;font-size:15px;font-weight:650;padding:9px 18px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--mut);cursor:pointer}
+.tabs button.on{color:var(--ink);border-color:#4a4e55;background:#25282d}
+iframe{width:100%;height:min(860px,92vh);border:1px solid var(--line);border-radius:16px;background:var(--bg);display:block}
+table{width:100%;border-collapse:collapse;font-size:16px;margin-top:22px}
+th{text-align:left;color:var(--mut);font-weight:600;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:0 12px 10px}
+td{padding:13px 12px;border-top:1px solid var(--line);vertical-align:top;color:#d9d4cd}
+td:first-child{color:var(--mut);width:28%}
+.ajak{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.btn{display:inline-block;font-weight:700;font-size:16px;padding:13px 22px;border-radius:12px;text-decoration:none;background:var(--ink);color:var(--bg)}
+.btn.sek{background:transparent;color:var(--ink);border:1px solid #4a4e55}
+.cat{font-size:14px;color:var(--mut);margin-top:16px}
+footer{border-top:1px solid var(--line);padding:30px 26px 50px;color:var(--mut);font-size:14px;text-align:center}
+@media(max-width:820px){
+ .cap:before{display:none}
+ nav{padding:12px 16px}nav .lk a{padding:4px 8px;font-size:13px}
+ .hero{padding:90px 22px 80px}.cue{left:22px}
+ .cap{left:18px;right:18px;width:auto;top:auto;bottom:calc(22px + env(safe-area-inset-bottom));transform:none;background:linear-gradient(180deg,rgba(15,16,18,0),rgba(15,16,18,.86) 22%);padding:26px 4px 6px}
+ .cap h2{font-size:28px;margin:8px 0 8px}.cap p{font-size:15.5px}
+ .dua{grid-template-columns:1fr}
+ .blok{padding:70px 18px}
+ td:first-child{width:34%}table{font-size:15px}
+ iframe{height:1060px}
+}
+@media(max-width:480px){nav .lk a:nth-child(3){display:none}}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<nav><b>Beef<span>Fresh</span></b><div class="lk"><a href="#e">Jepit</a><a href="#a">Genggam</a><a href="#banding">Banding</a><a href="#tiga-d">3D</a></div></nav>
+
+<header class="hero">
+ <span class="kick">Rancangan alat · tim BeefFresh</span>
+ <h1>Warna daging, <em>dibaca</em> dengan cahaya.</h1>
+ <p>Dua rancangan alat pengukur kesegaran daging sapi dari lembaran PVC, tanpa printer 3D. Gulir pelan untuk melihat cara kerjanya.</p>
+ <div class="cue"><i></i>gulir ke bawah</div>
+</header>
+
+<section class="film" id="e" data-film="jepit" data-vh="520">
+ <div class="stage"><canvas></canvas>
+  <div class="cap e" data-f="0,34"><span class="kick"><span class="num">E</span>Jepit</span><h2>Daging dimasukkan, alat menjepit.</h2><p>Kotak PVC 86 x 86 mm dengan kepala berengsel. Busa di bawah menekan irisan daging rata ke muka ukur, jadi jarak dan tekanannya sama setiap kali.</p></div>
+  <div class="cap e" data-f="40,78"><span class="kick"><span class="num">E</span>Cara pakai</span><h2>Buka, letakkan, tutup.</h2><p>Daging diiris 10 mm dan diletakkan di atas busa. Kepala ditutup lalu dikunci kait. Dinding kotak menahan cahaya ruangan.</p></div>
+  <div class="cap e" data-f="86,116"><span class="kick"><span class="num">E</span>Isi</span><h2>Lapis demi lapis.</h2><p>Busa tiga lapis, tutup cat semprot sebagai ruang ukur gelap, sensor warna TCS34725, ESP32, dan layar OLED. Semua dari PVC 3 mm dan komponen yang sudah ada.</p></div>
+  <div class="cap e" data-f="124,155"><span class="kick"><span class="num">E</span>Optik</span><h2>Sensor melihat dari sudut 40°.</h2><p>LED bawaan sensor menyinari daging lewat lubang Ø 14. Karena papannya dimiringkan, kilap dari daging basah jatuh di muka hitam, bukan ke chip.</p></div>
+  <div class="load"></div></div>
+</section>
+
+<section class="film" id="a" data-film="genggam" data-vh="430">
+ <div class="stage"><canvas></canvas>
+  <div class="cap a" data-f="0,38"><span class="kick"><span class="num">A</span>Genggam</span><h2>Ditempel ke daging, ditekan ringan.</h2><p>Kotak ramping 108 x 39 mm. Daging tidak perlu diiris, jadi alat bisa dibawa ke pasar atau toko.</p></div>
+  <div class="cap a" data-f="46,86"><span class="kick"><span class="num">A</span>Isi</span><h2>Tujuh lembar PVC dan sepotong pipa.</h2><p>ESP32 tidur di atas busa, layar di bawah jendela tutup, dan semua kabel dupont berjalan di jalurnya masing-masing tanpa saling menyentuh.</p></div>
+  <div class="cap a" data-f="96,129"><span class="kick"><span class="num">A</span>Optik</span><h2>Pipanya yang miring.</h2><p>Papan sensor dipasang tegak lurus di dalam pipa PVC 1 inci yang ujungnya dipotong 40°. Kilap daging jatuh 5 mm di luar lubang Ø 12.</p></div>
+  <div class="load"></div></div>
+</section>
+
+<section class="film" id="banding" data-film="banding" data-vh="190">
+ <div class="stage"><canvas></canvas>
+  <div class="cap" data-f="0,36"><span class="kick">Banding</span><h2>Dua bentuk, satu tujuan.</h2><p>Jepit untuk data penelitian yang rapi. Genggam untuk mengukur di mana saja. Komponen elektroniknya sama.</p></div>
+  <div class="load"></div></div>
+</section>
+
+<section class="blok">
+ <span class="kick">Ringkasan</span><h2>Mana yang lebih tepat?</h2>
+ <p>Keduanya masih rancangan dan model 3D. Belum ada yang dibuat atau diuji dengan daging. Angka optik di bawah berasal dari hitungan geometri, bukan pengukuran.</p>
+ <div class="dua">
+  <div class="kartu"><span class="kick e">Desain E</span><h3>Jepit</h3><ul><li>Daging diiris 10 mm lalu dimasukkan</li><li>Tekanan dan cahaya paling terkendali</li><li>86 x 86 x 106 mm, 160 sampai 310 g</li><li>Cocok untuk mengumpulkan dataset</li></ul></div>
+  <div class="kartu"><span class="kick a">Desain A</span><h3>Genggam</h3><ul><li>Ditempel ke daging utuh</li><li>Lebih mudah dirakit: potongan lurus dan pipa 1 inci</li><li>108 x 39 x 52 mm, 65 sampai 120 g</li><li>Cocok untuk dipakai di lapangan</li></ul></div>
+ </div>
+ <table>
+  <tr><th>Hal</th><th>Jepit (E)</th><th>Genggam (A)</th></tr>
+  <tr><td>Tekanan ke daging</td><td>Selalu sama: busa dan kait</td><td>Bergantung tangan; firmware hanya menyimpan bacaan yang stabil</td></tr>
+  <tr><td>Cahaya luar</td><td>Tertutup kotak</td><td>Ditutup daging dan pelat muka; bacaan ditolak bila masih ada cahaya</td></tr>
+  <tr><td>Kilap daging basah</td><td>3,2 mm di luar lubang</td><td>5,1 mm di luar lubang</td></tr>
+  <tr><td>Kesulitan merakit</td><td>Sedang</td><td>Lebih mudah</td></tr>
+  <tr><td>Keyakinan hasilnya stabil</td><td>sekitar 75 %</td><td>sekitar 60 %</td></tr>
+ </table>
+</section>
+
+<section class="blok" id="tiga-d">
+ <span class="kick">Model 3D</span><h2>Putar sendiri.</h2>
+ <p>Seret untuk memutar, roda mouse atau cubit untuk zoom. Pilih <b>Potong: tengah (Y)</b> untuk melihat sensor di dalam.</p>
+ <div class="tabs"><button class="on" data-f="jepit/penampil_3d.html?tema=gelap">Jepit (E)</button><button data-f="genggam/penampil_3d.html?tema=gelap">Genggam (A)</button></div>
+ <iframe id="viewer" src="jepit/penampil_3d.html?tema=gelap" title="Model 3D" loading="lazy"></iframe>
+ <div class="ajak"><a class="btn" href="pilih.html">Beri pilihanmu</a><a class="btn sek" href="penjepit.html">Gambar kerja desain E</a></div>
+ <p class="cat">Halaman pilihan memakai tampilan terang dan berisi formulir yang dikirim lewat WhatsApp.</p>
+</section>
+<footer>BeefFresh · rancangan alat ukur kesegaran daging sapi · ESP32 + TCS34725 · belum diuji</footer>
+
+<script>
+"use strict";
+const HP=matchMedia("(max-width:820px)").matches, KECIL=HP||(navigator.connection&&navigator.connection.saveData);
+const tunda=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const films=[...document.querySelectorAll(".film")].map(sec=>{
+ const st=sec.querySelector(".stage"),cv=st.querySelector("canvas"),ctx=cv.getContext("2d");
+ sec.style.height=(+sec.dataset.vh)+"vh";
+ return {sec,st,cv,ctx,nama:sec.dataset.film,imgs:[],ok:[],n:0,cur:0,tgt:0,caps:[...st.querySelectorAll(".cap")].map(c=>({el:c,r:c.dataset.f.split(",").map(Number)})),load:st.querySelector(".load"),aktif:false}});
+function ukur(f){const d=Math.min(devicePixelRatio||1,2),w=f.st.clientWidth,h=f.st.clientHeight;if(f.cv.width!==Math.round(w*d)){f.cv.width=Math.round(w*d);f.cv.height=Math.round(h*d)}}
+function gambar(f,i){
+ let k=Math.round(i),g=null;for(let r=0;r<f.n;r++){if(f.ok[k-r]){g=f.imgs[k-r];break}if(f.ok[k+r]){g=f.imgs[k+r];break}}
+ const c=f.ctx,W=f.cv.width,H=f.cv.height;c.fillStyle="#0F1012";c.fillRect(0,0,W,H);if(!g)return;
+ const iw=g.naturalWidth,ih=g.naturalHeight,potret=H>W;let s=Math.min(W/iw,H/ih);if(potret)s*=1.38;
+ const d=Math.min(devicePixelRatio||1,2),kanan=HP?0:(f.caps[0].el.getBoundingClientRect().right+28)*d;const x=HP?(W-iw*s)/2:Math.max((W-iw*s)/2,Math.min(W-iw*s,kanan)),y=(H-ih*s)/2-(potret?H*0.08:0);c.drawImage(g,x,y,iw*s,ih*s)}
+function muat(f){
+ const map=f.nama,ukr=KECIL?"m":"d";
+ // urutan muat: setiap 8 frame dulu, lalu 4, 2, 1, supaya bisa digulir sebelum semua selesai
+ const urut=[],sudah=new Set();for(const st of [8,4,2,1])for(let i=0;i<f.n;i+=st)if(!sudah.has(i)){sudah.add(i);urut.push(i)}
+ let jalan=0,selesai=0;const maks=6;
+ const lanjut=()=>{while(jalan<maks&&urut.length){const i=urut.shift();jalan++;const im=new Image();im.decoding="async";
+  im.onload=()=>{f.ok[i]=true;jalan--;selesai++;f.load.textContent=selesai<f.n?"memuat "+Math.round(100*selesai/f.n)+" %":"";if(i===Math.round(f.cur))gambar(f,f.cur);lanjut()};
+  im.onerror=()=>{jalan--;lanjut()};im.src="tur/frame/"+map+"/"+ukr+"/"+String(i).padStart(4,"0")+".webp";f.imgs[i]=im}};lanjut()}
+fetch("tur/frame/manifest.json").then(r=>r.json()).then(m=>{films.forEach((f,j)=>{f.n=(m[f.nama]||{}).n||0;if(!f.n){f.load.textContent="film belum dirender";return}
+ f.imgs=new Array(f.n);f.ok=new Array(f.n).fill(false);setTimeout(()=>muat(f),j*400)})}).catch(()=>films.forEach(f=>f.load.textContent="film belum tersedia"));
+const nav=[...document.querySelectorAll("nav .lk a")],bar=document.getElementById("bar");
+function langkah(){
+ const vh=innerHeight,y=scrollY;bar.style.width=(100*y/Math.max(1,document.documentElement.scrollHeight-vh))+"%";
+ for(const f of films){const r=f.sec.getBoundingClientRect(),len=f.sec.offsetHeight-vh;const p=Math.min(Math.max(-r.top/len,0),1);
+  f.aktif=r.top<vh&&r.bottom>0;if(!f.aktif||!f.n)continue;ukur(f);f.tgt=p*(f.n-1);
+  const sebelum=f.cur;f.cur=tunda?f.tgt:f.cur+(f.tgt-f.cur)*0.2;if(Math.abs(f.tgt-f.cur)<0.02)f.cur=f.tgt;
+  if(Math.round(sebelum)!==Math.round(f.cur)||f._w!==f.cv.width||!f._d){gambar(f,f.cur);f._w=f.cv.width;f._d=true}
+  for(const c of f.caps){const [a,b]=c.r,m=4;let o=0;if(f.cur>=a-m&&f.cur<=b+m){o=Math.min(1,(f.cur-(a-m))/m,(b+m-f.cur)/m)}
+   if(a===0&&f.cur<m)o=1;if(b>=f.n-1&&f.cur>b-m)o=1;
+   c.el.style.opacity=o.toFixed(3);c.el.style.transform=(HP?"translateY(":"translateY(calc(-50% + ")+((1-o)*18).toFixed(1)+"px"+(HP?")":"))")}}
+ const ids=["e","a","banding","tiga-d"];let akt="";for(const id of ids){const el=document.getElementById(id);if(el.getBoundingClientRect().top<vh*0.5)akt=id}
+ nav.forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#"+akt));
+ requestAnimationFrame(langkah)}
+requestAnimationFrame(langkah);
+addEventListener("resize",()=>films.forEach(f=>f._d=false));
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));document.getElementById("viewer").src=b.dataset.f});
+window.__siap=true;
+</script>
+</body>
+</html>

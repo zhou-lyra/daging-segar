@@ -21,12 +21,19 @@ h2{margin:0 0 8px;font-size:18px}h3{margin:0 0 4px;font-size:20px}
 .row span{flex:1;font-size:15px;font-weight:600}.row small{display:block;font-weight:400;color:var(--mut);font-size:14px;line-height:1.35}
 .lead{font-weight:600;font-size:16px;margin:0 0 6px}.body{margin:0 0 6px;font-size:15px;line-height:1.6}.meta{color:var(--mut);font-size:14px;margin:0}
 .hint{margin:6px 2px 0;color:var(--mut);font-size:14px}#err{color:var(--red);font-size:14px}
+body.gelap{--bg:#0F1012;--card:#1A1C1F;--ink:#EDE8E1;--mut:#9A958E;--line:#2A2D31}
+body.gelap canvas{background:radial-gradient(ellipse at 50% 35%,#24272b 0%,#121315 100%)}
+body.gelap button,body.gelap select{background:#22252a;color:var(--ink);border-color:#3a3e44}body.gelap button:hover{background:#2c3036}
+body.gelap .lab{background:#1A1C1F;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.5)}
+body.gelap .row:hover{background:#22252a}body.gelap .row.sel{background:#2a2d32}
+body.gelap input[type=range],body.gelap input[type=checkbox]{accent-color:#C8463D}
+@media(max-width:700px){main{padding:8px;gap:10px}canvas{height:58vh}.lab{font-size:0;gap:0;padding:2px}.lab em{width:22px;height:22px;font-size:12px}.lab.sel{font-size:12px;gap:6px;padding:2px 9px 2px 2px}.tools{gap:8px 12px;padding:10px}.grp{flex-wrap:wrap}button,select{padding:5px 9px;font-size:14px}input[type=range]{width:120px}.hint{font-size:13px}}
 </style></head><body><main>
 <section id="stage"><canvas id="c"></canvas><svg id="sv"></svg><div id="labs"></div><div class="tools" id="tools"></div>
 <p class="hint">Seret untuk memutar, roda mouse untuk zoom, Shift + seret untuk menggeser, klik label untuk penjelasan.</p><div id="err"></div></section>
 <aside><div class="card" id="info"></div><div class="card"><h2>Bagian-bagian</h2><div id="list"></div></div></aside></main>
 <script>
-"use strict";
+"use strict";if(/[?&]tema=gelap/.test(location.search))document.body.classList.add("gelap");
 const PARTS=__PARTS__, GROUPS=__GROUPS__, DATA=__DATA__, HINGE=__HINGE__, INTRO=__INTRO__;
 const cv=document.getElementById('c'),gl=cv.getContext('webgl',{antialias:true,alpha:true,premultipliedAlpha:false});
 if(!gl)document.getElementById('err').textContent='WebGL tidak tersedia di tampilan ini.';
@@ -62,7 +69,7 @@ ckK.onchange=()=>{for(const k in P)if(k.startsWith('kabel'))P[k].on=ckK.checked;
 const list=document.getElementById('list'),info=document.getElementById('info'),labs=document.getElementById('labs'),rows={},labEl={};
 GROUPS.forEach((g,i)=>{const r=document.createElement('div');r.className='row';r.innerHTML='<em style="background:'+g.warna+'">'+(i+1)+'</em><span>'+g.nama+'<small>'+g.ringkas+'</small></span>';r.onclick=()=>select(i);list.appendChild(r);rows[i]=r;
  const l=document.createElement('div');l.className='lab';l.style.borderColor=g.warna;l.innerHTML='<em style="background:'+g.warna+'">'+(i+1)+'</em>'+g.nama;l.onclick=()=>select(i);labs.appendChild(l);labEl[i]=l});
-function select(i){sel=(sel===i)?null:i;GROUPS.forEach((g,j)=>{rows[j].classList.toggle('sel',j===sel);labEl[j].classList.toggle('sel',j===sel);labEl[j].style.background=j===sel?g.warna:'#fff'});
+function select(i){sel=(sel===i)?null:i;GROUPS.forEach((g,j)=>{rows[j].classList.toggle('sel',j===sel);labEl[j].classList.toggle('sel',j===sel);labEl[j].style.background=j===sel?g.warna:''});
  const ins=sel===null?null:new Set(GROUPS[sel].bagian);for(const k in P)P[k].alpha=(ins&&!ins.has(k))?Math.min(P[k].a0,0.10):P[k].a0;
  const g=GROUPS[sel];info.innerHTML=g?('<h3>'+g.nama+'</h3><p class="lead">'+g.ringkas+'</p><p class="body">'+g.teks+'</p><p class="meta">Ukuran: '+g.ukuran.map(v=>v.toFixed(1).replace('.',',')).join(' × ')+' mm</p>'):
  INTRO;draw()}

@@ -210,6 +210,6 @@ if __name__ == "__main__":
     for k, b in B.items():
         m = b["mesh"].copy(); m.visual.face_colors = [int(b["warna"][i:i + 2], 16) for i in (1, 3, 5)] + [255]; sc.add_geometry(m, node_name=k, geom_name=k)
     g = sc.copy(); g.apply_transform(rotation_matrix(-math.pi / 2, [1, 0, 0])); g.apply_scale(0.001); g.export(os.path.join(OUT, "genggam.glb"))
-    json.dump(dict(P=P, chip=CHIP.tolist(), kilap_sisa=sisa, bagian={k: dict(grup=b["grup"], warna=b["warna"], nama=b["nama"], bahan=b["bahan"], alpha=b["alpha"],
+    json.dump(dict(P=P, chip=CHIP.tolist(), led=LED_W.tolist(), lubang=[0.0, 0.0], kilap_sisa=sisa, bagian={k: dict(grup=b["grup"], warna=b["warna"], nama=b["nama"], bahan=b["bahan"], alpha=b["alpha"],
               bounds=np.round(b["mesh"].bounds, 2).tolist()) for k, b in B.items()}), open(os.path.join(OUT, "bagian.json"), "w"), indent=1, ensure_ascii=False)
     print(f"ditulis model/genggam.glb, {len(B)} bagian")
