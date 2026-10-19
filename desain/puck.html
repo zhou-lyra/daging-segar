@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BeefFresh Puck: rancangan bentuk</title>
+<style>
+:root{--bg:#faf7f3;--card:#fff;--ink:#2a2226;--mut:#6c6469;--line:#e2dad0;--red:#b3262e;--green:#2e8b57;--blue:#1f5fa8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header,main{max-width:1240px;margin:0 auto;padding:0 24px}
+header{padding-top:22px}
+h1{margin:0;font-size:30px} h1 b{color:var(--red)}
+.sub{margin:4px 0 12px;color:var(--mut)}
+h2{margin:32px 0 12px;font-size:23px;border-bottom:1px solid var(--line);padding-bottom:6px}
+h3{margin:0 0 6px;font-size:18px}
+p{margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.note{background:#fff6e5;border:1px solid #f0d9a8;border-radius:10px;padding:10px 14px;font-size:15px;color:#6b5320;margin:10px 0}
+.g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media(max-width:860px){.g2{grid-template-columns:1fr}}
+.drw{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+.drw svg{width:100%;height:auto;display:block}
+.cap{font-size:14px;color:var(--mut);margin:6px 0 16px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{text-align:left;color:var(--mut);font-weight:600;font-size:13px;padding:0 8px 6px}
+td{padding:7px 8px;border-top:1px solid var(--line);vertical-align:top}
+td.n,th.n{text-align:center}
+ul{margin:0;padding-left:20px}
+.mut{color:var(--mut);font-size:14px}
+ol.st{margin:0;padding:0;list-style:none;counter-reset:s}
+ol.st>li{counter-increment:s;display:flex;gap:12px;padding:9px 0;border-top:1px solid var(--line)}
+ol.st>li:first-child{border-top:0}
+ol.st>li:before{content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:var(--green);color:#fff;font-weight:700;font-size:14px;display:grid;place-items:center}
+</style>
+</head>
+<body>
+<header>
+ <h1>Beef<b>Fresh</b> Puck: rancangan bentuk</h1>
+ <p class="sub">Alat bundar pendek yang cukup diletakkan di atas daging. Tekanannya hanya dari berat alat, jadi sama setiap kali. Di dalamnya tabung miring 40° dengan LED bawaan sensor.</p>
+ <div class="note"><b>Status:</b> gambar rancangan. Ukuran papan sensor dari berkas resmi Adafruit. Ukuran dop PVC 3 inci, tutup cat, dan berat alat masih anggapan. Belum ada model 3D, dan belum dibuat atau diuji.</div>
+</header>
+<main>
+
+<h2>1. Tampak luar</h2>
+<div class="drw"><svg id="luar"></svg></div>
+<p class="cap">Kiri: <b>Puck 97</b>, cangkang dari dop (tutup) pipa PVC 3 inci, memakai ESP32 DOIT yang sudah ada. Kanan: <b>Puck 65</b>, cangkang dari tutup cat semprotmu, memakai ESP32-C3 Super Mini (perlu dibeli). Keduanya digambar dengan skala yang sama.</p>
+
+<h2>2. Puck 97: potongan samping</h2>
+<div class="drw"><svg id="potA"></svg></div>
+<p class="cap">Potongan di tengah alat. Daging di bawah, alas dop menempel langsung. ESP32 tidur di rak, pinnya menghadap ke bawah, dan soket dupont menggantung di bawah rak. OLED menempel di sisi bawah tutup atas. Semua ukuran dalam mm.</p>
+<h2>3. Puck 97: tata letak dari atas</h2>
+<div class="drw" style="max-width:860px"><svg id="atasA"></svg></div>
+<p class="cap">Dilihat dari atas dengan tutup atas dibuka. Tabung miring condong ke kanan, ESP32 di kiri di atas rak, OLED (garis titik-titik) di tutup atas di kanan. Bagian yang tampak menumpuk berada di ketinggian berbeda: ESP32 di atas rak (z 38), tabung di bawahnya. Lubang ukur tepat di pusat alas, jadi alat tidak miring.</p>
+
+<h2>4. Puck 65: potongan dan tata letak</h2>
+<div class="g2">
+ <div class="drw"><svg id="potB"></svg></div>
+ <div class="drw"><svg id="atasB"></svg></div>
+</div>
+<p class="cap">Tutup cat semprot Ø 65 dipakai terbalik: mukanya menjadi alas dengan lubang Ø 12, sisi terbukanya ditutup cakram PVC dengan jendela OLED. ESP32-C3 Super Mini (22,5 x 18 mm) di rak kecil kiri, kabel disolder langsung supaya muat.</p>
+
+<h2>5. Cara memakai</h2>
+<div class="card"><ol class="st">
+ <li><div><b>Kalibrasi sekali per sesi.</b> Letakkan puck di atas kartu putih doff, lalu di atas kain beludru hitam. Aplikasi menyimpan kedua titik.</div></li>
+ <li><div><b>Letakkan puck di permukaan daging yang rata, lalu lepas tangan.</b> Jangan ditekan. Berat alat sendiri yang menekan, jadi tekanannya sama di setiap pengukuran.</div></li>
+ <li><div><b>Alat mengukur sendiri.</b> Firmware membaca dengan LED mati. Kalau ruang ukur gelap, berarti lubang tertutup daging, lalu alat mengambil bacaan sampai 5 bacaan berturut-turut stabil. Layar menampilkan SELESAI dan hasilnya. Kalau masih ada cahaya masuk, layar menampilkan TEMPEL RAPAT. Tidak perlu tombol.</div></li>
+ <li><div><b>Angkat, lap alas dengan tisu alkohol</b>, pindah ke titik berikutnya.</div></li>
+</ol></div>
+
+<h2>6. Dibandingkan bentuk lain</h2>
+<div class="card"><table>
+ <tr><th>Kriteria</th><th class="n">E Jepit</th><th class="n">Puck 97</th><th class="n">Puck 65</th><th class="n">Stempel</th></tr>
+ <tr><td>Tekanan sama setiap kali</td><td class="n">ya (busa + kait)</td><td class="n">ya (berat alat)</td><td class="n">ya, tetapi lebih ringan</td><td class="n">bergantung tangan</td></tr>
+ <tr><td>Cahaya luar terhalang</td><td class="n">paling baik</td><td class="n">baik (alas Ø 97)</td><td class="n">cukup (alas Ø 65)</td><td class="n">cukup</td></tr>
+ <tr><td>Daging harus diiris</td><td class="n">ya, 10 mm</td><td class="n">tidak</td><td class="n">tidak</td><td class="n">tidak</td></tr>
+ <tr><td>Permukaan daging minimal</td><td class="n">30 x 30 mm</td><td class="n">rata selebar sekitar 5 cm</td><td class="n">rata selebar sekitar 4 cm</td><td class="n">sekitar 3 cm</td></tr>
+ <tr><td>Ukuran</td><td class="n">86 x 86 x 106</td><td class="n">Ø 97 x 50</td><td class="n">Ø 65 x 53</td><td class="n">66 x 44 x 85</td></tr>
+ <tr><td>Perlu beli komponen baru</td><td class="n">tidak</td><td class="n">dop PVC 3 inci</td><td class="n">ESP32-C3 Super Mini</td><td class="n">tidak</td></tr>
+ <tr><td>Mudah dirakit</td><td class="n">sedang</td><td class="n">mudah</td><td class="n">sedang (solder kecil)</td><td class="n">mudah</td></tr>
+</table>
+<p class="mut" style="margin:8px 0 0">Semua penilaian dari rancangan, belum ada data uji. Berat Puck 97 diperkirakan 130 sampai 160 g, Puck 65 sekitar 60 sampai 80 g. Makin berat, makin rata daging menempel, tetapi daging juga makin menonjol ke lubang ukur.</p></div>
+
+<h2>7. Yang belum diketahui</h2>
+<div class="card"><ul>
+ <li>Ukuran dop PVC 3 inci yang dijual di dekatmu: diameter dalam (dianggap 89, pas dengan pipa luar 89), tebal alas (dianggap 3), dan kedalaman (perlu minimal 50).</li>
+ <li>Diameter dalam pipa PVC 1 inci untuk tabung miring (perlu minimal 25,4 supaya papan sensor masuk).</li>
+ <li>Seberapa banyak daging menonjol ke lubang Ø 12 karena berat alat. Ini mengubah jarak chip ke daging. Uji ulangan akan memperlihatkannya.</li>
+ <li>Pantulan dari dinding dalam tabung yang dekat dengan sensor. Tabung wajib dilapisi beludru hitam. Angkanya baru bisa dihitung setelah model 3D dibuat.</li>
+ <li>Firmware pengukuran otomatis (deteksi gelap dan 5 bacaan stabil) belum ditulis.</li>
+</ul></div>
+<p class="mut" style="margin:20px 0 40px">Kepala ukur sama dengan sketsa genggam: papan TCS34725 tegak lurus di dalam pipa 1 inci, ujung pipa dipotong miring 40°, chip 17 mm dari pusat lubang. Satu kepala ukur bisa dipakai di penjepit E dan di puck, sehingga datanya bisa dibandingkan.</p>
+</main>
+
+<script>
+"use strict";
+const BL="#1f5fa8",GR="#2e8b57",RD="#b3262e",PVC="#e4ded4",PVCs="#8a8378",HIT="#26272b";
+const f1=v=>(Math.round(v*10)/10).toString().replace(".",",");
+const A0=40*Math.PI/180,SA=Math.sin(A0),CA=Math.cos(A0);
+const Pt=(s,r)=>[s*SA+r*CA,s*CA-r*SA];          // titik di sumbu tabung (s) dengan geser tegak lurus (r), bidang x-z
+function kanvas(id,xmin,xmax,zmin,zmax,S,m){const W=(xmax-xmin)*S+m[0]+m[2],H=(zmax-zmin)*S+m[1]+m[3];const svg=document.getElementById(id);svg.setAttribute("viewBox",`0 0 ${W.toFixed(0)} ${H.toFixed(0)}`);
+ const X=x=>(x-xmin)*S+m[0],Y=z=>(zmax-z)*S+m[1];let s="";const mk="m"+id;
+ const o={X,Y,S,W,H,
+  poly:(pts,f,st="#333",sw=1,da="",op=1)=>{s+=`<polygon points="${pts.map(p=>X(p[0]).toFixed(1)+","+Y(p[1]).toFixed(1)).join(" ")}" fill="${f}" fill-opacity="${op}" stroke="${st}" stroke-width="${sw}" ${da?`stroke-dasharray="${da}"`:""}/>`},
+  rect:(x0,z0,x1,z1,f,st="#333",sw=1,da="",op=1)=>o.poly([[x0,z0],[x1,z0],[x1,z1],[x0,z1]],f,st,sw,da,op),
+  circ:(cx,cz,r,f,st="#333",sw=1,da="")=>{s+=`<circle cx="${X(cx)}" cy="${Y(cz)}" r="${r*S}" fill="${f}" stroke="${st}" stroke-width="${sw}" ${da?`stroke-dasharray="${da}"`:""}/>`},
+  line:(a,b,col,sw=1.2,da="")=>{s+=`<line x1="${X(a[0]).toFixed(1)}" y1="${Y(a[1]).toFixed(1)}" x2="${X(b[0]).toFixed(1)}" y2="${Y(b[1]).toFixed(1)}" stroke="${col}" stroke-width="${sw}" ${da?`stroke-dasharray="${da}"`:""}/>`},
+  text:(px,py,t,anc="middle",col="#2a2226",sz=13,w=700)=>{s+=`<text x="${px.toFixed(1)}" y="${py.toFixed(1)}" font-size="${sz}" font-weight="${w}" fill="${col}" text-anchor="${anc}" paint-order="stroke" stroke="${col==="#fff"?"#145233":"#fff"}" stroke-width="4" stroke-linejoin="round">${t}</text>`},
+  raw:t=>{s+=t},
+  dim:(a,b,off,t,anc="middle",gap=13)=>{const dx=b[0]-a[0],dz=b[1]-a[1],L=Math.hypot(dx,dz),nx=-dz/L,nz=dx/L;const A=[a[0]+nx*off,a[1]+nz*off],B=[b[0]+nx*off,b[1]+nz*off];
+   o.line(a,A,"#9aa3ad",.8,"3 2");o.line(b,B,"#9aa3ad",.8,"3 2");
+   s+=`<line x1="${X(A[0])}" y1="${Y(A[1])}" x2="${X(B[0])}" y2="${Y(B[1])}" stroke="${BL}" stroke-width="1.3" marker-start="url(#${mk})" marker-end="url(#${mk})"/>`;
+   const sg=off>=0?1:-1;o.text((X(A[0])+X(B[0]))/2+nx*gap*sg,(Y(A[1])+Y(B[1]))/2-nz*gap*sg+4,t,anc,BL,12)},
+  tanda:(n,x,z)=>{s+=`<circle cx="${X(x)}" cy="${Y(z)}" r="11" fill="#fff" stroke="#2a2226" stroke-width="1.5"/>`;o.text(X(x),Y(z)+4.5,String(n),"middle","#2a2226",12)},
+  done:()=>{svg.innerHTML=`<defs><marker id="${mk}" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="${BL}"/></marker></defs>`+s}};
+ return o}
+
+/* ---------------- kepala ukur (dipakai kedua puck) ---------------- */
+const H_CHIP=17, TUBE_RO=16, TUBE_RI=14, TUBE_L=24, AP=6;
+function kepala(K,tb){
+ const sAt=r=>(tb+r*SA)/CA;
+ for(const [r0,r1] of [[TUBE_RI,TUBE_RO],[-TUBE_RO,-TUBE_RI]])K.poly([Pt(sAt(r0),r0),Pt(TUBE_L,r0),Pt(TUBE_L,r1),Pt(sAt(r1),r1)],"#cfc8bc",PVCs,1);
+ for(const r of [TUBE_RI-0.5,-(TUBE_RI-0.5)])K.line(Pt(sAt(r)+0.3,r),Pt(H_CHIP+2,r),"#050505",3);       // beludru
+ const sd=H_CHIP+2.25;K.poly([Pt(sd,-TUBE_RI),Pt(sd+3,-TUBE_RI),Pt(sd+3,TUBE_RI),Pt(sd,TUBE_RI)],HIT,"#111");   // cakram dudukan
+ K.poly([Pt(H_CHIP+0.65,-10.16),Pt(H_CHIP+2.25,-10.16),Pt(H_CHIP+2.25,10.16),Pt(H_CHIP+0.65,10.16)],"#6a2c91","#4c2468");
+ K.poly([Pt(H_CHIP,-1.2),Pt(H_CHIP+0.65,-1.2),Pt(H_CHIP+0.65,1.2),Pt(H_CHIP,1.2)],"#c9b37a","#7d6a3e");
+ K.poly([Pt(H_CHIP+2.25,-9.8),Pt(H_CHIP+4.75,-9.8),Pt(H_CHIP+4.75,-7.2),Pt(H_CHIP+2.25,-7.2)],"#151515");
+ K.poly([Pt(H_CHIP+4.75,-9.75),Pt(H_CHIP+18.75,-9.75),Pt(H_CHIP+18.75,-7.25),Pt(H_CHIP+4.75,-7.25)],"#202020");    // soket dupont
+ K.line(Pt(H_CHIP,0),[0,0],GR,1.8);
+ return {sockTop:Pt(H_CHIP+18.75,-8.5)};
+}
+function alasDaging(K,x0,x1,tb,R){K.rect(x0,-9,x1,0,"#b5483f","#7c2a24",1.2)}
+
+/* ---------------- Puck 97: potongan ---------------- */
+const PA={Ri:44.5,Ro:48.5,tb:3,H:50,lidZ:44,lidT:3,shelf:[35,38],esp:{x0:-32.1,x1:-3.9},oled:{cx:24,L:27.3}};
+(()=>{const K=kanvas("potA",-62,70,-14,62,7,[40,30,345,60]);const p=PA;
+ alasDaging(K,-62,70);
+ // dop: alas + dinding
+ K.poly([[-p.Ro,0],[-AP,0],[-AP,p.tb],[-p.Ri,p.tb],[-p.Ri,p.H],[-p.Ro,p.H]],"#3a3b40","#111");
+ K.poly([[AP,0],[p.Ro,0],[p.Ro,p.H],[p.Ri,p.H],[p.Ri,p.tb],[AP,p.tb]],"#3a3b40","#111");
+ // tutup atas (cakram) dengan jendela OLED
+ const ow=[p.oled.cx-12.5,p.oled.cx+12.5];
+ K.rect(-p.Ri,p.lidZ,ow[0],p.lidZ+p.lidT,PVC,PVCs);K.rect(ow[1],p.lidZ,p.Ri,p.lidZ+p.lidT,PVC,PVCs);
+ const kp=kepala(K,p.tb);
+ // rak ESP32
+ K.rect(-p.Ri,p.shelf[0],2,p.shelf[1],PVC,PVCs);
+ // ESP32: pcb di atas rak, modul di atas pcb, soket menggantung di bawah rak
+ K.rect(p.esp.x0,p.shelf[1],p.esp.x1,p.shelf[1]+1.6,"#1f6f43","#145233");
+ K.rect(p.esp.x0+1.4,p.shelf[1]+1.6,p.esp.x1-1.4,p.shelf[1]+4.7,"#a7adb4","#666");
+ for(const xr of [p.esp.x0+1.4,p.esp.x1-1.4]){K.rect(xr-1.25,p.shelf[0]-14,xr+1.25,p.shelf[0],"#202020","#000")}
+ // OLED
+ K.rect(p.oled.cx-13.35,p.lidZ-1.4,p.oled.cx+13.35,p.lidZ,"#0a0f1e","#000");K.rect(p.oled.cx-13.65,p.lidZ-2.6,p.oled.cx+13.65,p.lidZ-1.4,"#1d4f9c","#123a78");
+ // kabel (skematis)
+ const st=kp.sockTop;
+ K.raw(`<path d="M${K.X(st[0])},${K.Y(st[1])} C ${K.X(st[0]-2)},${K.Y(st[1]+6)} ${K.X(p.esp.x1+3)},${K.Y(p.shelf[0]-20)} ${K.X(p.esp.x1-1.4)},${K.Y(p.shelf[0]-14)}" fill="none" stroke="#e67e22" stroke-width="2.4"/>`);
+ K.raw(`<path d="M${K.X(st[0]+1)},${K.Y(st[1])} C ${K.X(st[0]+6)},${K.Y(st[1]+8)} ${K.X(-24)},${K.Y(22)} ${K.X(p.esp.x0+1.4)},${K.Y(p.shelf[0]-14)}" fill="none" stroke="#e0245e" stroke-width="2.4"/>`);
+ // lubang USB di dinding (tampak di belakang bidang potong)
+ K.rect(-p.Ro,p.shelf[1]-1,-p.Ri,p.shelf[1]+7,"none","#fff",1.2,"3 2");
+ // jalan kilap
+ const C=Pt(H_CHIP,0);K.line(C,[C[0],p.tb],RD,1.5,"2 3");K.circ(C[0],p.tb,0.55,RD,"none");
+ // ukuran
+ K.dim([-p.Ro,-9],[p.Ro,-9],-5,"Ø 97 (dop PVC 3 inci, anggapan)");
+ K.dim([-AP,0],[AP,0],-2.2,"Ø 12");
+ K.dim([p.Ro,0],[p.Ro,p.lidZ+p.lidT],-8,f1(p.lidZ+p.lidT),"start");
+ K.dim([0,0],C,8,"17","end");
+ K.dim([p.Ro,0],[p.Ro,p.tb],-20,"alas 3","start",0);
+ K.dim([p.esp.x0,p.shelf[1]+4.7],[p.esp.x1,p.shelf[1]+4.7],5,"ESP32 28");
+ K.dim([-p.Ro,p.shelf[1]],[-p.Ro,0],8,"rak "+f1(p.shelf[1]),"end");
+ // penanda + legenda
+ const T=[[1,-50,-5],[2,-p.Ro-6,20],[3,Pt(H_CHIP+1.4,12.5)[0]+5,Pt(H_CHIP+1.4,12.5)[1]-3],[4,-17,14],[5,-18,p.shelf[1]+9],[6,-38,p.shelf[0]-8],[7,p.oled.cx,p.lidZ+9],[8,-30,p.lidZ+9],[9,kp.sockTop[0]+5,kp.sockTop[1]+5]];
+ for(const t of T)K.tanda(...t);
+ const L=["daging (diletakkan di meja)","dop PVC 3 inci, alas berlubang Ø 12","papan TCS34725 di tabung miring 40°","tabung pipa 1 inci, dalamnya beludru hitam","ESP32 DOIT, pin menghadap bawah","rak PVC 3 mm + soket dupont","OLED di bawah jendela tutup","tutup atas, cakram PVC","soket dupont sensor"];
+ let lx=K.X(70)+22,ly=K.Y(60);
+ L.forEach((t,i)=>{K.raw(`<circle cx="${lx}" cy="${ly-4}" r="10" fill="#fff" stroke="#2a2226" stroke-width="1.4"/>`);K.text(lx,ly+0.5,String(i+1),"middle","#2a2226",11);K.text(lx+18,ly,t,"start","#2a2226",13,600);ly+=26});
+ ly+=6;K.raw(`<line x1="${lx-10}" y1="${ly-4}" x2="${lx+12}" y2="${ly-4}" stroke="${GR}" stroke-width="2.2"/>`);K.text(lx+18,ly,"sumbu pandang chip","start","#2a2226",13,600);
+ ly+=24;K.raw(`<line x1="${lx-10}" y1="${ly-4}" x2="${lx+12}" y2="${ly-4}" stroke="${RD}" stroke-width="2" stroke-dasharray="2 3"/>`);K.text(lx+18,ly,"kilap jatuh di alas hitam,","start","#2a2226",13,600);K.text(lx+18,ly+17,"di luar lubang (3,2 mm di","start","#555",12,400);K.text(lx+18,ly+33,"belakang bidang potong)","start","#555",12,400);
+ K.done()})();
+
+/* ---------------- Puck 97: tampak atas ---------------- */
+(()=>{const p=PA,K=kanvas("atasA",-56,56,-56,56,6.2,[40,30,40,40]);
+ K.circ(0,0,p.Ro,"#3a3b40","#111",1.5);K.circ(0,0,p.Ri,"#efeae2","#555",1);
+ // rak
+ K.raw(`<clipPath id="cpA"><circle cx="${K.X(0)}" cy="${K.Y(0)}" r="${p.Ri*K.S}"/></clipPath><g clip-path="url(#cpA)">`);
+ K.rect(-p.Ri,-p.Ri,2,p.Ri,"#d9d4cb",PVCs,1,"",0.9);K.raw("</g>");
+ // tabung miring, proyeksi
+ const sAt=r=>(p.tb+r*SA)/CA;const x0=Pt(sAt(-TUBE_RO),-TUBE_RO)[0],x1=Pt(TUBE_L,TUBE_RO)[0];
+ K.raw(`<rect x="${K.X(x0)}" y="${K.Y(TUBE_RO)}" width="${(x1-x0)*K.S}" height="${2*TUBE_RO*K.S}" rx="${10*K.S}" fill="#cfc8bc" fill-opacity=".85" stroke="${PVCs}" stroke-dasharray="6 3"/>`);
+ K.rect(Pt(H_CHIP,10.16)[0],-10.16,Pt(H_CHIP+2.25,-10.16)[0],10.16,"#6a2c91","#4c2468",1,"",0.6);
+ K.circ(0,0,AP,"#fff",RD,1.6);K.line([-3,0],[3,0],RD,1.2);K.line([0,-3],[0,3],RD,1.2);
+ // ESP32 + USB
+ K.rect(p.esp.x0,-25.9,p.esp.x1,25.9,"#1f6f43","#145233",1.2,"",0.85);
+ const ux=(p.esp.x0+p.esp.x1)/2;K.rect(ux-4,25.9,ux+4,31,"#c0c4c9","#666");
+ const yw=Math.sqrt(p.Ri*p.Ri-ux*ux);K.rect(ux-6.5,yw-0.5,ux+6.5,Math.sqrt(p.Ro*p.Ro-ux*ux)+1,"#fff","#2a2226",1.2);
+ // OLED di tutup
+ K.rect(p.oled.cx-13.65,-13.9,p.oled.cx+13.65,13.9,"none","#1d4f9c",1.6,"3 3");
+ K.text(K.X(ux),K.Y(0)+5,"ESP32","middle","#fff",13);
+ K.text(K.X(ux),K.Y(yw)-14,"takik USB","middle","#2a2226",12);
+ K.text(K.X(p.oled.cx),K.Y(15.5)-4,"OLED (di tutup)","middle","#1d4f9c",12);
+ K.text(K.X(0),K.Y(-AP)+18,"lubang ukur Ø 12","middle",RD,12);
+ K.text(K.X(x1)-6,K.Y(-TUBE_RO)+16,"tabung miring","end","#5d564c",12);
+ K.text(K.X(-p.Ri)+8,K.Y(-p.Ri*0.72),"rak","start","#5d564c",12);
+ K.dim([-p.Ro,-p.Ro],[p.Ro,-p.Ro],-3,"Ø 97");
+ K.dim([p.esp.x0,-25.9],[p.esp.x0,25.9],-3,"52","end");
+ K.done()})();
+
+/* ---------------- Puck 65 ---------------- */
+const PB={Ri:31,Ro:32.5,tb:1.5,H:50,lidT:3,mcu:{x0:-28,x1:-10,y:11.25},shelf:[28,30],oled:{cx:8}};
+(()=>{const p=PB,K=kanvas("potB",-40,44,-12,60,6.6,[30,30,30,50]);
+ alasDaging(K,-40,44);
+ K.poly([[-p.Ro,0],[-AP,0],[-AP,p.tb],[-p.Ri,p.tb],[-p.Ri,p.H],[-p.Ro,p.H]],"#1e1f22","#000");
+ K.poly([[AP,0],[p.Ro,0],[p.Ro,p.H],[p.Ri,p.H],[p.Ri,p.tb],[AP,p.tb]],"#1e1f22","#000");
+ const ow=[p.oled.cx-12.5,p.oled.cx+12.5];
+ K.rect(-p.Ro,p.H,ow[0],p.H+p.lidT,PVC,PVCs);K.rect(ow[1],p.H,p.Ro,p.H+p.lidT,PVC,PVCs);
+ kepala(K,p.tb);
+ K.rect(-p.Ri,p.shelf[0],p.mcu.x1+2,p.shelf[1],PVC,PVCs);
+ K.rect(p.mcu.x0,p.shelf[1],p.mcu.x1,p.shelf[1]+1.2,"#20232a","#000");K.rect(p.mcu.x0+3,p.shelf[1]+1.2,p.mcu.x1-3,p.shelf[1]+3.2,"#a7adb4","#666");
+ K.rect(p.oled.cx-13.35,p.H-1.4,p.oled.cx+13.35,p.H,"#0a0f1e","#000");K.rect(p.oled.cx-13.65,p.H-2.6,p.oled.cx+13.65,p.H-1.4,"#1d4f9c","#123a78");
+ const C=Pt(H_CHIP,0);K.line(C,[C[0],p.tb],RD,1.5,"2 3");K.circ(C[0],p.tb,0.55,RD,"none");
+ K.dim([-p.Ro,-9],[p.Ro,-9],-4.5,"Ø 65 (tutup cat)");
+ K.dim([p.Ro,0],[p.Ro,p.H+p.lidT],-6,"53","start");
+ K.dim([-AP,0],[AP,0],-2.2,"Ø 12");
+ K.text(K.X((p.mcu.x0+p.mcu.x1)/2),K.Y(p.shelf[1]+3.2)-8,"ESP32-C3","middle","#2a2226",12);
+ K.text(K.X(p.oled.cx),K.Y(p.H+p.lidT)-8,"OLED","middle","#1d4f9c",12);
+ K.text(K.X(C[0])+16,K.Y(C[1])+4,"sensor","start","#4c2468",12);
+ K.done()})();
+(()=>{const p=PB,K=kanvas("atasB",-38,38,-38,38,6.6,[30,30,30,50]);
+ K.circ(0,0,p.Ro,"#1e1f22","#000",1.5);K.circ(0,0,p.Ri,"#efeae2","#555",1);
+ const sAt=r=>(p.tb+r*SA)/CA;const x0=Pt(sAt(-TUBE_RO),-TUBE_RO)[0],x1=Pt(TUBE_L,TUBE_RO)[0];
+ K.raw(`<rect x="${K.X(x0)}" y="${K.Y(TUBE_RO)}" width="${(x1-x0)*K.S}" height="${2*TUBE_RO*K.S}" rx="${10*K.S}" fill="#cfc8bc" fill-opacity=".85" stroke="${PVCs}" stroke-dasharray="6 3"/>`);
+ K.circ(0,0,AP,"#fff",RD,1.6);
+ K.rect(p.mcu.x0,-p.mcu.y,p.mcu.x1,p.mcu.y,"#20232a","#000",1.2,"",0.9);
+ const ux=(p.mcu.x0+p.mcu.x1)/2;K.rect(ux-4.5,-p.mcu.y-6,ux+4.5,-p.mcu.y,"#c0c4c9","#666");
+ K.rect(p.oled.cx-13.65,-13.9,p.oled.cx+13.65,13.9,"none","#1d4f9c",1.6,"3 3");
+ K.text(K.X(ux),K.Y(0)+5,"C3","middle","#fff",13);
+ K.text(K.X(ux),K.Y(-p.mcu.y-6)+16,"USB-C","middle","#2a2226",12);
+ K.text(K.X(p.oled.cx),K.Y(13.9)-6,"OLED (di tutup)","middle","#1d4f9c",12);
+ K.dim([-p.Ro,-p.Ro],[p.Ro,-p.Ro],-3,"Ø 65");
+ K.done()})();
+
+/* ---------------- tampak luar (ilustrasi, skala sama) ---------------- */
+(()=>{const el=[];const S=3.6,ky=0.38;const W=1180,Hh=470;
+ const cyl=(cx,base,R,H,col,top,label,meatW)=>{const rx=R*S,ry=R*S*ky,h=H*S,tY=base-h;
+  el.push(`<ellipse cx="${cx}" cy="${base+26}" rx="${meatW*S/2}" ry="${meatW*S*ky/2+10}" fill="#b5483f" stroke="#7c2a24" stroke-width="1.5"/>`);
+  el.push(`<ellipse cx="${cx}" cy="${base+4}" rx="${rx*1.02}" ry="${ry*1.02}" fill="rgba(0,0,0,.25)"/>`);
+  el.push(`<path d="M${cx-rx},${tY} L${cx-rx},${base} A${rx},${ry} 0 0 0 ${cx+rx},${base} L${cx+rx},${tY} Z" fill="${col}" stroke="#111" stroke-width="1.4"/>`);
+  el.push(`<path d="M${cx-rx*0.85},${tY+8} L${cx-rx*0.85},${base-4}" stroke="rgba(255,255,255,.18)" stroke-width="${rx*0.12}"/>`);
+  el.push(`<ellipse cx="${cx}" cy="${tY}" rx="${rx}" ry="${ry}" fill="${top}" stroke="#555" stroke-width="1.4"/>`);
+  const ow=25*S/2,oh=15*S*ky/2;el.push(`<rect x="${cx+R*S*0.25-ow}" y="${tY-oh}" width="${2*ow}" height="${2*oh}" rx="3" fill="#0a0f1e" stroke="#333"/>`);
+  el.push(`<text x="${cx+R*S*0.25}" y="${tY+5}" font-size="13" font-weight="700" fill="#7fd1ff" text-anchor="middle" font-family="monospace">SEGAR</text>`);
+  el.push(`<path d="M${cx-rx+4},${tY+h*0.28} q-40,10 -70,50" fill="none" stroke="#333" stroke-width="5" stroke-linecap="round"/>`);
+  el.push(`<text x="${cx}" y="${base+26+meatW*S*ky/2+10+28}" font-size="16" font-weight="700" fill="#2a2226" text-anchor="middle">${label}</text>`)};
+ cyl(320,290,48.5,50,"#3a3b40","#e4ded4","Puck 97: Ø 97 x 50 mm, ESP32 DOIT",140);
+ cyl(860,290,32.5,53,"#1e1f22","#e4ded4","Puck 65: Ø 65 x 53 mm, ESP32-C3",100);
+ el.push(`<text x="560" y="40" font-size="14" font-weight="600" fill="#6c6469" text-anchor="middle">diletakkan di atas daging, tangan dilepas, kabel USB ke laptop</text>`);
+ document.getElementById("luar").setAttribute("viewBox",`0 0 ${W} ${Hh}`);document.getElementById("luar").innerHTML=el.join("")})();
+</script>
+</body>
+</html>
