@@ -70,8 +70,8 @@ GROUPS = [
          teks="Dua engsel kupu-kupu 25 mm dipasang di sisi belakang dengan baut M3 dan mur, porosnya tepat di garis sambungan baki dan kepala. Pasang tali pembatas supaya kepala tidak terbuka lebih dari sekitar 100 derajat."),
     dict(nama="Kait", warna="#7d838b", bagian=pref("kait_"), ringkas="Mengunci kepala supaya tekanan busa sama.",
          teks="Kait kotak kecil di sisi depan. Busa mendorong kepala ke atas, jadi kepala harus dikunci supaya daging selalu tertekan sama rata ke muka tutup cat."),
-    dict(nama="Kabel dupont", warna="#e67e22", bagian=pref("kabel_"), ringkas="9 kabel, tanpa breadboard dan tanpa solder.",
-         teks="Sensor: VIN ke 3V3, GND, SDA ke GPIO 21, SCL ke GPIO 22, LED ke GPIO 26. OLED: VCC ke 3V3, GND, SDA ke GPIO 21, SCL ke GPIO 22. Jalur di model ini hanya contoh."),
+    dict(nama="Kabel dupont", warna="#e67e22", bagian=pref("kabel_"), ringkas="9 kabel, 3 di antaranya bercabang Y.",
+         teks="Sensor: VIN ke 3V3, GND ke GND baris VIN, SDA ke GPIO 21, SCL ke GPIO 22, LED ke GPIO 26. OLED: VCC ke 3V3, GND ke GND baris 3V3, SDA ke GPIO 21, SCL ke GPIO 22. 3V3, GPIO 21, dan GPIO 22 memakai kabel cabang Y (selongsong hitam di atas pin). Tiap kabel berjalan di ketinggiannya sendiri dan tidak menyentuh kabel lain."),
     dict(nama="Tatakan kalibrasi", warna="#f0efe8", bagian=["kal_putih", "kal_hitam"], ringkas="Balok putih dan hitam 60 x 60 x 10 mm.",
          teks="Dipakai sekali per sesi: balok putih (kertas HVS doff) untuk titik putih, balok hitam (beludru) untuk titik gelap. Tebalnya sama dengan daging (10 mm), jadi ditekan busa ke muka tutup cat dengan cara yang sama."),
 ]
@@ -94,7 +94,9 @@ for k, b in B.items():
     tubuh = b["mesh"].split(only_watertight=False) if k in ("kepala_bibir", "dudukan_pipi") else [b["mesh"]]
     for m in tubuh:
         e = sorted(np.round(m.extents, 1), reverse=True)
-        if k == "dudukan_pipi":
+        if k == "dudukan_pelat":
+            nama, uk = b["nama"], f"{f1(G.PELAT['bx1'] - G.PELAT['bx0'])} x {f1(G.PELAT['by1'] - G.PELAT['by0'])}"
+        elif k == "dudukan_pipi":
             nama, uk = "Pipi penyangga (trapesium, lihat pola)", f"{f1(G.PIPI_POLI[1][0]-G.PIPI_POLI[0][0])} x {f1(G.Hc-G.PIPI_POLI[1][1])}"
         else:
             nama = re.sub(r" \(.*\)", "", b["nama"]); uk = f"{f1(e[0])} x {f1(e[1])}"
@@ -106,6 +108,9 @@ POTONG = sorted(potong.items(), key=lambda x: -float(x[0][1].split(" x ")[0].rep
 luas = sum(float(n[1].split(" x ")[0].replace(",", ".")) * float(n[1].split(" x ")[1].replace(",", ".")) * c for n, c in POTONG) / 100
 rows_potong = "".join(f"<tr><td>{n}{' <span class=mut>(PVC hitam atau dicat hitam doff)</span>' if w=='hitam' else ''}</td><td class=n>{u}</td><td class=n>{c}</td><td class=mut>{cat}</td></tr>" for (n, u, cat, w), c in POTONG)
 
+def dupont(mm): return "10 cm" if mm + 25 <= 100 else ("15 cm" if mm + 25 <= 150 else "20 cm")
+rows_kabel = "".join(f'<tr><td><i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:{kb["warna"]};margin-right:6px"></i>{kb["dari"]}</td><td>{kb["ke"]}' + (" (cabang Y)" if kb["cabang"] else "") + f'</td><td class=n>{f1(kb["panjang"] / 10)} cm</td><td class=n>{dupont(kb["panjang"])}</td></tr>'
+                     for k, kb in G.KABEL.items() if not k.startswith("kabel_y_"))
 svg = {f: open(os.path.join(HERE, "gambar", f)).read() for f in os.listdir(os.path.join(HERE, "gambar")) if f.endswith(".svg")}
 pola_w = re.search(r'width="([\d.]+)mm"', svg["5_pola_1banding1.svg"]).group(1)
 sisa = G.kilap()[0]
@@ -116,6 +121,7 @@ html_render = "".join(f'<figure><img src="jepit/render/{f}" alt="{JUDUL_RENDER.g
 
 HAL = open(os.path.join(HERE, "halaman_template.html")).read()
 for k, v in {"__SVG1__": svg["1_potongan.svg"], "__SVG2__": svg["2_ruang_ukur.svg"], "__SVG3__": svg["3_denah_lantai_kepala.svg"], "__SVG4__": svg["4_terbuka.svg"],
+             "__SVG6__": svg["6_skema_kabel.svg"], "__SVG7__": svg["7_denah_kabel.svg"], "__SVG8__": svg["8_lembar_baki.svg"], "__SVG9__": svg["9_lembar_kepala.svg"], "__SVG10__": svg["10_lembar_kecil.svg"], "__KABEL__": rows_kabel, "__JARAK__": f1(G.jarak_kabel()[0][0]),
              "__SVG5__": svg["5_pola_1banding1.svg"].replace(f'width="{pola_w}mm"', 'width="100%"').replace('height="182mm"', ''),
              "__POTONG__": rows_potong, "__LUAS__": f1(luas), "__SISA__": f1(sisa), "__RENDER__": html_render or "<p class=mut>Render belum dibuat.</p>",
              "__JX0__": f1(J[0]), "__JX1__": f1(J[1]), "__JY0__": f1(J[2]), "__JY1__": f1(J[3]), "__JW__": f1(J[1] - J[0]), "__JH__": f1(J[3] - J[2]),

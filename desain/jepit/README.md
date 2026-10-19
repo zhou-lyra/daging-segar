@@ -9,7 +9,7 @@ cd desain/jepit
 ../../.venv-cad/bin/python geometri.py        # model/jepit.glb, katalog.glb, bagian.json + pemeriksaan tabrakan
 ../../.venv-cad/bin/python cek_pandang.py     # chip dan LED melihat lubang ukur?
 ../../.venv-cad/bin/python cek_stabil.py      # terguling saat dibuka?
-../../.venv-cad/bin/python gambar.py          # gambar/*.svg (potongan, ruang ukur, denah, terbuka, pola 1:1)
+../../.venv-cad/bin/python gambar.py          # gambar/*.svg: potongan, ruang ukur, denah, terbuka, pola 1:1, skema + denah kabel, ukuran tiap lembar PVC
 ~/.local/bin/blender -b -P blender_jepit.py -- 32   # render/*.png + model/jepit.blend (8 = uji cepat)
 ../../.venv-cad/bin/python bangun_halaman.py  # penampil_3d.html + ../penjepit.html
 ```

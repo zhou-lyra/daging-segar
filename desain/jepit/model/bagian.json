@@ -715,7 +715,7 @@
   "esp_dupont": {
    "grup": "atas",
    "warna": "#202020",
-   "nama": "Soket dupont ESP32 (5)",
+   "nama": "Soket dupont ESP32 (6)",
    "bahan": "plastik_hitam",
    "alpha": 1.0,
    "bounds": [
@@ -902,174 +902,250 @@
     ]
    ]
   },
-  "kabel_s_VIN": {
+  "kabel_s_LED": {
    "grup": "atas",
-   "warna": "#e0245e",
-   "nama": "Kabel VIN",
+   "warna": "#2e8b57",
+   "nama": "Kabel Sensor LED ke ESP32 GPIO 26",
    "bahan": "kabel",
    "alpha": 1.0,
    "bounds": [
     [
-     31.54,
-     9.66,
-     31.23
+     6.7,
+     27.66,
+     31.26
     ],
     [
-     63.49,
-     53.77,
-     53.98
-    ]
-   ]
-  },
-  "kabel_s_GND": {
-   "grup": "atas",
-   "warna": "#2b2b2b",
-   "nama": "Kabel GND",
-   "bahan": "kabel",
-   "alpha": 1.0,
-   "bounds": [
-    [
-     31.54,
-     12.58,
-     31.22
-    ],
-    [
-     63.49,
-     50.86,
-     54.57
+     61.76,
+     35.78,
+     51.27
     ]
    ]
   },
   "kabel_s_SDA": {
    "grup": "atas",
    "warna": "#e67e22",
-   "nama": "Kabel SDA",
+   "nama": "Kabel Sensor SDA ke ESP32 GPIO 21",
    "bahan": "kabel",
    "alpha": 1.0,
    "bounds": [
     [
-     31.54,
-     37.7,
-     31.21
+     32.1,
+     37.82,
+     31.26
     ],
     [
-     63.49,
-     40.98,
-     55.61
+     61.76,
+     40.86,
+     52.97
     ]
    ]
   },
   "kabel_s_SCL": {
    "grup": "atas",
    "warna": "#8e44ad",
-   "nama": "Kabel SCL",
+   "nama": "Kabel Sensor SCL ke ESP32 GPIO 22",
    "bahan": "kabel",
    "alpha": 1.0,
    "bounds": [
     [
-     31.54,
-     41.75,
-     31.19
+     32.1,
+     42.0,
+     31.26
     ],
     [
-     63.5,
-     47.09,
-     56.89
+     61.76,
+     46.84,
+     54.67
     ]
    ]
   },
-  "kabel_s_LED": {
-   "grup": "atas",
-   "warna": "#2e8b57",
-   "nama": "Kabel LED",
-   "bahan": "kabel",
-   "alpha": 1.0,
-   "bounds": [
-    [
-     6.14,
-     27.16,
-     31.18
-    ],
-    [
-     65.36,
-     36.28,
-     58.3
-    ]
-   ]
-  },
-  "kabel_o_VCC": {
-   "grup": "atas",
-   "warna": "#e0245e",
-   "nama": "Kabel VCC",
-   "bahan": "kabel",
-   "alpha": 1.0,
-   "bounds": [
-    [
-     31.66,
-     12.21,
-     41.91
-    ],
-    [
-     59.73,
-     31.82,
-     56.59
-    ]
-   ]
-  },
-  "kabel_o_GND": {
+  "kabel_s_GND": {
    "grup": "atas",
    "warna": "#2b2b2b",
-   "nama": "Kabel GND",
+   "nama": "Kabel Sensor GND ke ESP32 GND (baris VIN)",
    "bahan": "kabel",
    "alpha": 1.0,
    "bounds": [
     [
-     31.66,
-     14.75,
-     42.03
+     6.7,
+     14.96,
+     31.26
     ],
     [
-     57.19,
-     31.82,
-     55.06
+     61.76,
+     48.48,
+     56.37
+    ]
+   ]
+  },
+  "kabel_s_VIN": {
+   "grup": "atas",
+   "warna": "#e0245e",
+   "nama": "Kabel Sensor VIN ke ESP32 3V3",
+   "bahan": "kabel",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     32.1,
+     12.42,
+     31.26
+    ],
+    [
+     61.76,
+     51.02,
+     58.07
     ]
    ]
   },
   "kabel_o_SDA": {
    "grup": "atas",
    "warna": "#e67e22",
-   "nama": "Kabel SDA",
+   "nama": "Kabel OLED SDA ke ESP32 GPIO 21",
    "bahan": "kabel",
    "alpha": 1.0,
    "bounds": [
     [
-     31.66,
-     23.73,
-     42.1
+     32.8,
+     30.0,
+     38.23
     ],
     [
-     64.81,
-     42.83,
-     54.92
+     64.48,
+     39.22,
+     50.67
     ]
    ]
   },
   "kabel_o_SCL": {
    "grup": "atas",
    "warna": "#8e44ad",
-   "nama": "Kabel SCL",
+   "nama": "Kabel OLED SCL ke ESP32 GPIO 22",
    "bahan": "kabel",
    "alpha": 1.0,
    "bounds": [
     [
-     31.66,
-     23.31,
-     42.13
+     32.8,
+     30.0,
+     39.93
     ],
     [
-     62.27,
-     50.95,
-     54.85
+     61.94,
+     46.84,
+     50.67
+    ]
+   ]
+  },
+  "kabel_o_VCC": {
+   "grup": "atas",
+   "warna": "#e0245e",
+   "nama": "Kabel OLED VCC ke ESP32 3V3",
+   "bahan": "kabel",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     32.8,
+     12.42,
+     41.63
+    ],
+    [
+     59.4,
+     31.4,
+     50.67
+    ]
+   ]
+  },
+  "kabel_o_GND": {
+   "grup": "atas",
+   "warna": "#2b2b2b",
+   "nama": "Kabel OLED GND ke ESP32 GND (baris 3V3)",
+   "bahan": "kabel",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     32.13,
+     14.96,
+     43.33
+    ],
+    [
+     56.86,
+     31.4,
+     50.66
+    ]
+   ]
+  },
+  "kabel_y_3V3": {
+   "grup": "atas",
+   "warna": "#e0245e",
+   "nama": "Kabel ESP32 3V3 ke titik cabang",
+   "bahan": "kabel",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     32.13,
+     12.42,
+     49.2
+    ],
+    [
+     33.47,
+     13.82,
+     50.0
+    ]
+   ]
+  },
+  "kabel_y_D21": {
+   "grup": "atas",
+   "warna": "#e67e22",
+   "nama": "Kabel ESP32 GPIO 21 ke titik cabang",
+   "bahan": "kabel",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     32.13,
+     37.82,
+     49.2
+    ],
+    [
+     33.47,
+     39.22,
+     50.0
+    ]
+   ]
+  },
+  "kabel_y_D22": {
+   "grup": "atas",
+   "warna": "#8e44ad",
+   "nama": "Kabel ESP32 GPIO 22 ke titik cabang",
+   "bahan": "kabel",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     32.13,
+     45.44,
+     49.2
+    ],
+    [
+     33.47,
+     46.84,
+     50.0
+    ]
+   ]
+  },
+  "kabel_cabang": {
+   "grup": "atas",
+   "warna": "#111111",
+   "nama": "Selongsong cabang Y (3)",
+   "bahan": "plastik_hitam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     31.45,
+     11.77,
+     49.3
+    ],
+    [
+     34.15,
+     47.49,
+     51.4
     ]
    ]
   },

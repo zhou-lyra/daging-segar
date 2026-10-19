@@ -258,4 +258,7 @@ def pola():
 
 if __name__ == "__main__":
     potongan(); detail(); denah(); terbuka(); pola()
+    import gambar_kabel_lembar as GK
+    for nama, isi in (("6_skema_kabel.svg", GK.skema()), ("7_denah_kabel.svg", GK.denah()), ("8_lembar_baki.svg", GK.lembar_baki()), ("9_lembar_kepala.svg", GK.lembar_kepala()), ("10_lembar_kecil.svg", GK.lembar_kecil())):
+        open(os.path.join(OUT, nama), "w").write(isi)
     print("ditulis:", ", ".join(sorted(os.listdir(OUT))))

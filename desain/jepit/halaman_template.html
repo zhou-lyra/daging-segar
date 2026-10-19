@@ -48,7 +48,7 @@ a{color:var(--blue)}
 <header>
  <h1>Beef<b>Fresh</b> Jepit: desain E</h1>
  <p class="sub">Penjepit berengsel dari lembaran PVC. Daging dijepit di antara busa dan tutup cat semprot, sensor memakai LED bawaannya sendiri. Tidak perlu dipegang, tidak perlu ditekan, tidak perlu printer 3D.</p>
- <div class="note"><b>Status:</b> rancangan dan model 3D. Belum dibuat dan belum diuji dengan daging. Ukuran papan sensor dari berkas desain resmi Adafruit, respons sudut chip dari lembar data TCS3472. Ukuran lain yang belum diukur ditandai di bagian 9.</div>
+ <div class="note"><b>Status:</b> rancangan dan model 3D. Belum dibuat dan belum diuji dengan daging. Ukuran papan sensor dari berkas desain resmi Adafruit, respons sudut chip dari lembar data TCS3472. Ukuran lain yang belum diukur ditandai di bagian 11.</div>
 </header>
 <main>
 
@@ -84,15 +84,29 @@ a{color:var(--blue)}
 <div class="drw">__SVG4__</div>
 <p class="cap">Kepala dibuka 100°. Titik berat alat tetap di atas alas baki sampai sudut ini (dihitung untuk PVC busa dan PVC padat), jadi alat tidak terguling ke belakang.</p>
 
-<h2>4. Pola potong 1:1</h2>
+<h2>4. Ukuran setiap lembar PVC</h2>
+<p class="cap" style="margin-bottom:10px">Biru = ukuran (mm). Baris bawah dan kolom kanan adalah ukuran berantai dari tepi kiri dan tepi bawah lembar. Merah = dipotong atau dibor. Garis putus abu-abu = hanya ditandai (letak tempelan). Semua untuk PVC 3 mm.</p>
+<h3>Baki bawah</h3><div class="drw">__SVG8__</div>
+<h3>Kepala</h3><div class="drw">__SVG9__</div>
+<h3>Tutup atas, bibir, dudukan sensor, kalibrasi</h3><div class="drw">__SVG10__</div>
+
+<h2>5. Jalur kabel</h2>
+<div class="drw">__SVG6__</div>
+<p class="cap">Skema (tidak berskala). ESP32 dilihat dari atas di dalam kepala, papan dibalik sehingga baris 3V3 berada di kanan. 3V3, SDA, dan SCL dipakai sensor dan OLED sekaligus, jadi memakai kabel cabang Y: satu soket di pin ESP32, dua soket di ujung. GND tidak perlu cabang karena ESP32 punya dua pin GND.</p>
+<div class="drw" style="max-width:820px">__SVG7__</div>
+<p class="cap">Denah berskala dari model 3D: letak kabel di dalam kepala dilihat dari atas. S = ujung di soket sensor. Soket menembus jendela kabel dengan miring 40° ke belakang, jadi ujungnya sedikit di belakang jendela. O = ujung di OLED. Setiap kabel berjalan di ketinggian sendiri, jarak antarkabel paling dekat __JARAK__ mm (kabel Ø 1,4).</p>
+<div class="card"><h3>Daftar kabel</h3><table><tr><th>Dari</th><th>Ke</th><th class="n">Panjang jalur</th><th class="n">Kabel dupont</th></tr>__KABEL__</table>
+<p class="mut" style="margin:8px 0 0">Kabel cabang Y: potong satu kabel dupont, sambung dua ujung betina ke satu ujung betina dengan solder dan selongsong susut, atau beli kabel dupont Y 1-ke-2. Biarkan sisa kabel melingkar longgar di atas ESP32 supaya kepala bisa dibuka tanpa menarik soket.</p></div>
+
+<h2>6. Pola potong 1:1</h2>
 <div class="drw" style="max-width:820px">__SVG5__</div>
 <p class="cap">Buka <a href="jepit/gambar/5_pola_1banding1.svg" target="_blank">5_pola_1banding1.svg</a> dan cetak di kertas A4 dengan skala 100 %. Ukur garis uji 50 mm dengan penggaris sebelum memakai pola.</p>
 
-<h2>5. Render Blender</h2>
+<h2>7. Render Blender</h2>
 <div class="gal">__RENDER__</div>
 <p class="cap">Berkas Blender: <code>desain/jepit/model/jepit.blend</code> (setiap komponen objek terpisah, dikelompokkan dalam koleksi Baki bawah, Kepala, dan Aksesori). Putar objek <b>Poros engsel</b> pada sumbu Y untuk membuka kepala. Scene kedua, <b>Katalog komponen</b>, berisi setiap komponen yang dibaringkan. Model glTF: <code>model/jepit.glb</code> dan <code>model/katalog.glb</code>.</p>
 
-<h2>6. Bahan dan potongan</h2>
+<h2>8. Bahan dan potongan</h2>
 <div class="g2">
  <div class="card"><h3>Potongan lembaran PVC 3 mm</h3>
   <table><tr><th>Bagian</th><th class="n">Ukuran (mm)</th><th class="n">Jumlah</th><th>Catatan</th></tr>__POTONG__</table>
@@ -104,7 +118,7 @@ a{color:var(--blue)}
   <li>Kertas beludru hitam (flocking) sekitar 20 x 20 cm. Pengganti: kain flanel hitam, atau cat semprot hitam doff</li>
   <li>2 engsel kupu-kupu 25 mm, 1 kait kotak kecil, tali nilon 15 cm (pembatas buka)</li>
   <li>2 baut M2,5 x 10 hitam + mur (sensor), 4 baut M2 x 12 + 8 mur (OLED), 8 baut M3 x 10 + mur (engsel)</li>
-  <li>9 kabel dupont betina-betina 10 cm</li>
+  <li>Kabel dupont betina-betina: 6 buah 10 cm, 3 buah 15 cm, ditambah 3 kabel Y 1-ke-2 (atau 3 kabel tambahan untuk dibuat Y)</li>
   <li>Lem PVC atau lem tembak, silikon hitam, selotip hitam, busa dobel tape 3 mm</li>
   <li>Kertas HVS putih doff dan beludru hitam untuk tatakan kalibrasi</li>
   <li>Plastik wrap (satu lembar baru tiap sampel)</li></ul></div>
@@ -119,7 +133,7 @@ a{color:var(--blue)}
  <tr><td></td><td>3V3, INT</td><td></td><td class="mut">Tidak dipakai</td></tr>
 </table><p class="mut" style="margin:8px 0 0">Urutan pin header sensor menurut skema Adafruit: VIN, GND, 3V3, SCL, SDA, INT, LED. Modul tiruan bisa berbeda, jadi baca tulisan di papanmu.</p></div>
 
-<h2>7. Langkah merakit</h2>
+<h2>9. Langkah merakit</h2>
 <div class="card"><ol class="st">
  <li><div><b>Cetak pola 1:1</b>Periksa garis uji 50 mm. Tempel pola di PVC dengan selotip kertas.</div></li>
  <li><div><b>Potong panel PVC</b>Ikuti daftar potongan. Amplas tepi sampai lurus dan siku. Periksa dengan penggaris siku sebelum mengelem.</div></li>
@@ -132,12 +146,12 @@ a{color:var(--blue)}
  <li><div><b>Periksa, lalu rekatkan tutup cat</b>Letakkan tutup cat di atas tanda pusat dan intip lewat lubang Ø 14: chip harus terlihat di sisi belakang lubang. Kalau sudah benar, rekatkan tepi tutup cat dengan silikon hitam di sekelilingnya.</div></li>
  <li><div><b>Rakit baki dan kotak kepala</b>Baki: lantai dan 4 dinding. Kepala: 4 dinding di atas lantai kepala. Potong takik USB 13 x 10 mm di tepi bawah dinding kiri kepala, pusatnya 20 mm dari depan. Lem bibir di sisi bawah tutup atas.</div></li>
  <li><div><b>Pasang ESP32 dan OLED</b>ESP32 terbalik di atas busa dobel tape, colokan USB menghadap takik. Tutup lampu merah dayanya dengan selotip hitam. OLED dibaut ke tutup atas menghadap jendela, dengan ganjal 4 mm (2 mur M2) di tiap baut.</div></li>
- <li><div><b>Sambung kabel dan tutup jendela</b>Pasang kabel sesuai tabel. Tutup jendela kabel dari atas dengan selotip hitam di sekeliling kabel, supaya cahaya dari dalam kotak tidak bocor ke ruang ukur.</div></li>
+ <li><div><b>Sambung kabel dan tutup jendela</b>Pasang kabel sesuai skema dan daftar kabel di bagian 5. Tutup jendela kabel dari atas dengan selotip hitam di sekeliling kabel, supaya cahaya dari dalam kotak tidak bocor ke ruang ukur.</div></li>
  <li><div><b>Engsel, kait, tali pembatas</b>Tempatkan kepala di atas baki. Pasang 2 engsel di sisi belakang dengan baut M3 dan mur, poros tepat di garis sambungan. Pasang kait di sisi depan. Ikat tali pembatas antara sisi kepala dan sisi baki supaya kepala berhenti di sekitar 100°.</div></li>
- <li><div><b>Masukkan busa, unggah firmware, uji</b>Tiga lapis busa di baki. Unggah firmware (pin 21, 22, 26), lalu jalankan uji di bagian 8.</div></li>
+ <li><div><b>Masukkan busa, unggah firmware, uji</b>Tiga lapis busa di baki. Unggah firmware (pin 21, 22, 26), lalu jalankan uji di bagian 10.</div></li>
 </ol></div>
 
-<h2>8. Cara memakai dan uji penerimaan</h2>
+<h2>10. Cara memakai dan uji penerimaan</h2>
 <div class="g2">
  <div class="card"><h3>Setiap pengukuran</h3><ol class="st">
   <li><div><b>Kalibrasi sekali per sesi</b>Balok putih di atas busa, tutup, kalibrasi putih. Balok hitam, tutup, kalibrasi hitam.</div></li>
@@ -157,7 +171,7 @@ a{color:var(--blue)}
 </div>
 <div class="note warn"><b>Firmware belum lengkap untuk desain ini:</b> pengurangan bacaan LED mati dan pin 21, 22, 26 sudah ada. Kalibrasi hitam (dua titik) belum ada dan perlu ditambahkan sebelum uji.</div>
 
-<h2>9. Yang belum diketahui</h2>
+<h2>11. Yang belum diketahui</h2>
 <div class="card"><ul style="margin:0;padding-left:20px">
  <li>Tebal lembaran PVC dan jenisnya (busa atau padat). Rancangan memakai 3 mm.</li>
  <li>Diameter dalam tutup cat (dianggap 62 mm) dan tebal mukanya (dianggap 1,5 mm).</li>

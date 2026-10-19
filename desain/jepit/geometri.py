@@ -98,19 +98,6 @@ def lokal(m):                                           # dari koordinat papan k
     m = m.copy(); m.apply_transform(M_PAPAN); return m
 
 
-def pipa(titik, r=0.7, n=10):
-    """Tabung kabel lewat titik-titik (Catmull-Rom)."""
-    p = np.array(titik, float); pts = []
-    q = np.vstack([p[0], p, p[-1]])
-    for i in range(1, len(q) - 2):
-        for s in np.linspace(0, 1, 12, endpoint=False):
-            p0, p1, p2, p3 = q[i - 1], q[i], q[i + 1], q[i + 2]
-            pts.append(0.5 * ((2 * p1) + (-p0 + p2) * s + (2 * p0 - 5 * p1 + 4 * p2 - p3) * s * s + (-p0 + 3 * p1 - 3 * p2 + p3) * s ** 3))
-    pts.append(p[-1]); pts = np.array(pts)
-    lingk = trimesh.path.polygons.Polygon([(r * math.cos(k), r * math.sin(k)) for k in np.linspace(0, 2 * math.pi, n, endpoint=False)])
-    return trimesh.creation.sweep_polygon(lingk, pts)
-
-
 # ----------------------------------------------------------------------------- bagian
 B = {}          # nama -> dict(mesh, grup, warna, nama_tampil, bahan)
 
@@ -241,9 +228,9 @@ B1 = ["3V3", "GND", "D15", "D2", "D4", "RX2", "TX2", "D5", "D18", "D19", "D21", 
 B0 = ["VIN", "GND", "D13", "D12", "D14", "D27", "D26", "D25", "D33", "D32", "D35", "D34", "VN", "VP", "EN"]
 def pin_esp(nama, baris_ke):
     i = (B1 if baris_ke == 1 else B0).index(nama); return np.array([baris[baris_ke], py0 + i * 2.54, zp + ESP["plastik"]])
-ESP_DIPAKAI = {("3V3", 1): "#e0245e", ("GND", 1): "#2b2b2b", ("D21", 1): "#e67e22", ("D22", 1): "#8e44ad", ("D26", 0): "#2e8b57"}
+ESP_DIPAKAI = {("3V3", 1): "#e0245e", ("GND", 1): "#2b2b2b", ("D21", 1): "#e67e22", ("D22", 1): "#8e44ad", ("GND", 0): "#2b2b2b", ("D26", 0): "#2e8b57"}
 tambah("esp_dupont", trimesh.util.concatenate([kotak(*(pin_esp(n, b)[:1] + [-1.25, 1.25]), *(pin_esp(n, b)[1:2] + [-1.25, 1.25]), zp + ESP["plastik"], zp + ESP["plastik"] + 14) for (n, b) in ESP_DIPAKAI]),
-       "atas", "#202020", "Soket dupont ESP32 (5)", "plastik_hitam")
+       "atas", "#202020", "Soket dupont ESP32 (6)", "plastik_hitam")
 
 # ---- OLED di sisi bawah tutup atas, layar menghadap jendela
 oz1 = Z_ATAS; oz0 = oz1 - OLED["kaca"][2]
@@ -277,20 +264,82 @@ tambah("kait_bawah", gabung([kotak(-1.2, 0, YC - 9, YC + 9, Hc - 14, Hc - 2), ko
 tambah("kait_atas", gabung([kotak(-1.2, 0, YC - 9, YC + 9, Hc + 2, Hc + 12), kotak(-5.5, -1.2, YC - 6, YC + 6, Hc + 6, Hc + 8),
                                                kotak(-5.5, -1.5, YC - 6, YC + 6, Hc - 11.5, Hc - 9.2), kotak(-5.5, -4.4, YC - 6, YC + 6, Hc - 11.5, Hc + 6)]), "atas", "#9a9ea5", "Kait kotak (tuas)", "logam")
 
-# ---- kabel (skematis): sensor -> ESP32, OLED -> ESP32
+# ---- kabel: jalur Manhattan berlapis (tiap kabel punya ketinggian mendatar sendiri), sudut dibulatkan r 2 mm
+# 3V3, SDA, SCL dipakai sensor DAN OLED -> kabel cabang Y (satu soket di pin ESP32, dua soket di ujung).
+# GND: sensor ke GND baris VIN, OLED ke GND baris 3V3 (ESP32 punya dua pin GND), jadi tanpa cabang.
 ujung_sensor = {n: papan(x, hy, -TCS["pcb"] - 2.5 - 14.0) for x, n in zip(xs_pin, TCS["pin"])}
-KE_ESP = {"VIN": ("3V3", 1), "GND": ("GND", 1), "SDA": ("D21", 1), "SCL": ("D22", 1), "LED": ("D26", 0)}
-kabel = {}
-for i, (n, (pn, b)) in enumerate(KE_ESP.items()):
-    s0 = ujung_sensor[n]; e = pin_esp(pn, b) + [0, 0, 14]
-    kabel[f"kabel_s_{n}"] = [s0, s0 + 3 * (-N), [s0[0] + 3, s0[1], zk0 + 14 + i * 1.6], [e[0] + 8, e[1], zk0 + 26 + i * 1.6], e + [0, 0, 4], e]
-OLED_KE = {"VCC": ("3V3", 1), "GND": ("GND", 1), "SDA": ("D21", 1), "SCL": ("D22", 1)}
-for i, (n, (pn, b)) in enumerate(OLED_KE.items()):
-    s0 = np.array([OLED_PIN[n], oy_pin, zo - 16.5]); e = pin_esp(pn, b) + [0, 0, 14]
-    kabel[f"kabel_o_{n}"] = [s0, s0 - [0, 0, 3], [s0[0] - 4, s0[1] - 6, zk0 + 30 - i * 1.6], [e[0] + 6, e[1] + 3, zk0 + 30 - i * 1.6], e + [0, 0, 5], e]
-WARNA_KABEL = {"VIN": "#e0245e", "VCC": "#e0245e", "GND": "#2b2b2b", "SDA": "#e67e22", "SCL": "#8e44ad", "LED": "#2e8b57"}
-for k, tt in kabel.items():
-    tambah(k, pipa(tt), "atas", WARNA_KABEL[k.split("_")[-1]], "Kabel " + k.split("_")[-1], "kabel")
+Z_SOKET_ESP = zp + ESP["plastik"] + 14.0                 # puncak soket dupont di pin ESP32
+Z_J = Z_SOKET_ESP + 0.8                                  # titik cabang Y tepat di atas soket
+SENSOR_KE = {"LED": (("D26", 0), 50.6), "SDA": (("D21", 1), 52.3), "SCL": (("D22", 1), 54.0), "GND": (("GND", 0), 55.7), "VIN": (("3V3", 1), 57.4)}
+OLED_KE = {"SDA": (("D21", 1), 38.9, 35.5), "SCL": (("D22", 1), 40.6, 37.2), "VCC": (("3V3", 1), 42.3, 38.9), "GND": (("GND", 1), 44.0, 40.6)}
+CABANG = {"3V3": ("VIN", "VCC"), "D21": ("SDA", "SDA"), "D22": ("SCL", "SCL")}   # pin ESP32 -> (pin sensor, pin OLED)
+
+
+def fillet(P_, r=2.0, n=6):
+    P_ = [np.array(p, float) for p in P_]; out = [P_[0]]
+    for i in range(1, len(P_) - 1):
+        a_, b_, c__ = P_[i - 1], P_[i], P_[i + 1]
+        d1, d2 = b_ - a_, c__ - b_; l1, l2 = np.linalg.norm(d1), np.linalg.norm(d2)
+        if l1 < 1e-6 or l2 < 1e-6: continue
+        rr = min(r, l1 / 2, l2 / 2); p0, p1 = b_ - d1 / l1 * rr, b_ + d2 / l2 * rr
+        for t_ in np.linspace(0, 1, n): out.append((1 - t_) ** 2 * p0 + 2 * (1 - t_) * t_ * b_ + t_ ** 2 * p1)
+    out.append(P_[-1]); return np.array(out)
+
+
+def pipa(titik, r=0.7, n=10):
+    pts = np.array(titik, float)
+    keep = [0] + [i for i in range(1, len(pts)) if np.linalg.norm(pts[i] - pts[i - 1]) > 1e-4]; pts = pts[keep]
+    lingk = Polygon([(r * math.cos(k), r * math.sin(k)) for k in np.linspace(0, 2 * math.pi, n, endpoint=False)])
+    return trimesh.creation.sweep_polygon(lingk, pts)
+
+
+def nama_pin(pn, b):
+    if pn == "GND": return "GND (baris " + ("3V3" if b == 1 else "VIN") + ")"
+    return pn.replace("D", "GPIO ") if pn.startswith("D") else pn
+
+
+KABEL = {}   # nama -> dict(titik, warna, dari, ke, jenis)
+WARNA_SINYAL = {"3V3": "#e0245e", "GND": "#2b2b2b", "SDA": "#e67e22", "SCL": "#8e44ad", "LED": "#2e8b57"}
+SINYAL_PIN = {"VIN": "3V3", "VCC": "3V3", "GND": "GND", "SDA": "SDA", "SCL": "SCL", "LED": "LED"}
+for n, ((pn, b), L) in SENSOR_KE.items():
+    E = ujung_sensor[n]; A = E + 4.0 * (-N); T = pin_esp(pn, b)
+    zt = Z_J if pn in CABANG else Z_SOKET_ESP
+    KABEL[f"kabel_s_{n}"] = dict(titik=fillet([E, A, [A[0], A[1], L], [T[0], A[1], L], [T[0], T[1], L], [T[0], T[1], zt]]),
+                                warna=WARNA_SINYAL[SINYAL_PIN[n]], dari=f"Sensor {n}", ke="ESP32 " + nama_pin(pn, b), cabang=pn in CABANG)
+for n, ((pn, b), L, xc) in OLED_KE.items():
+    E = np.array([OLED_PIN[n], oy_pin, zo - 2.5 - 14.0]); T = pin_esp(pn, b)
+    zt = Z_J if pn in CABANG else Z_SOKET_ESP
+    KABEL[f"kabel_o_{n}"] = dict(titik=fillet([E, [E[0], E[1], L], [xc, E[1], L], [xc, T[1], L], [xc, T[1], Z_J], [T[0], T[1], Z_J], [T[0], T[1], zt]]),
+                                warna=WARNA_SINYAL[SINYAL_PIN[n]], dari=f"OLED {n}", ke="ESP32 " + nama_pin(pn, b), cabang=pn in CABANG)
+for pn in CABANG:   # ekor kabel Y: soket di pin ESP32 sampai titik cabang
+    T = pin_esp(pn, 1); KABEL[f"kabel_y_{pn}"] = dict(titik=np.array([[T[0], T[1], Z_SOKET_ESP], [T[0], T[1], Z_J]]), warna=WARNA_SINYAL[{"3V3": "3V3", "D21": "SDA", "D22": "SCL"}[pn]],
+                                                     dari="ESP32 " + nama_pin(pn, 1), ke="titik cabang", cabang=True)
+for k, kb in KABEL.items():
+    kb["panjang"] = float(np.sum(np.linalg.norm(np.diff(kb["titik"], axis=0), axis=1)))
+    tambah(k, pipa(kb["titik"]), "atas", kb["warna"], "Kabel " + kb["dari"] + " ke " + kb["ke"], "kabel")
+sambung = [silinder(pin_esp(pn, 1)[0], pin_esp(pn, 1)[1], Z_SOKET_ESP + 0.1, Z_J + 1.4, 1.35, 16) for pn in CABANG]
+tambah("kabel_cabang", trimesh.util.concatenate(sambung), "atas", "#111111", "Selongsong cabang Y (3)", "plastik_hitam")
+
+
+def jarak_kabel():
+    """Jarak terdekat antar sumbu kabel yang berbeda sinyal (harus >= 1,6 mm untuk kabel Ø 1,4)."""
+    from scipy.spatial import cKDTree
+    hasil = []
+    ks = [k for k in KABEL if not k.startswith("kabel_y_")]
+    def padat(P_):
+        out = [P_[0]]
+        for a_, b_ in zip(P_[:-1], P_[1:]):
+            m_ = max(1, int(np.linalg.norm(b_ - a_) / 0.3)); out += [a_ + (b_ - a_) * t_ for t_ in np.linspace(0, 1, m_ + 1)[1:]]
+        return np.array(out)
+    D = {k: padat(KABEL[k]["titik"]) for k in ks}
+    sig = lambda k: SINYAL_PIN.get(k.split("_")[-1], k)
+    for i in range(len(ks)):
+        for j in range(i + 1, len(ks)):
+            a_, b_ = ks[i], ks[j]
+            if sig(a_) == sig(b_) and sig(a_) != "GND": continue          # cabang yang sama bertemu di titik Y
+            d, _ = cKDTree(D[b_]).query(D[a_]); hasil.append((float(d.min()), a_, b_))
+    return sorted(hasil)[:5]
+
 
 # ---- tatakan kalibrasi (disimpan di samping alat)
 tambah("kal_putih", trimesh.util.concatenate([kotak(W + 20, W + 80, 0, 60, zb0, zb0 + 9), kotak(W + 20, W + 80, 0, 60, zb0 + 9, zb0 + 10)]), "aksesori", "#f7f7f2", "Balok kalibrasi putih", "kertas_putih")
@@ -352,6 +401,8 @@ if __name__ == "__main__":
     for k in ("sensor_pcb", "dudukan_pelat", "dudukan_pipi", "sensor_baut"):
         v = B[k]["mesh"].vertices; r_ = np.hypot(v[:, 0] - XC, v[:, 1] - YC).max()
         print(f"  {k}: jari-jari terjauh {r_:.2f} (dinding dalam {Ri - lap:.2f})")
+    print("kabel: jarak terdekat antar kabel beda sinyal", [(round(d, 2), a_, b_) for d, a_, b_ in jarak_kabel()[:3]])
+    for k, kb in KABEL.items(): print(f"  {k:16s} {kb['dari']:>12s} -> {kb['ke']:<14s} {kb['panjang']:6.1f} mm")
     print("tabrakan:")
     for sd in (0, 5, 10, 15, 20, 30, 45, 60, 90, 105): periksa(sd)
     berat = {}
