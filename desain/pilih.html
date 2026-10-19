@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BeefFresh: pilih desain alat</title>
+<style>
+:root{--bg:#faf7f3;--card:#fff;--ink:#2a2226;--mut:#6c6469;--line:#e2dad0;--red:#b3262e;--green:#2e8b57;--blue:#1f5fa8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header,main{max-width:1240px;margin:0 auto;padding:0 20px}
+header{padding-top:22px}
+h1{margin:0;font-size:30px} h1 b{color:var(--red)}
+.sub{margin:4px 0 12px;color:var(--mut)}
+h2{margin:34px 0 12px;font-size:23px;border-bottom:1px solid var(--line);padding-bottom:6px}
+h3{margin:0 0 6px;font-size:19px}
+p{margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.note{background:#fff6e5;border:1px solid #f0d9a8;border-radius:10px;padding:10px 14px;font-size:15px;color:#6b5320;margin:10px 0}
+.ok{background:#e9f6ee;border:1px solid #b6dfc6;color:#1d6a3d}
+.g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media(max-width:860px){.g2{grid-template-columns:1fr}}
+.hero{width:100%;border-radius:10px;display:block;margin-bottom:10px;background:#f1ece4}
+.tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+ul{margin:0;padding-left:20px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.tabs button{font:inherit;font-size:16px;font-weight:600;padding:8px 16px;border-radius:999px;border:1px solid #cfc6bc;background:#fff;cursor:pointer}
+.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+iframe{width:100%;height:820px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.gal{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media(max-width:860px){.gal{grid-template-columns:repeat(2,minmax(0,1fr))}}
+figure{margin:0;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+figure img{width:100%;display:block;cursor:zoom-in}
+figcaption{padding:6px 10px;font-size:14px;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{text-align:left;color:var(--mut);font-weight:600;font-size:13px;padding:0 8px 6px;vertical-align:bottom}
+td{padding:8px;border-top:1px solid var(--line);vertical-align:top}
+.mut{color:var(--mut);font-size:14px}
+.q{margin:0 0 14px}.q b{display:block;margin-bottom:4px}
+.q label{display:block;padding:4px 0;cursor:pointer}
+textarea,input[type=text]{width:100%;font:inherit;font-size:15px;padding:8px 10px;border:1px solid #cfc6bc;border-radius:8px}
+.btn{font:inherit;font-size:16px;font-weight:700;padding:10px 18px;border-radius:10px;border:0;background:var(--green);color:#fff;cursor:pointer;margin:6px 8px 0 0;text-decoration:none;display:inline-block}
+.btn.sec{background:#fff;color:var(--ink);border:1px solid #cfc6bc}
+#zoom{position:fixed;inset:0;background:rgba(20,16,18,.85);display:none;align-items:center;justify-content:center;z-index:9;cursor:zoom-out}
+#zoom img{max-width:95vw;max-height:92vh;border-radius:8px}
+</style>
+</head>
+<body>
+<header>
+ <h1>Beef<b>Fresh</b>: pilih desain alat</h1>
+ <p class="sub">Dua rancangan alat pengukur warna daging sapi, sama-sama dari lembaran PVC dan tanpa printer 3D. Silakan putar model 3D-nya, bandingkan, lalu beri pilihan di bagian paling bawah.</p>
+ <div class="note"><b>Status:</b> keduanya masih rancangan dan model 3D, belum dibuat dan belum diuji dengan daging. Ukuran papan sensor dari berkas resmi Adafruit, ukuran lain sebagian masih perkiraan. Komponen elektroniknya sama: ESP32 DOIT V1, sensor warna TCS34725 dengan LED bawaannya, dan layar OLED 0,96 inci.</div>
+</header>
+<main>
+
+<h2>1. Dua pilihan</h2>
+<div class="g2">
+ <div class="card"><span class="tag">Desain E</span><h3>Jepit: daging dimasukkan</h3>
+  <img class="hero" src="jepit/render/2_terbuka.jpg" alt="Desain E terbuka">
+  <p>Kotak berengsel. Daging diiris 10 mm, diletakkan di atas busa, lalu kepala ditutup dan dikunci. Busa menekan daging rata ke muka tutup cat semprot, tempat sensor membaca dari sudut 40°.</p>
+  <ul><li>Ukuran 86 x 86 x 106 mm, berat sekitar 160 sampai 310 g</li><li>Jarak, tekanan, dan gelapnya ruang ukur sama setiap kali</li><li>Daging harus dipotong rata 10 mm</li></ul></div>
+ <div class="card"><span class="tag">Desain A versi PVC</span><h3>Genggam: alat ditempel ke daging</h3>
+  <img class="hero" src="genggam/render/1_utuh.jpg" alt="Desain A versi PVC di atas daging">
+  <p>Kotak ramping. Pelat muka hitam ditempel ke daging utuh dan ditekan ringan dengan ibu jari di tanda merah. Sensor di dalam pipa PVC 1 inci yang ujungnya dipotong miring 40°.</p>
+  <ul><li>Ukuran 108 x 39 x 52 mm, berat sekitar 65 sampai 120 g</li><li>Tidak perlu memotong daging, bisa dibawa ke pasar atau toko</li><li>Hasil bisa sedikit berubah menurut cara orang menekan</li></ul></div>
+</div>
+
+<h2>2. Model 3D</h2>
+<div class="tabs"><button class="on" data-f="jepit/penampil_3d.html">Desain E (Jepit)</button><button data-f="genggam/penampil_3d.html">Desain A versi PVC (Genggam)</button></div>
+<iframe id="viewer" src="jepit/penampil_3d.html" title="Model 3D"></iframe>
+<p class="mut">Seret untuk memutar, roda mouse untuk zoom. Coba <b>Potong: tengah (Y)</b> untuk melihat sensor di dalam, dan <b>Urai</b> untuk memisahkan bagian. Di ponsel, tampilan lebih nyaman dalam posisi mendatar.</p>
+
+<h2>3. Gambar render</h2>
+<h3>Desain E</h3>
+<div class="gal">
+ <figure><img src="jepit/render/1_tertutup.jpg" alt=""><figcaption>Tertutup, siap mengukur</figcaption></figure>
+ <figure><img src="jepit/render/3_potongan.jpg" alt=""><figcaption>Potongan: sensor miring di tutup cat</figcaption></figure>
+ <figure><img src="jepit/render/5_urai.jpg" alt=""><figcaption>Urai: semua bagian</figcaption></figure>
+</div>
+<h3 style="margin-top:18px">Desain A versi PVC</h3>
+<div class="gal">
+ <figure><img src="genggam/render/2_isi.jpg" alt=""><figcaption>Isi tanpa tutup atas</figcaption></figure>
+ <figure><img src="genggam/render/3_potongan.jpg" alt=""><figcaption>Potongan: tabung miring 40°</figcaption></figure>
+ <figure><img src="genggam/render/6_bawah.jpg" alt=""><figcaption>Bawah: pelat muka dan lubang ukur</figcaption></figure>
+</div>
+
+<h2>4. Perbandingan</h2>
+<div class="card"><table>
+ <tr><th>Hal</th><th>Desain E (Jepit)</th><th>Desain A versi PVC (Genggam)</th></tr>
+ <tr><td>Cara pakai</td><td>Iris daging 10 mm, masukkan, tutup, kunci</td><td>Tempel ke daging, tekan ringan</td></tr>
+ <tr><td>Tekanan ke daging</td><td>Selalu sama (busa dan kait)</td><td>Bergantung tangan; firmware hanya menyimpan bacaan yang stabil</td></tr>
+ <tr><td>Cahaya luar</td><td>Tertutup rapat oleh kotak</td><td>Ditutup daging dan pelat muka; firmware menolak bacaan bila masih ada cahaya masuk</td></tr>
+ <tr><td>Kilap daging basah</td><td>Jatuh 3,2 mm di luar lubang ukur</td><td>Jatuh 5,1 mm di luar lubang ukur</td></tr>
+ <tr><td>Jarak sensor ke daging</td><td>15,5 mm</td><td>17 mm</td></tr>
+ <tr><td>Ukuran dan berat</td><td>86 x 86 x 106 mm, 160 sampai 310 g</td><td>108 x 39 x 52 mm, 65 sampai 120 g</td></tr>
+ <tr><td>Bahan khusus</td><td>Tutup cat semprot, busa, engsel, kait</td><td>Pipa PVC 1 inci (sepotong 5 cm)</td></tr>
+ <tr><td>Kesulitan merakit</td><td>Sedang: 15 jenis potongan, dudukan miring, engsel</td><td>Lebih mudah: 7 lembar dipotong lurus, ditambah 1 cakram kecil Ø 27,7 yang dijiplak dari ujung pipa lalu diamplas; papan dipasang tegak lurus di pipa</td></tr>
+ <tr><td>Paling cocok untuk</td><td>Mengumpulkan data penelitian yang rapi</td><td>Mengukur di lapangan, daging utuh</td></tr>
+ <tr><td>Keyakinan Lyra hasilnya stabil (simpangan R/G 0,03 atau kurang)</td><td>sekitar 75 %</td><td>sekitar 60 %</td></tr>
+</table>
+<p class="mut" style="margin:8px 0 0">Angka optik dari hitungan geometri, bukan pengukuran. Keyakinan adalah perkiraan Lyra dan baru bisa dipastikan dengan uji ulangan pada daging.</p></div>
+
+<h2>5. Apa yang diubah dari desain A pertama</h2>
+<div class="card"><table>
+ <tr><th>Desain A pertama</th><th>Versi PVC</th><th>Alasan</th></tr>
+ <tr><td>Badan dan tabung gelap dicetak 3D</td><td>7 lembar PVC 3 mm dipotong lurus, tabung dari pipa PVC 1 inci yang sudah bulat</td><td>Tidak ada printer 3D</td></tr>
+ <tr><td>Sensor menghadap lurus ke bawah</td><td>Ujung pipa dipotong miring 40°, papan tegak lurus di dalam pipa</td><td>Pada sensor yang lurus, kilap daging basah memantul langsung ke chip dan membuat warna pucat</td></tr>
+ <tr><td>Ujung tabung kecil yang ditempel</td><td>Pelat muka hitam 58 x 39 mm, bagian belakang naik 2 mm</td><td>Bidang tempel lebar membuat alat duduk rata dan menahan cahaya</td></tr>
+ <tr><td>Lubang lurus</td><td>Lubang Ø 12, sisi dalam dikikir miring sampai Ø 16</td><td>Tepi lubang tidak menghalangi pandangan miring (terhalang 2 %, sebelumnya 7 %)</td></tr>
+ <tr><td>Rusuk penyangga cetak</td><td>Busa dobel tape dan cakram dudukan dari PVC</td><td>Bisa dibuat dengan gunting dan lem</td></tr>
+ <tr><td>Tombol di papan</td><td>Mengukur otomatis saat ruang ukur gelap dan bacaan stabil; tanda merah tempat ibu jari</td><td>Tangan tidak perlu menekan dua hal sekaligus</td></tr>
+</table></div>
+<div class="note"><b>Catatan Lyra:</b> kepala ukur kedua desain berbeda (E memakai papan miring di tutup cat, A memakai pipa miring). Data dari dua alat yang optiknya berbeda belum tentu bisa digabung untuk melatih satu model klasifikasi. Kalau tim memilih membuat keduanya, kepala ukur E sebaiknya diganti pipa miring yang sama dengan A.</div>
+
+<h2>6. Beri pilihanmu</h2>
+<div class="card">
+ <div class="q"><b>Nama</b><input type="text" id="nama" placeholder="nama kamu"></div>
+ <div class="q"><b>Desain mana yang sebaiknya dibuat?</b>
+  <label><input type="radio" name="pilih" value="E (Jepit)"> Desain E (Jepit)</label>
+  <label><input type="radio" name="pilih" value="A versi PVC (Genggam)"> Desain A versi PVC (Genggam)</label>
+  <label><input type="radio" name="pilih" value="Keduanya, dengan kepala ukur yang sama"> Keduanya, dengan kepala ukur yang sama</label></div>
+ <div class="q"><b>Alat akan lebih sering dipakai di mana?</b>
+  <label><input type="radio" name="tempat" value="laboratorium atau rumah"> Laboratorium atau rumah (daging bisa diiris)</label>
+  <label><input type="radio" name="tempat" value="pasar atau toko"> Pasar atau toko (daging utuh)</label></div>
+ <div class="q"><b>Catatan atau saran</b><textarea id="catatan" rows="3" placeholder="opsional"></textarea></div>
+ <button class="btn" id="wa">Kirim lewat WhatsApp</button><button class="btn sec" id="salin">Salin teks</button>
+ <p class="mut" id="hasil" style="margin-top:8px">Pilihan dikirim sebagai pesan ke tim, tidak disimpan di halaman ini.</p>
+</div>
+<p class="mut" style="margin:20px 0 40px">Rancangan lengkap desain E (gambar kerja, ukuran setiap lembar PVC, jalur kabel, langkah merakit): <a href="penjepit.html">penjepit.html</a>. Sumber ukuran semua model: <code>desain/jepit/geometri.py</code> dan <code>desain/genggam/geometri_a.py</code>.</p>
+</main>
+<div id="zoom"><img alt=""></div>
+<script>
+"use strict";
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.getElementById('viewer').src=b.dataset.f});
+const z=document.getElementById('zoom');document.querySelectorAll('figure img,.hero').forEach(i=>i.onclick=()=>{z.querySelector('img').src=i.src;z.style.display='flex'});z.onclick=()=>z.style.display='none';
+function teks(){const v=n=>(document.querySelector('input[name='+n+']:checked')||{}).value||'-';
+ return 'BeefFresh, pilihan desain\nNama: '+(document.getElementById('nama').value||'-')+'\nPilihan: '+v('pilih')+'\nTempat pakai: '+v('tempat')+'\nCatatan: '+(document.getElementById('catatan').value||'-')}
+document.getElementById('wa').onclick=()=>window.open('https://wa.me/?text='+encodeURIComponent(teks()),'_blank');
+document.getElementById('salin').onclick=async()=>{try{await navigator.clipboard.writeText(teks());document.getElementById('hasil').textContent='Teks sudah disalin. Tempel ke grup tim.'}catch(e){document.getElementById('hasil').textContent=teks()}};
+</script>
+</body>
+</html>

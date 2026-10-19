@@ -84,7 +84,7 @@ GROUPS[6]["jangkar"] = [70, 70, G.Hc + G.t]; GROUPS[9]["jangkar"] = [3, 70, G.Z_
 HINGE = dict(x=G.SUMBU_ENGSEL[0], z=G.SUMBU_ENGSEL[1], yc=G.YC)
 
 T = open(os.path.join(HERE, "penampil_template.html")).read()
-T = T.replace("__PARTS__", json.dumps(PARTS)).replace("__GROUPS__", json.dumps(GROUPS, ensure_ascii=False)).replace("__DATA__", json.dumps(DATA)).replace("__HINGE__", json.dumps(HINGE))
+T = T.replace("__PARTS__", json.dumps(PARTS)).replace("__GROUPS__", json.dumps(GROUPS, ensure_ascii=False)).replace("__DATA__", json.dumps(DATA)).replace("__HINGE__", json.dumps(HINGE)).replace("__INTRO__", json.dumps('<h3>BeefFresh Jepit</h3><p class="lead">Penjepit berengsel: daging dijepit antara busa dan tutup cat.</p><p class="body">Geser <b>Buka engsel</b> untuk melihat cara memasukkan daging, <b>Urai</b> untuk memisahkan bagian, dan <b>Potong: tengah (Y)</b> untuk melihat sensor miring di dalam tutup cat. Klik nama bagian untuk penjelasannya.</p>', ensure_ascii=False))
 open(os.path.join(HERE, "penampil_3d.html"), "w").write(T)
 
 # ----------------------------------------------------------------------------- daftar potongan PVC (dari model)

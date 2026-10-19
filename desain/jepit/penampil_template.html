@@ -27,7 +27,7 @@ h2{margin:0 0 8px;font-size:18px}h3{margin:0 0 4px;font-size:20px}
 <aside><div class="card" id="info"></div><div class="card"><h2>Bagian-bagian</h2><div id="list"></div></div></aside></main>
 <script>
 "use strict";
-const PARTS=__PARTS__, GROUPS=__GROUPS__, DATA=__DATA__, HINGE=__HINGE__;
+const PARTS=__PARTS__, GROUPS=__GROUPS__, DATA=__DATA__, HINGE=__HINGE__, INTRO=__INTRO__;
 const cv=document.getElementById('c'),gl=cv.getContext('webgl',{antialias:true,alpha:true,premultipliedAlpha:false});
 if(!gl)document.getElementById('err').textContent='WebGL tidak tersedia di tampilan ini.';
 const VS=`attribute vec3 p;attribute vec3 n;uniform mat4 M;uniform mat4 V;uniform mat4 P;varying vec3 vn;varying vec3 wp;
@@ -51,12 +51,12 @@ const tools=document.getElementById('tools');function grp(h){const d=document.cr
 function fit(d){const a=cv.clientWidth/cv.clientHeight;return size*d*Math.max(1,1.3/a)}
 function view(y,p,d){yaw=y;pit=p;dist=fit(d);pan=[0,0,0];draw()}
 const gv=grp('Pandang');for(const [t,y,p,d] of [['Isometrik',-0.75,0.42,2.0],['Samping',0,0.02,1.9],['Atas',0,1.5,2.0],['Bawah',-0.6,-0.8,2.2]]){const b=document.createElement('button');b.textContent=t;b.onclick=()=>view(y,p,d);gv.appendChild(b)}
-const hg=grp('Buka engsel <input type="range" min="0" max="100" value="0"><span id="hv">0°</span>');hg.querySelector('input').oninput=e=>{hinge=+e.target.value;document.getElementById('hv').textContent=hinge+'°';draw()};
+if(HINGE){const hg=grp('Buka engsel <input type="range" min="0" max="100" value="0"><span id="hv">0°</span>');hg.querySelector('input').oninput=e=>{hinge=+e.target.value;document.getElementById('hv').textContent=hinge+'°';draw()}}
 const ex=grp('Urai <input type="range" min="0" max="100" value="0">');ex.querySelector('input').oninput=e=>{expl=e.target.value/100;draw()};
 const cs=grp('Potong <select><option value="-1">mati</option><option value="1">tengah (Y)</option><option value="0">memanjang (X)</option><option value="2">mendatar (Z)</option></select><input type="range" min="0" max="1000" value="500"><label style="font-weight:400"><input type="checkbox"> balik</label>');
 const se=cs.querySelector('select'),sl=cs.querySelector('input[type=range]'),fl=cs.querySelector('input[type=checkbox]');
-function setCut(){cutAx=+se.value;if(cutAx===1&&sl.dataset.init!=='1'){sl.value=Math.round((HINGE.yc-mn[1])/(mx[1]-mn[1])*1000);sl.dataset.init='1'}if(cutAx>=0)cutPos=mn[cutAx]+(mx[cutAx]-mn[cutAx])*(sl.value/1000);cutFlip=fl.checked?1:0;draw()}
-se.onchange=()=>{sl.dataset.init='0';sl.value=500;fl.checked=(+se.value!==2);setCut()};  // buang separuh yang menghadap kamerasl.oninput=setCut;fl.onchange=setCut;
+function setCut(){cutAx=+se.value;if(cutAx===1&&sl.dataset.init!=='1'){sl.value=Math.round(((HINGE?HINGE.yc:0)-mn[1])/(mx[1]-mn[1])*1000);sl.dataset.init='1'}if(cutAx>=0)cutPos=mn[cutAx]+(mx[cutAx]-mn[cutAx])*(sl.value/1000);cutFlip=fl.checked?1:0;draw()}
+se.onchange=()=>{sl.dataset.init='0';sl.value=500;fl.checked=(+se.value!==2);setCut()};sl.oninput=setCut;fl.onchange=setCut;
 const kb=grp('<label><input type="checkbox" checked> kabel</label> <label><input type="checkbox"> tatakan kalibrasi</label>');const [ckK,ckA]=kb.querySelectorAll('input');
 ckK.onchange=()=>{for(const k in P)if(k.startsWith('kabel'))P[k].on=ckK.checked;draw()};ckA.onchange=()=>{for(const k in P)if(P[k].m.grup==='aksesori')P[k].on=ckA.checked;draw()};
 const list=document.getElementById('list'),info=document.getElementById('info'),labs=document.getElementById('labs'),rows={},labEl={};
@@ -65,12 +65,12 @@ GROUPS.forEach((g,i)=>{const r=document.createElement('div');r.className='row';r
 function select(i){sel=(sel===i)?null:i;GROUPS.forEach((g,j)=>{rows[j].classList.toggle('sel',j===sel);labEl[j].classList.toggle('sel',j===sel);labEl[j].style.background=j===sel?g.warna:'#fff'});
  const ins=sel===null?null:new Set(GROUPS[sel].bagian);for(const k in P)P[k].alpha=(ins&&!ins.has(k))?Math.min(P[k].a0,0.10):P[k].a0;
  const g=GROUPS[sel];info.innerHTML=g?('<h3>'+g.nama+'</h3><p class="lead">'+g.ringkas+'</p><p class="body">'+g.teks+'</p><p class="meta">Ukuran: '+g.ukuran.map(v=>v.toFixed(1).replace('.',',')).join(' × ')+' mm</p>'):
- '<h3>BeefFresh Jepit</h3><p class="lead">Penjepit berengsel: daging dijepit antara busa dan tutup cat.</p><p class="body">Geser <b>Buka engsel</b> untuk melihat cara memasukkan daging, <b>Urai</b> untuk memisahkan bagian, dan <b>Potong: tengah (Y)</b> untuk melihat sensor miring di dalam tutup cat. Klik nama bagian untuk penjelasannya.</p>';draw()}
+ INTRO;draw()}
 function mul(a,b){const o=new Float32Array(16);for(let i=0;i<4;i++)for(let j=0;j<4;j++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+j]*b[i*4+k];o[i*4+j]=s}return o}
 function persp(f,a,n,fa){const t=1/Math.tan(f/2),o=new Float32Array(16);o[0]=t/a;o[5]=t;o[10]=(fa+n)/(n-fa);o[11]=-1;o[14]=2*fa*n/(n-fa);return o}
 function look(e,c,u){let z=[e[0]-c[0],e[1]-c[1],e[2]-c[2]],l=Math.hypot(...z);z=z.map(v=>v/l);let x=[u[1]*z[2]-u[2]*z[1],u[2]*z[0]-u[0]*z[2],u[0]*z[1]-u[1]*z[0]];l=Math.hypot(...x);x=x.map(v=>v/l);const y=[z[1]*x[2]-z[2]*x[1],z[2]*x[0]-z[0]*x[2],z[0]*x[1]-z[1]*x[0]];
  return new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-(x[0]*e[0]+x[1]*e[1]+x[2]*e[2]),-(y[0]*e[0]+y[1]*e[1]+y[2]*e[2]),-(z[0]*e[0]+z[1]*e[1]+z[2]*e[2]),1])}
-function modelM(m){const dz=m.urai*expl;if(m.grup!=='atas'||hinge===0)return new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,dz,1]);
+function modelM(m){const dz=m.urai*expl;if(!HINGE||m.grup!=='atas'||hinge===0)return new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,dz,1]);
  const a=hinge*Math.PI/180,c=Math.cos(a),s=Math.sin(a),hx=HINGE.x,hz=HINGE.z;
  // putar pada sumbu Y lewat (hx, hz): x' = hx + (x-hx)c + (z-hz)s ; z' = hz - (x-hx)s + (z-hz)c ; lalu geser urai
  return new Float32Array([c,0,-s,0, 0,1,0,0, s,0,c,0, hx-hx*c-hz*s, 0, hz+hx*s-hz*c+dz, 1])}
