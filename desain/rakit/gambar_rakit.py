@@ -72,7 +72,7 @@ def m1_lembar_badan():
 
 
 def m1_lembar_tutup():
-    tut = Lembar("Tutup atas (dilihat dari atas)", L_TOT, W_TOT, tepi={"kiri": "belakang", "kanan": "depan"}, catatan="jendela OLED 15 x 25; 4 lubang Ø 2,2; putus = letak bibir di sisi bawah")
+    tut = Lembar("Tutup atas (dilihat dari atas)", L_TOT, W_TOT, tepi={"kiri": "belakang", "kanan": "depan"}, catatan="jendela 15 x 25; 4 lubang Ø 2,2 berjarak 23,3 x 23,3 sepusat jendela; putus = bibir")
     tut.kotak(OX - 7.5 - X0, OX + 7.5 - X0, YW - 12.5, YW + 12.5, "jendela")
     for sx in (-1, 1):
         for sy in (-1, 1): tut.bulat(OX + sx * 11.65 - X0, YW + sy * 11.65, 1.1, ukur=sx > 0 and sy > 0)
@@ -244,6 +244,36 @@ def susunan_oled(ganjal, tebal_tutup, judul, catatan):
     el += dimV(cx - 120, Y(0), Y(z), f1(z) + " (baut minimal M2 x " + str(int(math.ceil((z - 1.2 + 0.5) / 2) * 2)) + ")")
     el.append(TX(40, 30, judul, anc="start", sz=15, w=700))
     el.append(TX(560, 120, catatan, anc="start", sz=13, w=500, col=ABU))
+    return svg(W_, H_, "".join(el), judul)
+
+
+def sambungan(judul, L, W, t, penuh, nama, lantai, catatan):
+    """Denah sambungan dilihat dari atas: penuh='y' -> dinding depan/belakang sepanjang W penuh, samping di antaranya; 'x' sebaliknya.
+    nama: dict depan, belakang, kiri, kanan -> teks."""
+    S = min(560 / L, 300 / W); W_, H_ = 980, 560; ox, oy = 160, 150; el = []
+    X = lambda x: ox + x * S; Y = lambda y: oy + (W - y) * S
+    el.append(f'<rect x="{X(0):.1f}" y="{Y(W):.1f}" width="{L * S:.1f}" height="{W * S:.1f}" fill="#f1ece4" stroke="#bbb" stroke-dasharray="4 3"/>')
+    el.append(TX(X(L / 2), Y(W / 2) - 10, lantai, sz=12, w=600, col=ABU))
+    def papan(x0, x1, y0, y1, c, teks, vert=False):
+        el.append(f'<rect x="{X(x0):.1f}" y="{Y(y1):.1f}" width="{(x1 - x0) * S:.1f}" height="{(y1 - y0) * S:.1f}" fill="{c}" stroke="{TINTA}" stroke-width="1.2"/>')
+    if penuh == "y":     # belakang di x = 0 (kiri gambar), depan di x = L
+        papan(0, t, 0, W, "#c9b9a3", ""); papan(L - t, L, 0, W, "#c9b9a3", "")
+        papan(t, L - t, 0, t, "#e6dccd", ""); papan(t, L - t, W - t, W, "#e6dccd", "")
+        el += dimH(X(t), X(L - t), Y(W / 2) + 40, f1(L - 2 * t) + f" mm = {f1(L)} - 2 x {f1(t)}", kecil=False)
+        el += dimV(X(L) + 40, Y(0), Y(W), f1(W) + " mm", kanan=True, warna=MERAH)
+    else:                # samping penuh sepanjang L, depan/belakang di antaranya
+        papan(0, L, 0, t, "#c9b9a3", ""); papan(0, L, W - t, W, "#c9b9a3", "")
+        papan(0, t, t, W - t, "#e6dccd", ""); papan(L - t, L, t, W - t, "#e6dccd", "")
+        el += dimV(X(L) + 40, Y(t), Y(W - t), f1(W - 2 * t) + f" mm = {f1(W)} - 2 x {f1(t)}", kanan=True)
+        el += dimH(X(0), X(L), Y(0) + 70, f1(L) + " mm", warna=MERAH)
+    el += dimH(X(0), X(L), Y(W) - 26, f1(L) + " mm (luar)", warna=MERAH)
+    el.append(TX(X(0) - 12, Y(W / 2) + 4, nama["belakang"], anc="end", sz=12.5, w=700))
+    el.append(TX(X(L) + 12 + (90 if penuh == "x" else 70), Y(W / 2) - 40, nama["depan"], anc="start", sz=12.5, w=700))
+    el.append(TX(X(L / 2), Y(W) - 48, nama["atas"], sz=12.5, w=700)); el.append(TX(X(L / 2), Y(0) + 34, nama["bawah"], sz=12.5, w=700))
+    el.append(f'<rect x="{X(0):.1f}" y="{Y(W) - 96:.1f}" width="14" height="14" fill="#c9b9a3" stroke="{TINTA}"/>'); el.append(TX(X(0) + 20, Y(W) - 84, "lembar sepanjang ukuran luar penuh", anc="start", sz=12))
+    el.append(f'<rect x="{X(0) + 300:.1f}" y="{Y(W) - 96:.1f}" width="14" height="14" fill="#e6dccd" stroke="{TINTA}"/>'); el.append(TX(X(0) + 320, Y(W) - 84, "lembar yang masuk DI ANTARA keduanya", anc="start", sz=12))
+    for i, c_ in enumerate(catatan): el.append(TX(40, H_ - 46 + i * 20, c_, anc="start", sz=12.5, w=500))
+    el.append(TX(40, 26, judul, anc="start", sz=15, w=700))
     return svg(W_, H_, "".join(el), judul)
 
 
@@ -419,7 +449,15 @@ if __name__ == "__main__":
              "m1_lubang.svg": m1_lubang(), "m1_modul_sensor.svg": m1_modul_sensor(),
              "m1_oled.svg": susunan_oled(GA.GANJAL, t, "Model 1: satu baut OLED (potongan)", "mur M2 di antara tutup dan PCB = ganjal 1,6 mm"),
              "m2_oled.svg": susunan_oled(GE.GANJAL_OLED, t, "Model 2: satu baut OLED (potongan)", "mur M2 di antara tutup dan PCB = ganjal 1,6 mm"),
-             "m1_skema.svg": skema("genggam", "Model 1: skema kabel"), "m2_skema.svg": skema("jepit", "Model 2: skema kabel"),
+             "m1_sambungan.svg": sambungan("Model 1: cara menyambung dinding (dilihat dari atas, tutup dilepas)", L_TOT, W_TOT, t, "x",
+                                    dict(depan="DEPAN (kepala ukur)", belakang="BELAKANG (USB)", atas="dinding samping", bawah="dinding samping"), "pelat muka + lantai belakang di bawah semua dinding",
+                                    ["Dinding samping sepanjang 107,5 (luar penuh). Dinding depan dan belakang 33 mm masuk DI ANTARA dinding samping: 39 - 3 - 3 = 33.",
+                                     "Semua dinding BERDIRI DI ATAS pelat muka dan lantai belakang, jadi tinggi alat = 3 (pelat) + 46 (dinding) + 3 (tutup) = 52 mm."]),
+            "m2_sambungan.svg": sambungan("Model 2: cara menyambung dinding baki dan kepala (dilihat dari atas)", GE.W, GE.W, t, "y",
+                                    dict(depan="DEPAN (kait)", belakang="BELAKANG (engsel)", atas="dinding kiri (kepala: takik USB)", bawah="dinding kanan"), "lantai 86 x 86 di bawah semua dinding",
+                                    ["Dinding depan dan belakang 86 (luar penuh). Dinding kiri dan kanan 80 mm masuk DI ANTARA keduanya: 86 - 3 - 3 = 80.",
+                                     "Sama untuk baki dan kepala. Semua dinding BERDIRI DI ATAS lantainya; lantai tidak dijepit di antara dinding."]),
+            "m1_skema.svg": skema("genggam", "Model 1: skema kabel"), "m2_skema.svg": skema("jepit", "Model 2: skema kabel"),
              "pola_m1_badan_1banding1.svg": pola_m1_a4(), "pola_m1_pipa_1banding1.svg": m1_pipa_pola()}
     for n, s_ in tulis.items(): open(os.path.join(OUT, n), "w").write(s_)
     print("ditulis", len(tulis), "gambar;", f"pipa: panjang {PIPA_PANJANG:.2f}, pendek {PIPA_PENDEK:.2f}, keliling {KELILING:.2f}; elips {2*EL_A:.2f} x {2*TUBE_RO:.0f} pusat +{EL_X:.2f}")

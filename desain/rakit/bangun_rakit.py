@@ -64,6 +64,29 @@ def bom(baris):
     return '<div class="tw"><table class="kt"><tr><th>Bahan</th><th>Jumlah</th><th>Catatan</th></tr>' + "".join(f"<tr><td>{a}</td><td>{b}</td><td>{c}</td></tr>" for a, b, c in baris) + "</table></div>"
 
 
+import gambar_kabel_lembar as GKL
+
+
+def daftar_potong(fungsi, hitam=()):
+    """Tabel semua lembar PVC dari fungsi gambar lembar (ukuran sama persis dengan gambar)."""
+    GKL.DAFTAR.clear()
+    for f in fungsi: f()
+    r = []; n = 0
+    for gb, judul, w, h, jml, cat in GKL.DAFTAR:
+        if "kalibrasi" in judul.lower(): continue
+        n += jml; hit = any(k in (judul + cat).lower() for k in ("hitam",) + hitam)
+        r.append(f'<tr><td>{judul}</td><td><b>{f1(w)} x {f1(h)}</b></td><td>{jml}</td><td>{"HITAM" if hit else "biasa"}</td><td>{cat}</td></tr>')
+    return ('<div class="tw"><table class="kt"><tr><th>Lembar</th><th>Potong (mm)</th><th>Jumlah</th><th>PVC</th><th>Catatan</th></tr>' + "".join(r) + "</table></div>"
+            f'<p class="mut">{n} potongan. Ukuran = lebar x tinggi seperti di gambar, dalam milimeter. Lembar tidak persegi (dinding samping bertangga, cakram, pipi) dipotong dari persegi panjang sebesar ukuran ini lalu dibentuk sesuai gambar.</p>')
+
+
+CARA_UKUR = ("<p><b>Cara membaca ukuran:</b> semua angka dalam <b>milimeter</b>. Angka <b style='color:#e06a62'>merah</b> di kiri dan bawah setiap lembar = ukuran potong (lebar x tinggi). "
+             "Angka <b style='color:#7fa7e0'>biru</b> berantai = letak tanda atau lubang: mulai dari tepi kiri ke kanan (baris bawah) dan dari tepi bawah ke atas (kolom kanan); "
+             "kalau dijumlahkan hasilnya sama dengan ukuran lembar. Contoh 34 + 18 + 34 = 86: tanda kait mulai 34 mm dari tepi kiri, lebarnya 18 mm.</p>"
+             "<ol><li>Gores ukuran potong dulu, periksa siku, baru potong.</li><li>Ukur dan tandai letak tanda/lubang dari tepi yang disebut (kiri atau bawah), dengan pensil.</li>"
+             "<li>Tulis nama di setiap lembar setelah dipotong (misal \"samping kiri\") supaya tidak tertukar.</li></ol>")
+
+
 ALAT = ("Cutter besar + penggaris besi 30 cm, penggaris siku, jangka sorong (sangat membantu), spidol halus, selotip kertas, gergaji besi kecil, bor tangan "
         "dengan mata bor 2, 2,5, 3, 4, 8 dan 12 mm (atau mata bor bertingkat), kikir bulat dan setengah bulat, amplas 240, solder 30-60 W + timah 0,8 mm, "
         "korek atau pemanas untuk selongsong, multimeter, lem PVC atau lem tembak, silikon hitam.")
@@ -129,8 +152,9 @@ def model1():
         "<li>Bibir: 2 strip 63,6 x 6 dan 2 strip 8,1 x 6.</li>"
         "<li>Jendela OLED 15 x 25: bor Ø 3 di keempat sudut, lalu potong di antara lubang dan kikir lurus. 4 lubang OLED Ø 2,2 (mata bor 2 lalu putar sedikit).</li>"
         "<li>Takik USB 13 x 10,1 di tepi bawah dinding belakang.</li>"
-        "<li>Amplas semua tepi sampai lurus dan siku. Tepi yang miring membuat celah cahaya.</li></ol>"],
-        gambar=[("rakit/gambar/m1_lembar_badan.svg", "Lembar badan"), ("rakit/gambar/m1_lembar_tutup.svg", "Tutup dan bibir")],
+        "<li>Amplas semua tepi sampai lurus dan siku. Tepi yang miring membuat celah cahaya.</li></ol>", CARA_UKUR,
+        daftar_potong([GR.m1_lembar_badan, GR.m1_lembar_tutup])],
+        gambar=[("rakit/gambar/m1_lembar_badan.svg", "Lembar badan"), ("rakit/gambar/m1_lembar_tutup.svg", "Tutup dan bibir"), ("rakit/gambar/m1_cakram.svg", "Cakram dudukan")],
         periksa="Ukur setiap lembar dengan jangka sorong: selisih paling banyak 0,3 mm. Dinding kiri dan kanan ditumpuk harus sama persis.",
         tampil=PVC, baru=pilih(B, "dinding_*", "lantai_belakang", "tutup_atas", "bibir"), urai=1.0, pandang=[0.75, 0.5, 1.3])
     langkah("Lubang ukur di pelat muka", "20 menit", [
@@ -187,6 +211,7 @@ def model1():
         "<li>Lem dinding samping kiri dan kanan di atas tepi pelat dan lantai; tangga 2 mm tepat di sambungan pelat-lantai.</li>"
         "<li>Lem dinding depan dan dinding belakang (takik USB di bawah) di antara dinding samping.</li>"
         "<li>Periksa siku dengan penggaris siku sebelum lem kering.</li></ol>"],
+        gambar=[("rakit/gambar/m1_sambungan.svg", "Cara menyambung dinding")],
         periksa="Letakkan alat di meja kaca/keramik: hanya pelat muka yang menyentuh, bagian belakang terangkat 2 mm.",
         tampil=KEPALA + SENS_ND + ["dudukan_cakram"] + BADAN, baru=BADAN, pandang=[0.75, 0.45, 1.5])
     langkah("Pasang ESP32", "10 menit", [
@@ -280,7 +305,8 @@ def model2():
         "<ol><li>Gores 3-5 kali dengan cutter dan penggaris besi, lalu patahkan. Amplas tepi sampai lurus dan siku.</li>"
         f"<li>Baki: lantai {f1(W)} x {f1(W)}, dinding depan dan belakang {f1(W)} x {f1(GE.F + GE.Hc)}, dinding kiri dan kanan {f1(W - 2 * GE.t)} x {f1(GE.F + GE.Hc)}.</li>"
         f"<li>Kepala: lantai {f1(W)} x {f1(W)} dengan jendela kabel {f1(J[1] - J[0])} x {f1(J[3] - J[2])}, 4 dinding setinggi {f1(GE.P['kepala_dalam'])} mm, tutup atas dengan jendela OLED 25 x 15.</li>"
-        "<li>Takik USB 13 x 10 di tepi bawah dinding kiri kepala.</li></ol>"],
+        "<li>Takik USB 13 x 10 di tepi bawah dinding kiri kepala.</li></ol>", CARA_UKUR,
+        daftar_potong([GKL.lembar_baki, GKL.lembar_kepala, GKL.lembar_kecil])],
         gambar=[("jepit/gambar/8_lembar_baki.svg", "Lembar baki"), ("jepit/gambar/9_lembar_kepala.svg", "Lembar kepala"), ("jepit/gambar/10_lembar_kecil.svg", "Lembar kecil")],
         periksa="Lantai baki dan lantai kepala ditumpuk: keempat tepinya rata.",
         tampil=PVC, baru=BAKI + KEP + ["kepala_tutup", "kepala_bibir"], urai=0.45, pandang=[-0.75, 0.3, 1.25], label=[])
@@ -320,6 +346,7 @@ def model2():
         "<ol><li>Baki: lantai dan 4 dinding. Kepala: 4 dinding di atas lantai kepala.</li>"
         "<li>Takik USB 13 x 10 mm di tepi bawah dinding kiri kepala, pusatnya 20 mm dari depan.</li>"
         "<li>Lem bibir di sisi bawah tutup atas.</li></ol>"],
+        gambar=[("rakit/gambar/m2_sambungan.svg", "Cara menyambung dinding")],
         periksa="Kepala diletakkan di atas baki: keempat sisi rata, tidak ada celah cahaya.",
         tampil=BAKI + KEP + DUD + SENS + CAT, baru=BAKI + KEP, pandang=[-0.75, 0.42, 1.8], label=[])
     langkah("Pasang ESP32 dan OLED", "25 menit", [

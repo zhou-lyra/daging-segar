@@ -8,7 +8,7 @@ BIRU, ABU, MERAH = "#1f5fa8", "#8a8f99", "#b3262e"
 f1 = lambda v: (f"{v:.1f}".rstrip("0").rstrip(".")).replace(".", ",")
 TX = lambda x, y, t, anc="middle", sz=14, w=600, col="#2a2226": (f'<text x="{x:.1f}" y="{y:.1f}" font-size="{sz}" font-weight="{w}" fill="{col}" text-anchor="{anc}" '
                                                              f'paint-order="stroke" stroke="#fff" stroke-width="4" stroke-linejoin="round">{t}</text>')
-DEFS = ('<defs><marker id="pa" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="' + BIRU + '"/></marker></defs>')
+DEFS = ('<defs><marker id="pa" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="' + BIRU + '"/></marker><marker id="pm" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="#b3262e"/></marker></defs>')
 def svg(w, h, isi, judul): return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w:.0f} {h:.0f}" font-family="system-ui,Segoe UI,Roboto,sans-serif" role="img" aria-label="{judul}">{DEFS}{isi}</svg>'
 
 
@@ -132,60 +132,81 @@ class Lembar:
         for t_ in s.tanda:
             if t_[0] == "r": el.append(f'<rect x="{X(t_[1]):.1f}" y="{Y(t_[4]):.1f}" width="{(t_[2]-t_[1])*S:.1f}" height="{(t_[4]-t_[3])*S:.1f}" fill="none" stroke="#6c6469" stroke-width="1.1" stroke-dasharray="5 3"/>')
             else: el.append(f'<circle cx="{X(t_[1]):.1f}" cy="{Y(t_[2]):.1f}" r="{t_[3]*S:.1f}" fill="none" stroke="#6c6469" stroke-width="1.1" stroke-dasharray="6 4"/>')
-            if t_[-1]: el.append(TX(X((t_[1] + t_[2]) / 2) if t_[0] == "r" else X(t_[1]), (Y(t_[4]) + 15) if t_[0] == "r" else Y(t_[2] + t_[3]) + 15, t_[-1], sz=11, w=600, col="#6c6469"))
+            if t_[-1]: el.append(TX(X((t_[1] + t_[2]) / 2) if t_[0] == "r" else X(t_[1]), (Y(t_[4]) + 15) if t_[0] == "r" else Y(t_[2] + t_[3]) + 15, t_[-1] + (f" {f1(t_[2]-t_[1])}x{f1(t_[4]-t_[3])}" if t_[0] == "r" and (t_[2]-t_[1]) * S > 70 else ""), sz=11, w=600, col="#6c6469"))
         for l_ in s.lubang:
             if l_[0] == "r":
                 el.append(f'<rect x="{X(l_[1]):.1f}" y="{Y(l_[4]):.1f}" width="{(l_[2]-l_[1])*S:.1f}" height="{(l_[4]-l_[3])*S:.1f}" fill="#fff" stroke="{MERAH}" stroke-width="1.6"/>')
-                if l_[-1]: el.append(TX(X((l_[1] + l_[2]) / 2), Y((l_[3] + l_[4]) / 2) + 5, l_[-1], sz=11, w=700, col=MERAH))
+                if l_[-1]: el.append(TX(X((l_[1] + l_[2]) / 2), Y((l_[3] + l_[4]) / 2) + 5, l_[-1] + (f" {f1(l_[2]-l_[1])}x{f1(l_[4]-l_[3])}" if (l_[2]-l_[1]) * S > 70 else ""), sz=11, w=700, col=MERAH))
             else:
                 el.append(f'<circle cx="{X(l_[1]):.1f}" cy="{Y(l_[2]):.1f}" r="{max(l_[3]*S, 2.5):.1f}" fill="#fff" stroke="{MERAH}" stroke-width="1.6"/>')
-        # ukuran keseluruhan
-        yb = Y(0) + 26
-        el += dimH(X(0), X(s.w), yb, f1(s.w)); el += dimV(X(0) - 26, Y(0), Y(s.h), f1(s.h))
-        # ukuran berantai dari tepi kiri dan tepi bawah
+        # ukuran potong (merah): lebar dan tinggi lembar
+        yb = Y(0) + 30
+        el += dimH(X(0), X(s.w), yb, f1(s.w) + " mm", warna=MERAH); el += dimV(X(0) - 30, Y(0), Y(s.h), f1(s.h) + " mm", warna=MERAH)
+        # letak tanda/lubang (biru): berantai dari tepi kiri sampai tepi kanan, dan dari tepi bawah sampai tepi atas
         hs = sorted({round(v, 2) for a_, b_ in s.ukH for v in (a_, b_) if 0 < v < s.w})
         if hs:
-            pts = [0] + hs
+            pts = [0] + hs + [s.w]
             for i in range(len(pts) - 1):
-                el += dimH(X(pts[i]), X(pts[i + 1]), yb + 30, f1(pts[i + 1] - pts[i]), kecil=True)
+                el += dimH(X(pts[i]), X(pts[i + 1]), yb + 34, f1(pts[i + 1] - pts[i]), kecil=True)
+            el.append(TX(X(0), yb + 52, "letak tanda, mulai dari tepi kiri", anc="start", sz=10.5, w=600, col=BIRU))
         vs = sorted({round(v, 2) for a_, b_ in s.ukV for v in (a_, b_) if 0 < v < s.h})
-        if vs:
-            pts = [0] + vs
+        if vs and s.h * S > 110:
+            pts = [0] + vs + [s.h]
             for i in range(len(pts) - 1):
                 el += dimV(X(s.w) + 26, Y(pts[i]), Y(pts[i + 1]), f1(pts[i + 1] - pts[i]), kanan=True, kecil=True)
+            if s.h * S > 150: el.append(f'<text x="{X(s.w) + 60:.1f}" y="{Y(s.h / 2):.1f}" font-size="10.5" font-weight="600" fill="{BIRU}" text-anchor="middle" transform="rotate(90 {X(s.w) + 60:.1f} {Y(s.h / 2):.1f})">mulai dari tepi bawah</text>')
         for sisi, t_ in s.tepi.items():
-            if sisi == "bawah": el.append(TX(X(0), Y(0) + 13, t_, anc="start", sz=11, w=600, col="#6c6469"))
+            if sisi == "bawah": el.append(TX(X(0) + 4, Y(0) - 6, t_, anc="start", sz=11, w=600, col="#6c6469"))
             if sisi == "atas": el.append(TX(X(s.w / 2), Y(s.h) + 15, t_, sz=11, w=600, col="#6c6469"))
             if sisi == "kiri": el.append(f'<text x="{X(0)+14:.1f}" y="{Y(s.h/2):.1f}" font-size="11" font-weight="600" fill="#6c6469" text-anchor="middle" transform="rotate(-90 {X(0)+14:.1f} {Y(s.h/2):.1f})">{t_}</text>')
             if sisi == "kanan": el.append(f'<text x="{X(s.w)-10:.1f}" y="{Y(s.h/2):.1f}" font-size="11" font-weight="600" fill="#6c6469" text-anchor="middle" transform="rotate(90 {X(s.w)-10:.1f} {Y(s.h/2):.1f})">{t_}</text>')
-        el.append(TX(X(0), Y(s.h) - 34, f"{s.judul}" + (f"  ×{s.jumlah}" if s.jumlah > 1 else ""), anc="start", sz=15, w=700))
+        el.append(TX(X(0), Y(s.h) - 52, f"{s.judul}" + (f"  ×{s.jumlah}" if s.jumlah > 1 else ""), anc="start", sz=15, w=700))
+        el.append(TX(X(0), Y(s.h) - 33, f"Potong {f1(s.w)} x {f1(s.h)} mm" + (f", {s.jumlah} lembar" if s.jumlah > 1 else ", 1 lembar"), anc="start", sz=13, w=700, col=MERAH))
         if s.catatan: el.append(TX(X(0), Y(s.h) - 14, s.catatan, anc="start", sz=12, w=400, col="#555"))
         return el
 
     def ukuran_px(s, S):
-        return s.w * S + 26 + 90, s.h * S + 60 + 26 + 60
+        teks = max(len(s.catatan) * 6.3, len(f"Potong {f1(s.w)} x {f1(s.h)} mm, 2 lembar") * 7.6, len(s.judul) * 8.6)
+        return max(s.w * S + 30 + 110 + 50, teks + 70), s.h * S + 78 + 30 + 70
 
 
-def dimH(a, b, y, t, kecil=False):
-    if abs(b - a) < 1: return []
-    out = [f'<line x1="{a:.1f}" y1="{y:.1f}" x2="{b:.1f}" y2="{y:.1f}" stroke="{BIRU}" stroke-width="1.2" marker-start="url(#pa)" marker-end="url(#pa)"/>',
-           f'<line x1="{a:.1f}" y1="{y-6:.1f}" x2="{a:.1f}" y2="{y+6:.1f}" stroke="{BIRU}" stroke-width=".8"/><line x1="{b:.1f}" y1="{y-6:.1f}" x2="{b:.1f}" y2="{y+6:.1f}" stroke="{BIRU}" stroke-width=".8"/>']
-    out.append(TX((a + b) / 2, y - 5, t, sz=11 if kecil else 13, w=700, col=BIRU)); return out
+def dimH(a, b, y, t, kecil=False, warna=None):
+    if abs(b - a) < 0.5: return []
+    c = warna or BIRU; m = "pm" if warna else "pa"
+    out = [f'<line x1="{a:.1f}" y1="{y:.1f}" x2="{b:.1f}" y2="{y:.1f}" stroke="{c}" stroke-width="{1.6 if warna else 1.2}" marker-start="url(#{m})" marker-end="url(#{m})"/>',
+           f'<line x1="{a:.1f}" y1="{y-6:.1f}" x2="{a:.1f}" y2="{y+6:.1f}" stroke="{c}" stroke-width=".8"/><line x1="{b:.1f}" y1="{y-6:.1f}" x2="{b:.1f}" y2="{y+6:.1f}" stroke="{c}" stroke-width=".8"/>']
+    out.append(TX((a + b) / 2, y - 5, t, sz=11 if kecil else 13.5, w=700, col=c)); return out
 
 
-def dimV(x, a, b, t, kanan=False, kecil=False):
-    if abs(b - a) < 1: return []
-    out = [f'<line x1="{x:.1f}" y1="{a:.1f}" x2="{x:.1f}" y2="{b:.1f}" stroke="{BIRU}" stroke-width="1.2" marker-start="url(#pa)" marker-end="url(#pa)"/>',
-           f'<line x1="{x-6:.1f}" y1="{a:.1f}" x2="{x+6:.1f}" y2="{a:.1f}" stroke="{BIRU}" stroke-width=".8"/><line x1="{x-6:.1f}" y1="{b:.1f}" x2="{x+6:.1f}" y2="{b:.1f}" stroke="{BIRU}" stroke-width=".8"/>']
-    out.append(TX(x + (8 if kanan else -8), (a + b) / 2 + 4, t, anc="start" if kanan else "end", sz=11 if kecil else 13, w=700, col=BIRU)); return out
+def dimV(x, a, b, t, kanan=False, kecil=False, warna=None):
+    if abs(b - a) < 0.5: return []
+    c = warna or BIRU; m = "pm" if warna else "pa"
+    out = [f'<line x1="{x:.1f}" y1="{a:.1f}" x2="{x:.1f}" y2="{b:.1f}" stroke="{c}" stroke-width="{1.6 if warna else 1.2}" marker-start="url(#{m})" marker-end="url(#{m})"/>',
+           f'<line x1="{x-6:.1f}" y1="{a:.1f}" x2="{x+6:.1f}" y2="{a:.1f}" stroke="{c}" stroke-width=".8"/><line x1="{x-6:.1f}" y1="{b:.1f}" x2="{x+6:.1f}" y2="{b:.1f}" stroke="{c}" stroke-width=".8"/>']
+    out.append(TX(x + (8 if kanan else -8), (a + b) / 2 + 4, t, anc="start" if kanan else "end", sz=11 if kecil else 13.5, w=700, col=c)); return out
+
+
+DAFTAR = []      # (gambar, judul, w, h, jumlah, catatan) setiap lembar yang pernah digambar
+
+
+def legenda(lebar):
+    if lebar < 900:
+        return [f'<rect x="20" y="10" width="{lebar - 40}" height="76" rx="8" fill="#f3efe8" stroke="#ddd5c8"/>', TX(34, 30, "Semua angka dalam milimeter (mm).", anc="start", sz=12.5, w=700),
+                TX(34, 52, "MERAH = ukuran potong, garis potong, lubang", anc="start", sz=11.5, w=600, col=MERAH), TX(34, 73, "BIRU = letak, berantai dari tepi kiri / bawah", anc="start", sz=11.5, w=600, col=BIRU)]
+    el = [f'<rect x="20" y="14" width="{lebar - 40}" height="58" rx="8" fill="#f3efe8" stroke="#ddd5c8"/>',
+          TX(36, 37, "Cara membaca: semua angka dalam milimeter (mm).", anc="start", sz=13, w=700),
+          f'<line x1="36" y1="56" x2="70" y2="56" stroke="{MERAH}" stroke-width="2"/>', TX(76, 60, "MERAH = ukuran potong lembar, garis potong, lubang bor", anc="start", sz=12, w=600, col=MERAH),
+          f'<line x1="470" y1="56" x2="504" y2="56" stroke="{BIRU}" stroke-width="1.6"/>', TX(510, 60, "BIRU = letak tanda/lubang, berantai dari tepi kiri dan tepi bawah (jumlahnya = ukuran lembar)", anc="start", sz=12, w=600, col=BIRU)]
+    return el
 
 
 def susun(lembar, judul, kolom=3, S=4.2, lebar=1180):
-    el, x, y, tinggi_baris = [], 30, 70, 0
+    el, x, y, tinggi_baris = legenda(lebar), 30, 92, 0
     for L_ in lembar:
         w, h = L_.ukuran_px(S)
         if x + w > lebar: x, y = 30, y + tinggi_baris + 10; tinggi_baris = 0
-        el += L_.gambar(x + 30, y + 60, S); x += w + 40; tinggi_baris = max(tinggi_baris, h)
+        el += L_.gambar(x + 84, y + 78, S); x += w + 40; tinggi_baris = max(tinggi_baris, h)
+        DAFTAR.append((judul, L_.judul, L_.w, L_.h, L_.jumlah, L_.catatan))
     return svg(lebar, y + tinggi_baris + 20, "".join(el), judul)
 
 
@@ -207,7 +228,7 @@ def lembar_kepala():
     # lantai: sumbu u = X (depan->belakang), v = Y (kiri->kanan)
     lantai.kotak(J[0], J[1], J[2], J[3], "jendela")
     lantai.bulat(G.XC, G.YC, G.R, "tutup cat Ø 65", tanda=True)
-    lantai.catatan = "u dari depan, v dari kiri; garis putus = tanda di sisi BAWAH (tutup cat, 2 pipi)"
+    lantai.catatan = "tepi kiri gambar = depan, tepi bawah = kiri; putus = tanda di sisi BAWAH lantai"
     for y0, y1 in py: lantai.kotak(G.PIPI_POLI[0][0], G.PIPI_POLI[1][0], y0, y1, "", tanda=True, ukur=False)
     L = [lantai,
          Lembar("Dinding depan kepala", W, d, tepi={"bawah": "tepi bawah (ke lantai kepala)"}, catatan="tampak luar; tuas kait 1 mm di bawah tepi ini").kotak(YC - 9, YC + 9, 0, G.Hc + 12 - zk0, "kait", tanda=True),
