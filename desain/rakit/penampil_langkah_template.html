@@ -1,0 +1,114 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__JUDUL__</title>
+<style>
+html,body{margin:0;height:100%;background:#0F1012;color:#EDE8E1;font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+#c{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none;background:radial-gradient(ellipse at 50% 40%,#24272b 0%,#121315 100%)}
+#sv{position:absolute;inset:0;pointer-events:none}
+.lab{position:absolute;pointer-events:none;background:rgba(26,28,31,.92);border:1px solid #3a3e44;border-left:3px solid #C8463D;border-radius:6px;padding:3px 8px;font-size:12.5px;font-weight:600;white-space:nowrap;max-width:46vw;overflow:hidden;text-overflow:ellipsis}
+.lab small{display:block;font-weight:500;color:#9A958E;font-size:11.5px}
+#bar{position:absolute;left:10px;bottom:10px;display:flex;gap:6px;flex-wrap:wrap}
+#bar button{font:inherit;font-size:13px;font-weight:600;padding:6px 11px;border-radius:999px;border:1px solid #3a3e44;background:rgba(34,37,42,.9);color:#EDE8E1;cursor:pointer}
+#bar button.on{background:#EDE8E1;color:#0F1012}
+#err{position:absolute;left:10px;top:10px;color:#ff8a80}
+#leg{position:absolute;right:10px;top:10px;font-size:12px;color:#9A958E;text-align:right}
+@media(max-height:460px){#leg{display:none}#bar button{padding:4px 9px;font-size:12px}}
+#leg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin:0 4px 0 10px;vertical-align:-1px}
+</style></head><body>
+<canvas id="c"></canvas><svg id="sv"></svg><div id="labs"></div><div id="err"></div>
+<div id="bar"><button id="bReset">Pandang awal</button><button id="bPutar">Putar</button><button id="bSemua">Lihat hasil jadi</button></div>
+<div id="leg"><i style="background:#C8463D"></i>dipasang di langkah ini<i style="background:#8a8a8a"></i>sudah terpasang</div>
+<script>
+"use strict";
+const PARTS=__PARTS__, DATA=__DATA__, HINGE=__HINGE__;
+const cv=document.getElementById('c'),gl=cv.getContext('webgl',{antialias:true,alpha:true,premultipliedAlpha:false});
+if(!gl)document.getElementById('err').textContent='WebGL tidak tersedia.';
+const VS=`attribute vec3 p;attribute vec3 n;uniform mat4 M;uniform mat4 V;uniform mat4 P;varying vec3 vn;varying vec3 wp;
+void main(){vec4 w=M*vec4(p,1.0);wp=w.xyz;vn=mat3(M)*n;gl_Position=P*V*w;}`;
+const FS=`precision mediump float;varying vec3 vn;varying vec3 wp;uniform vec3 col;uniform float alpha;uniform float cut;uniform float ax;uniform float flip;uniform vec3 L;uniform float emis;uniform float hl;uniform float dim;
+void main(){if(ax>-0.5){float v=ax<0.5?wp.x:(ax<1.5?wp.y:wp.z);if(flip<0.5?(v>cut):(v<cut))discard;}
+vec3 N=normalize(vn);if(!gl_FrontFacing)N=-N;float d=max(dot(N,normalize(L)),0.0);float f=0.5+0.5*N.z;
+vec3 c=col*(0.42+0.28*f+0.45*d)+vec3(0.07)*pow(max(dot(N,normalize(L+vec3(0,0,1))),0.0),16.0);c=mix(c,col,emis);
+float g=dot(c,vec3(0.3,0.59,0.11));c=mix(c,vec3(g)*0.75+0.08,dim);c=mix(c,vec3(0.95,0.36,0.30),hl);gl_FragColor=vec4(c,alpha);}`;
+function sh(t,s){const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))document.getElementById('err').textContent+=gl.getShaderInfoLog(o);return o}
+const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);gl.useProgram(pr);
+const U={};['M','V','P','col','alpha','cut','ax','flip','L','emis','hl','dim'].forEach(n=>U[n]=gl.getUniformLocation(pr,n));
+const aP=gl.getAttribLocation(pr,'p'),aN=gl.getAttribLocation(pr,'n');
+function b64(s){const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u.buffer}
+const P={};let mn=[1e9,1e9,1e9],mx=[-1e9,-1e9,-1e9];
+for(const [k,m] of Object.entries(PARTS)){const dv=new DataView(b64(DATA[k])),nt=dv.getUint32(80,true),pos=new Float32Array(nt*9),nor=new Float32Array(nt*9);const a=[1e9,1e9,1e9],b=[-1e9,-1e9,-1e9];
+ for(let t=0;t<nt;t++){const o=84+t*50;for(let v=0;v<3;v++)for(let i=0;i<3;i++){const x=dv.getFloat32(o+12+v*12+i*4,true);pos[t*9+v*3+i]=x;nor[t*9+v*3+i]=dv.getFloat32(o+i*4,true);if(x<a[i])a[i]=x;if(x>b[i])b[i]=x}}
+ if(m.grup!=='aksesori')for(let i=0;i<3;i++){mn[i]=Math.min(mn[i],a[i]);mx[i]=Math.max(mx[i],b[i])}
+ const bp=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bp);gl.bufferData(gl.ARRAY_BUFFER,pos,gl.STATIC_DRAW);const bn=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bn);gl.bufferData(gl.ARRAY_BUFFER,nor,gl.STATIC_DRAW);
+ P[k]={bp,bn,n:nt*3,col:[1,3,5].map(i=>parseInt(m.warna.slice(i,i+2),16)/255),a0:m.alpha,m,lo:a,hi:b,on:true,baru:false,samar:false}}
+const size=Math.max(mx[0]-mn[0],mx[1]-mn[1],mx[2]-mn[2]),ctr0=[0,1,2].map(i=>(mn[i]+mx[i])/2);
+// keadaan kamera (dianimasikan) dan keadaan langkah
+let cam={yaw:-0.75,pit:0.42,dist:size*2,t:ctr0.slice()},tgt=null,expl=0,explT=0,hinge=0,hingeT=0,cutAx=-1,cutPos=0,cutFlip=0,putar=false,t0=performance.now(),sem=false,lang=null,drag=null;
+function modelM(m){const dz=(m.urai||0)*expl;if(!HINGE||m.grup!=='atas'||hinge===0)return [1,0,0,0,0,1,0,0,0,0,1,0,0,0,dz,1];
+ const a=hinge*Math.PI/180,c=Math.cos(a),s=Math.sin(a),hx=HINGE.x,hz=HINGE.z;return [c,0,-s,0,0,1,0,0,s,0,c,0,hx-hx*c-hz*s,0,hz+hx*s-hz*c+dz,1]}
+function ap(M,p){return [M[0]*p[0]+M[4]*p[1]+M[8]*p[2]+M[12],M[1]*p[0]+M[5]*p[1]+M[9]*p[2]+M[13],M[2]*p[0]+M[6]*p[1]+M[10]*p[2]+M[14]]}
+function kotakDunia(ks,ex,hg){const sE=expl,sH=hinge;expl=ex;hinge=hg;const a=[1e9,1e9,1e9],b=[-1e9,-1e9,-1e9];
+ for(const k of ks){const p=P[k];if(!p)continue;const M=modelM(p.m);for(const cx of [p.lo[0],p.hi[0]])for(const cy of [p.lo[1],p.hi[1]])for(const cz of [p.lo[2],p.hi[2]]){const q=ap(M,[cx,cy,cz]);for(let i=0;i<3;i++){a[i]=Math.min(a[i],q[i]);b[i]=Math.max(b[i],q[i])}}}
+ expl=sE;hinge=sH;return [a,b]}
+function aspek(){return Math.max(1,1.25/(cv.clientWidth/cv.clientHeight))*(cv.clientHeight<460?1.25:1)}
+function terapkan(L){lang=L;sem=false;document.getElementById('bSemua').classList.remove('on');
+ const tampil=new Set(L.tampil),baru=new Set(L.baru||[]),samar=new Set(L.samar||[]);
+ for(const k in P){P[k].on=tampil.has(k)||baru.has(k);P[k].baru=baru.has(k);P[k].samar=samar.has(k)}
+ explT=L.urai||0;hingeT=L.engsel||0;
+ if(L.potong){cutAx=L.potong[0];cutPos=L.potong[1];cutFlip=L.potong[2]||0}else cutAx=-1;
+ const fk=(L.fokus&&L.fokus.length?L.fokus:(L.baru&&L.baru.length?L.baru:L.tampil)).filter(k=>P[k]);const [a,b]=kotakDunia(fk,explT,hingeT);
+ const c=[0,1,2].map(i=>(a[i]+b[i])/2),s=Math.max(b[0]-a[0],b[1]-a[1],b[2]-a[2],12);
+ tgt={yaw:L.pandang[0],pit:L.pandang[1],dist:s*L.pandang[2]*aspek(),t:c};t0=performance.now();buatLabel()}
+function semua(){sem=!sem;document.getElementById('bSemua').classList.toggle('on',sem);if(sem){for(const k in P){P[k].on=PARTS[k].grup!=='aksesori';P[k].baru=false;P[k].samar=false}explT=0;hingeT=0;cutAx=-1;tgt={yaw:-0.75,pit:0.42,dist:size*1.9*aspek(),t:ctr0.slice()};buatLabel(true)}else if(lang)terapkan(lang)}
+const labs=document.getElementById('labs');let labEl=[];
+function buatLabel(kosong){labs.innerHTML='';labEl=[];if(kosong||!lang)return;const ks=(lang.label||lang.baru||[]).filter(k=>P[k]&&P[k].m.nama);const sudah=new Set();
+ for(const k of ks){const nm=P[k].m.nama;if(sudah.has(nm))continue;sudah.add(nm);const d=document.createElement('div');d.className='lab';d.innerHTML=nm+(P[k].m.ukuran?'<small>'+P[k].m.ukuran+'</small>':'');labs.appendChild(d);labEl.push({k,d})}}
+function mul(a,b){const o=new Float32Array(16);for(let i=0;i<4;i++)for(let j=0;j<4;j++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+j]*b[i*4+k];o[i*4+j]=s}return o}
+function persp(f,a,n,fa){const t=1/Math.tan(f/2),o=new Float32Array(16);o[0]=t/a;o[5]=t;o[10]=(fa+n)/(n-fa);o[11]=-1;o[14]=2*fa*n/(n-fa);return o}
+function look(e,c,u){let z=[e[0]-c[0],e[1]-c[1],e[2]-c[2]],l=Math.hypot(...z);z=z.map(v=>v/l);let x=[u[1]*z[2]-u[2]*z[1],u[2]*z[0]-u[0]*z[2],u[0]*z[1]-u[1]*z[0]];l=Math.hypot(...x);x=x.map(v=>v/l);const y=[z[1]*x[2]-z[2]*x[1],z[2]*x[0]-z[0]*x[2],z[0]*x[1]-z[1]*x[0]];
+ return new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-(x[0]*e[0]+x[1]*e[1]+x[2]*e[2]),-(y[0]*e[0]+y[1]*e[1]+y[2]*e[2]),-(z[0]*e[0]+z[1]*e[1]+z[2]*e[2]),1])}
+function sudut(a,b){let d=b-a;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;return d}
+function langkah(now){
+ if(tgt&&!drag){const k=0.09;cam.yaw+=sudut(cam.yaw,tgt.yaw)*k;cam.pit+=(tgt.pit-cam.pit)*k;cam.dist+=(tgt.dist-cam.dist)*k;for(let i=0;i<3;i++)cam.t[i]+=(tgt.t[i]-cam.t[i])*k;
+  if(Math.abs(sudut(cam.yaw,tgt.yaw))<1e-3&&Math.abs(tgt.dist-cam.dist)<size*1e-4)tgt=null}
+ if(putar&&!drag)cam.yaw+=0.004;
+ expl+=(explT-expl)*0.1;if(Math.abs(explT-expl)<1e-3)expl=explT;hinge+=(hingeT-hinge)*0.1;if(Math.abs(hingeT-hinge)<0.05)hinge=hingeT;
+ draw(now);requestAnimationFrame(langkah)}
+function draw(now){const dpr=Math.min(window.devicePixelRatio||1,2),w=cv.clientWidth,h=cv.clientHeight;if(cv.width!=Math.round(w*dpr)||cv.height!=Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
+ gl.viewport(0,0,cv.width,cv.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);
+ const t=cam.t,e=[t[0]+cam.dist*Math.cos(cam.pit)*Math.sin(cam.yaw),t[1]-cam.dist*Math.cos(cam.pit)*Math.cos(cam.yaw),t[2]+cam.dist*Math.sin(cam.pit)];
+ const V=look(e,t,[0,0,1]),PP=persp(0.75,cv.width/cv.height,size*0.01,size*30);
+ gl.uniformMatrix4fv(U.V,false,V);gl.uniformMatrix4fv(U.P,false,PP);gl.uniform3f(U.L,0.4,-0.6,0.9);gl.uniform1f(U.cut,cutPos);gl.uniform1f(U.ax,cutAx);gl.uniform1f(U.flip,cutFlip);
+ const puls=0.16+0.12*Math.sin((now-t0)/260);
+ const ks=Object.keys(P).filter(k=>P[k].on).sort((a,b)=>((P[a].samar||P[a].a0<1)-(P[b].samar||P[b].a0<1)));
+ for(const k of ks){const p=P[k];const al=p.samar?Math.min(p.a0,0.16):p.a0;gl.uniform3fv(U.col,p.col);gl.uniform1f(U.alpha,al);gl.uniform1f(U.emis,p.m.bahan==='led'?0.8:0.0);
+  gl.uniform1f(U.hl,p.baru?puls:0.0);gl.uniform1f(U.dim,(!sem&&lang&&!p.baru&&(lang.baru||[]).length)?0.55:0.0);gl.uniformMatrix4fv(U.M,false,new Float32Array(modelM(p.m)));
+  if(al<1){gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false)}else{gl.disable(gl.BLEND);gl.depthMask(true)}
+  gl.bindBuffer(gl.ARRAY_BUFFER,p.bp);gl.enableVertexAttribArray(aP);gl.vertexAttribPointer(aP,3,gl.FLOAT,false,0,0);gl.bindBuffer(gl.ARRAY_BUFFER,p.bn);gl.enableVertexAttribArray(aN);gl.vertexAttribPointer(aN,3,gl.FLOAT,false,0,0);gl.drawArrays(gl.TRIANGLES,0,p.n)}
+ gl.depthMask(true);
+ // label: titik jangkar = pusat kotak bagian, disusun di kiri/kanan tanpa tumpang tindih
+ const VP=mul(PP,V),W=cv.clientWidth,H=cv.clientHeight;let ls=[],svg='';
+ for(const o of labEl){const p=P[o.k];const M=modelM(p.m);let q=[(p.lo[0]+p.hi[0])/2,(p.lo[1]+p.hi[1])/2,(p.lo[2]+p.hi[2])/2];if(p.m.jangkar)q=p.m.jangkar;q=ap(M,q);
+  if(cutAx>=0){const v=q[cutAx];if(cutFlip<0.5?(v>cutPos):(v<cutPos)){q=q.slice();q[cutAx]=cutPos}}
+  const c=[0,1,2,3].map(r=>VP[r]*q[0]+VP[4+r]*q[1]+VP[8+r]*q[2]+VP[12+r]);if(c[3]<=0){o.d.style.display='none';continue}o.d.style.display='';ls.push({o,x:(c[0]/c[3]*0.5+0.5)*W,y:(1-(c[1]/c[3]*0.5+0.5))*H})}
+ for(const side of [0,1]){const gg=ls.filter(o=>(o.x>=W/2?1:0)===side).sort((a,b)=>a.y-b.y);let prev=-1e9;const hh=40;
+  for(const o of gg){o.ty=Math.max(o.y,prev+hh,30);prev=o.ty}for(let i=gg.length-1;i>=0;i--){const lim=i===gg.length-1?H-70:gg[i+1].ty-hh;gg[i].ty=Math.min(gg[i].ty,lim)}
+  for(const o of gg){const d=o.o.d,w2=d.offsetWidth;d.style.top=(o.ty-d.offsetHeight/2)+'px';d.style.left=side?(W-w2-10)+'px':'10px';const ex=side?W-w2-10:10+w2;
+   svg+='<line x1="'+ex+'" y1="'+o.ty+'" x2="'+o.x+'" y2="'+o.y+'" stroke="#C8463D" stroke-width="1.5" opacity=".85"/><circle cx="'+o.x+'" cy="'+o.y+'" r="3.5" fill="#EDE8E1" stroke="#C8463D" stroke-width="2"/>'}}
+ document.getElementById('sv').innerHTML=svg}
+let pts=new Map(),pinch=0;
+cv.onpointerdown=e=>{pts.set(e.pointerId,[e.clientX,e.clientY]);cv.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,s:e.shiftKey};tgt=null;cv.style.cursor='grabbing'};
+cv.onpointerup=cv.onpointercancel=e=>{pts.delete(e.pointerId);pinch=0;if(!pts.size){drag=null;cv.style.cursor='grab'}};
+cv.onpointermove=e=>{if(!drag)return;pts.set(e.pointerId,[e.clientX,e.clientY]);
+ if(pts.size===2){const [a,b]=[...pts.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(pinch)cam.dist*=pinch/d;pinch=d;return}
+ const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
+ if(drag.s){const k=cam.dist*0.0016;cam.t[0]-=dx*k*Math.cos(cam.yaw);cam.t[1]-=dx*k*Math.sin(cam.yaw);cam.t[2]+=dy*k}else{cam.yaw-=dx*0.008;cam.pit=Math.max(-1.5,Math.min(1.5,cam.pit+dy*0.008))}};
+cv.onwheel=e=>{e.preventDefault();tgt=null;cam.dist*=Math.exp(e.deltaY*0.0012)};
+document.getElementById('bReset').onclick=()=>{if(lang)terapkan(lang)};
+document.getElementById('bPutar').onclick=e=>{putar=!putar;e.target.classList.toggle('on',putar)};
+document.getElementById('bSemua').onclick=semua;
+addEventListener('message',e=>{const d=e.data;if(d&&d.tipe==='langkah')terapkan(d)});
+addEventListener('resize',()=>{if(lang&&!sem)terapkan(lang)});
+// mandiri (tanpa halaman induk): tampilkan semua
+terapkan({tampil:Object.keys(P).filter(k=>PARTS[k].grup!=='aksesori'),baru:[],pandang:[-0.75,0.42,1.6]});
+requestAnimationFrame(langkah);window.__siap=true;if(parent!==window)parent.postMessage({tipe:'siap'},'*');
+</script></body></html>

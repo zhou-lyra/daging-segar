@@ -20,7 +20,8 @@ OUT = os.path.join(HERE, "model"); os.makedirs(OUT, exist_ok=True)
 t = 3.0
 A = math.radians(40.0); SA, CA = math.sin(A), math.cos(A)
 u = np.array([SA, 0.0, CA])                                 # sumbu tabung, dari lubang ke atas
-H_CHIP = 17.0; TUBE_RO, TUBE_RI, S_END = 16.0, 14.0, 24.0; AP_R = 6.0
+H_CHIP = 17.0; TUBE_RO, TUBE_RI = 16.0, 14.0; AP_R = 6.0
+S_END = H_CHIP + 0.65 + 1.6 + 3.0                         # ujung pipa rata dengan punggung cakram (22,25): kedalaman sensor = tekan cakram sampai rata
 X0, X1 = -75.5, 32.0                                        # luar kotak
 YW = 19.5; YI = YW - t                                      # setengah lebar luar / dalam
 X_PAD = -26.0                                               # pelat muka hitam: x X_PAD..X1, z 0..3; lantai belakang naik 2 mm
@@ -102,7 +103,7 @@ DIPAKAI_S = ["VIN", "GND", "SCL", "SDA", "LED"]
 tambah("sensor_dupont", lokal(trimesh.util.concatenate([kotak(x - 1.25, x + 1.25, hy0 - 1.25, hy0 + 1.25, -TCS["pcb"] - 16.5, -TCS["pcb"] - 2.5) for x, n in zip(xs_pin, TCS["pin"]) if n in DIPAKAI_S])), "#202020", "Soket dupont sensor (5)", "plastik_hitam")
 # cakram dudukan di punggung papan (lubang header + 2 baut)
 ck = silinder(cx_, cy_, -TCS["pcb"] - 3.0, -TCS["pcb"], TUBE_RI - 0.15, 72)          # sepusat sumbu tabung (chip di sumbu)
-ck = kurang(ck, kotak(xs_pin[-1] - 1.8, xs_pin[0] + 1.8, hy0 - 1.75, hy0 + 1.75, -10, 5), *[silinder(hx, hy, -10, 5, 1.4, 24) for hx, hy in TCS["lubang"]])
+ck = kurang(ck, kotak(xs_pin[-1] - 1.52, xs_pin[0] + 1.52, hy0 - 1.52, hy0 + 1.52, -10, 5), *[silinder(hx, hy, -10, 5, 1.4, 24) for hx, hy in TCS["lubang"]])
 tambah("dudukan_cakram", lokal(ck), "#26272b", "Cakram dudukan Ø 27,7 (PVC hitam)", "pvc_hitam")
 baut = []
 for hx, hy in TCS["lubang"]:
@@ -111,7 +112,8 @@ tambah("sensor_baut", lokal(gabung(baut)), "#1c1c1c", "Baut M2,5 x 10 hitam + mu
 
 # ---------------------------------------------------------------- OLED diputar 90 derajat di sisi bawah tutup atas
 OX = 6.0; OH, OL = 27.8, 27.3
-oz1 = Z_TOP; oz0 = oz1 - 1.4; zo = oz0 - 1.2
+GANJAL = 1.6                                                # mur M2 sebagai ganjal antara tutup dan PCB OLED
+oz0 = Z_TOP - GANJAL; oz1 = oz0 + 1.4; zo = oz0 - 1.2
 tambah("oled_kaca", kotak(OX - 9.65, OX + 9.65, -13.35, 13.35, oz0, oz1), "#0a0f1e", "Layar OLED 0,96 inci", "kaca")
 tambah("oled_pcb", kurang(kotak(OX - OH / 2, OX + OH / 2, -OL / 2, OL / 2, zo, oz0), *[silinder(OX + sx * 11.65, sy * 11.65, zo - 2, oz0 + 1, 1.0, 16) for sx in (-1, 1) for sy in (-1, 1)]), "#1d4f9c", "Papan OLED SSD1306", "pcb_biru")
 ox_pin = OX - OH / 2 + 1.6
@@ -120,7 +122,8 @@ tambah("oled_header", kotak(ox_pin - 1.27, ox_pin + 1.27, -5.08, 5.08, zo - 2.5,
 tambah("oled_dupont", trimesh.util.concatenate([kotak(ox_pin - 1.25, ox_pin + 1.25, y - 1.25, y + 1.25, zo - 16.5, zo - 2.5) for y in OLED_PIN.values()]), "#202020", "Soket dupont OLED (4)", "plastik_hitam")
 tambah("oled_baut", gabung([silinder(OX + sx * 11.65, sy * 11.65, zo - 3.0, Z_TOP + t + 1.2, 0.95, 12) for sx in (-1, 1) for sy in (-1, 1)]
                          + [silinder(OX + sx * 11.65, sy * 11.65, Z_TOP + t, Z_TOP + t + 1.2, 1.8, 16) for sx in (-1, 1) for sy in (-1, 1)]
-                         + [silinder(OX + sx * 11.65, sy * 11.65, oz0, Z_TOP, 1.9, 16) for sx in (-1, 1) for sy in (-1, 1)]), "#1c1c1c", "Baut M2 + ring ganjal 1,4", "baja_hitam")
+                         + [silinder(OX + sx * 11.65, sy * 11.65, oz0, Z_TOP, 2.0, 6) for sx in (-1, 1) for sy in (-1, 1)]
+                         + [silinder(OX + sx * 11.65, sy * 11.65, zo - 1.6, zo, 2.0, 6) for sx in (-1, 1) for sy in (-1, 1)]), "#1c1c1c", "Baut M2 x 10 + mur ganjal + mur pengunci", "baja_hitam")
 tutup = kurang(kotak(X0, X1, -YW, YW, Z_TOP, Z_TOP + t), kotak(OX - 7.5, OX + 7.5, -12.5, 12.5, Z_TOP - 1, Z_TOP + t + 1),
                *[silinder(OX + sx * 11.65, sy * 11.65, Z_TOP - 1, Z_TOP + t + 1, 1.1, 16) for sx in (-1, 1) for sy in (-1, 1)])
 tambah("tutup_atas", tutup, PVC, "Tutup atas (jendela OLED)", "pvc", 0.45)
@@ -180,7 +183,7 @@ def jarak_kabel():
 def tabrakan():
     boleh = {frozenset(p) for p in [("sensor_pin", "sensor_header"), ("sensor_pin", "sensor_pcb"), ("sensor_pin", "sensor_dupont"), ("esp_pin", "esp_header"), ("esp_pin", "esp_pcb"),
              ("esp_pin", "esp_dupont"), ("sensor_baut", "sensor_pcb"), ("sensor_baut", "dudukan_cakram"), ("sensor_pin", "dudukan_cakram"), ("oled_baut", "oled_pcb"), ("oled_baut", "tutup_atas"),
-             ("esp_usb", "esp_pcb"), ("tabung", "beludru"), ("oled_baut", "oled_kaca")]}
+             ("esp_usb", "esp_pcb"), ("tabung", "beludru"), ("oled_baut", "oled_kaca"), ("oled_baut", "oled_header")]}
     out = []; ks = [k for k in B if k != "daging"]
     for i in range(len(ks)):
         for j in range(i + 1, len(ks)):

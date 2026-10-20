@@ -233,7 +233,8 @@ tambah("esp_dupont", trimesh.util.concatenate([kotak(*(pin_esp(n, b)[:1] + [-1.2
        "atas", "#202020", "Soket dupont ESP32 (6)", "plastik_hitam")
 
 # ---- OLED di sisi bawah tutup atas, layar menghadap jendela
-oz1 = Z_ATAS; oz0 = oz1 - OLED["kaca"][2]
+GANJAL_OLED = 1.6                                   # mur M2 sebagai ganjal antara tutup dan PCB OLED
+oz0 = Z_ATAS - GANJAL_OLED; oz1 = oz0 + OLED["kaca"][2]
 tambah("oled_kaca", kotak(OLED["cx"] - OLED["kaca"][0] / 2, OLED["cx"] + OLED["kaca"][0] / 2, OLED["cy"] - OLED["kaca"][1] / 2, OLED["cy"] + OLED["kaca"][1] / 2, oz0, oz1),
        "atas", "#0a0f1e", "Layar OLED 0,96 inci", "kaca")
 op = kurang(kotak(OLED["cx"] - OLED["L"] / 2, OLED["cx"] + OLED["L"] / 2, OLED["cy"] - OLED["H"] / 2, OLED["cy"] + OLED["H"] / 2, oz0 - OLED["pcb"], oz0),
@@ -245,10 +246,11 @@ zo = oz0 - OLED["pcb"]
 tambah("oled_header", kotak(OLED["cx"] - 5.08, OLED["cx"] + 5.08, oy_pin - 1.27, oy_pin + 1.27, zo - 2.5, zo), "atas", "#151515", "Header OLED (4)", "plastik_hitam")
 tambah("oled_dupont", trimesh.util.concatenate([kotak(x - 1.25, x + 1.25, oy_pin - 1.25, oy_pin + 1.25, zo - 2.5 - 14, zo - 2.5) for x in OLED_PIN.values()]),
        "atas", "#202020", "Soket dupont OLED (4)", "plastik_hitam")
-tambah("oled_baut", gabung([silinder(OLED["cx"] + sx * OLED["lubang"], OLED["cy"] + sy * OLED["lubang"], zo - 6.5, Z_ATAS + t + 1.2, 0.95, 12) for sx in (-1, 1) for sy in (-1, 1)]
+tambah("oled_baut", gabung([silinder(OLED["cx"] + sx * OLED["lubang"], OLED["cy"] + sy * OLED["lubang"], zo - 3.0, Z_ATAS + t + 1.2, 0.95, 12) for sx in (-1, 1) for sy in (-1, 1)]
                                          + [silinder(OLED["cx"] + sx * OLED["lubang"], OLED["cy"] + sy * OLED["lubang"], Z_ATAS + t, Z_ATAS + t + 1.2, 1.8, 16) for sx in (-1, 1) for sy in (-1, 1)]
-                                         + [silinder(OLED["cx"] + sx * OLED["lubang"], OLED["cy"] + sy * OLED["lubang"], oz0 - OLED["pcb"] - 4.0, oz0 - OLED["pcb"], 0.95 + 1.1, 16) for sx in (-1, 1) for sy in (-1, 1)]),
-       "atas", "#1c1c1c", "Baut M2 x 12 + ganjal 4 mm", "baja_hitam")
+                                         + [silinder(OLED["cx"] + sx * OLED["lubang"], OLED["cy"] + sy * OLED["lubang"], oz0, Z_ATAS, 2.0, 6) for sx in (-1, 1) for sy in (-1, 1)]
+                                         + [silinder(OLED["cx"] + sx * OLED["lubang"], OLED["cy"] + sy * OLED["lubang"], zo - 1.6, zo, 2.0, 6) for sx in (-1, 1) for sy in (-1, 1)]),
+       "atas", "#1c1c1c", "Baut M2 x 10 + mur ganjal + mur pengunci", "baja_hitam")
 
 # ---- engsel (2 buah, 25 mm) dan kait depan
 ax, az = SUMBU_ENGSEL
