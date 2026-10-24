@@ -1,0 +1,234 @@
+[
+ {
+  "no": 1,
+  "judul": "Baki bawah",
+  "bagian": [
+   "baki_lantai",
+   "baki_depan",
+   "baki_belakang",
+   "baki_kiri",
+   "baki_kanan"
+  ],
+  "pusat": [
+   0.0,
+   0.0
+  ],
+  "ukuran": [
+   94.0,
+   94.0,
+   60.0
+  ],
+  "tinggi": 60.0
+ },
+ {
+  "no": 2,
+  "judul": "Busa 3 lapis",
+  "bagian": [
+   "busa_1",
+   "busa_2",
+   "busa_3"
+  ],
+  "pusat": [
+   125.0,
+   0.0
+  ],
+  "ukuran": [
+   87.0,
+   87.0,
+   25.0
+  ],
+  "tinggi": 24.98
+ },
+ {
+  "no": 3,
+  "judul": "Tutup cat + beludru",
+  "bagian": [
+   "tutup_cat",
+   "beludru"
+  ],
+  "pusat": [
+   250.0,
+   0.0
+  ],
+  "ukuran": [
+   65.0,
+   65.0,
+   22.0
+  ],
+  "tinggi": 22.0
+ },
+ {
+  "no": 4,
+  "judul": "Dudukan sensor",
+  "bagian": [
+   "dudukan_pelat",
+   "dudukan_pipi"
+  ],
+  "pusat": [
+   375.0,
+   0.0
+  ],
+  "ukuran": [
+   14.8,
+   27.3,
+   15.7
+  ],
+  "tinggi": 15.666210615424086
+ },
+ {
+  "no": 5,
+  "judul": "Sensor TCS34725",
+  "bagian": [
+   "sensor_pcb",
+   "sensor_chip",
+   "sensor_led",
+   "sensor_smd",
+   "sensor_header",
+   "sensor_pin",
+   "sensor_baut"
+  ],
+  "pusat": [
+   0.0,
+   -165.0
+  ],
+  "ukuran": [
+   20.9,
+   20.3,
+   11.8
+  ],
+  "tinggi": 11.800000047683724
+ },
+ {
+  "no": 6,
+  "judul": "Lantai kepala",
+  "bagian": [
+   "kepala_lantai"
+  ],
+  "pusat": [
+   125.0,
+   -165.0
+  ],
+  "ukuran": [
+   94.0,
+   94.0,
+   3.0
+  ],
+  "tinggi": 3.0
+ },
+ {
+  "no": 7,
+  "judul": "Dinding kepala",
+  "bagian": [
+   "kepala_depan",
+   "kepala_belakang",
+   "kepala_kiri",
+   "kepala_kanan"
+  ],
+  "pusat": [
+   250.0,
+   -165.0
+  ],
+  "ukuran": [
+   94.0,
+   94.0,
+   50.0
+  ],
+  "tinggi": 50.0
+ },
+ {
+  "no": 8,
+  "judul": "Tutup atas",
+  "bagian": [
+   "kepala_tutup",
+   "kepala_bibir"
+  ],
+  "pusat": [
+   375.0,
+   -165.0
+  ],
+  "ukuran": [
+   94.0,
+   94.0,
+   9.0
+  ],
+  "tinggi": 9.000000000000014
+ },
+ {
+  "no": 9,
+  "judul": "ESP32 NodeMCU-32S",
+  "bagian": [
+   "esp_modul",
+   "esp_pcb",
+   "esp_usb",
+   "esp_header",
+   "esp_pin"
+  ],
+  "pusat": [
+   0.0,
+   -330.0
+  ],
+  "ukuran": [
+   13.2,
+   52.5,
+   25.4
+  ],
+  "tinggi": 25.400000000000006
+ },
+ {
+  "no": 10,
+  "judul": "OLED 0,96 inci",
+  "bagian": [
+   "oled_kaca",
+   "oled_pcb",
+   "oled_header"
+  ],
+  "pusat": [
+   125.0,
+   -330.0
+  ],
+  "ukuran": [
+   27.3,
+   27.8,
+   5.1
+  ],
+  "tinggi": 5.1000000000000085
+ },
+ {
+  "no": 11,
+  "judul": "Engsel dan kait",
+  "bagian": [
+   "engsel_bawah",
+   "engsel_atas",
+   "kait_bawah",
+   "kait_atas"
+  ],
+  "pusat": [
+   250.0,
+   -330.0
+  ],
+  "ukuran": [
+   31.5,
+   75.0,
+   28.0
+  ],
+  "tinggi": 28.0
+ },
+ {
+  "no": 12,
+  "judul": "Balok kalibrasi",
+  "bagian": [
+   "kal_putih",
+   "kal_hitam"
+  ],
+  "pusat": [
+   375.0,
+   -330.0
+  ],
+  "ukuran": [
+   125.0,
+   60.0,
+   10.0
+  ],
+  "tinggi": 10.0
+ }
+]

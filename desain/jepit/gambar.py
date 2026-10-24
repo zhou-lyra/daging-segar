@@ -8,7 +8,7 @@ from trimesh.transformations import rotation_matrix
 warnings.filterwarnings("ignore")
 import geometri as G
 
-HERE = os.path.dirname(os.path.abspath(__file__)); OUT = os.path.join(HERE, "gambar"); os.makedirs(OUT, exist_ok=True)
+HERE = os.path.dirname(os.path.abspath(__file__)); OUT = os.path.join(HERE, "gambar" if G.VARIAN == "solder" else "gambar_bb"); os.makedirs(OUT, exist_ok=True)
 BIRU, MERAH, JINGGA, HIJAU, ABU = "#1f5fa8", "#b3262e", "#d97706", "#2e8b57", "#8a8f99"
 f1 = lambda v: (f"{v:.1f}".rstrip("0").rstrip(".")).replace(".", ",")
 
@@ -89,7 +89,7 @@ def gambar_irisan(K, y0, kecuali=(), M=None):
 
 # ============================================================================ 1. potongan samping (tertutup)
 def potongan():
-    K = Kanvas(-10, 104, -42, 72, 8.0, (150, 80, 250, 120))
+    K = Kanvas(-10, G.W + 18, -42, G.Hc + 2 * G.t + G.P["kepala_dalam"] + 4, 8.0, (150, 80, 250, 120))
     gambar_irisan(K, G.YC)
     # pipi (di belakang bidang potong): garis putus
     K.poly([G.PIPI_POLI], "none", "#555", 1.3, dash="6 4")
@@ -103,12 +103,12 @@ def potongan():
     K.dimV(0, 0, G.Hc, K.X(-2) - 26, "tutup cat " + f1(G.Hc), side="l")
     K.dimV(0, zk0, za, K.X(-2) - 26, "dalam " + f1(G.P["kepala_dalam"]), side="l")
     K.dimV(0, -G.P["daging_tebal"], 0, K.X(-2) - 96, "daging " + f1(G.P["daging_tebal"]), side="l")
-    K.dimH(0, G.W, za + G.t, K.Y(za + G.t) - 34, "86")
+    K.dimH(0, G.W, za + G.t, K.Y(za + G.t) - 34, f1(G.W))
     K.dimH(G.XC - G.rl, G.XC + G.rl, -G.F - G.t, K.Y(-G.F - G.t) + 38, "lubang Ø 14")
     K.dimH(G.XC - G.R, G.XC + G.R, -G.F - G.t, K.Y(-G.F - G.t) + 76, "tutup cat Ø 65")
-    K.dimH(0, G.XC, -G.F - G.t, K.Y(-G.F - G.t) + 112, "pusat lubang 43")
+    K.dimH(0, G.XC, -G.F - G.t, K.Y(-G.F - G.t) + 112, "pusat lubang " + f1(G.XC))
     nomor = [(1, 25, -5, "daging"), (2, 20, -26, "busa"), (3, G.XC - 26, 9, "tutup cat"), (4, 45.5, 13.5, "sensor"),
-             (5, 68, 15, "pipi"), (6, 51, 30, "jendela"), (7, 20, 38, "ESP32"), (8, 60, za - 10, "OLED"), (9, G.W + 9, G.Hc + 16, "engsel"), (10, -9, G.Hc - 18, "kait"), (11, 76, -36.5, "lantai baki")]
+             (5, 68, 15, "pipi"), (6, 51, 30, "jendela"), (7, 20 if G.VARIAN == "solder" else G.bx0 - 14, 38 if G.VARIAN == "solder" else 58, "ESP32"), (8, 60, za - 10, "OLED"), (9, G.W + 9, G.Hc + 16, "engsel"), (10, -9, G.Hc - 18, "kait"), (11, 76, -36.5, "lantai baki")]
     for n, x, z, _ in nomor: K.tanda(n, x, z)
     ax_, az_ = G.SUMBU_ENGSEL
     K.poly([[(G.W, az_ - 14), (G.W + 1, az_ - 14), (G.W + 1, az_ + 14), (G.W, az_ + 14)]], "none", "#555", 1.2, dash="5 3")
@@ -171,11 +171,14 @@ def denah():
         rect(G.PIPI_POLI[0][0], G.PIPI_POLI[1][0], y0, y1, "#26272b", "#000", 1.0, "4 2", 0.55)
     J = G.JENDELA; rect(J[0], J[1], J[2], J[3], "#fff", "#2a2226", 2.0)
     # ESP32 dan USB, OLED
-    E = G.ESP; rect(E["x0"], E["x0"] + E["W"], E["y0"], E["y0"] + E["L"], "#1f6f43", "#145233", 1.4, None, 0.30)
+    E = G.ESP
+    if G.VARIAN == "solder": rect(E["x0"], E["x0"] + E["W"], E["y0"], E["y0"] + E["L"], "#1f6f43", "#145233", 1.4, None, 0.30)
+    else: rect(G.bx0, G.bx0 + G.BB["T"], G.by0, G.by0 + G.BB["L"], "#efebe4", "#9b958b", 1.4, None, 0.6)
     ex = E["x0"] + E["W"] / 2; rect(ex - 6.5, ex + 6.5, 0, G.t, "#fff", "#2a2226", 1.6)
     O = G.OLED; rect(O["cx"] - O["L"] / 2, O["cx"] + O["L"] / 2, O["cy"] - O["H"] / 2, O["cy"] + O["H"] / 2, "none", "#1d4f9c", 1.4, "2 3")
     # label
-    K.text(E["x0"] + E["W"] / 2, E["y0"] + E["L"] / 2 + 2, "ESP32", col="#145233")
+    if G.VARIAN == "solder": K.text(E["x0"] + E["W"] / 2, E["y0"] + E["L"] / 2 + 2, "ESP32", col="#145233")
+    else: K.text(G.bx0 - 10, G.by0 + G.BB["L"] / 2, "breadboard", col="#555")
     K.text(E["x0"] + E["W"] / 2, E["y0"] + E["L"] / 2 - 2.6, "dibalik, di atas busa", col="#145233", sz=13, w=600)
     K.text(ex, -3.2, "takik USB 13 x 10", sz=13)
     K.line(((J[0] + J[1]) / 2, J[3] - 3), (24, G.W - 5.5), "#2a2226", 1.0); K.text(6, G.W - 4.5, "jendela kabel (tembus)", anc="start", sz=13)
@@ -185,12 +188,12 @@ def denah():
     K.line((O["cx"] + 8, O["cy"] + O["H"] / 2), (76, G.W - 10), "#1d4f9c", 1.0); K.text(76, G.W - 9, "OLED (di tutup atas)", col="#1d4f9c", anc="start", sz=13)
     K.line((G.CHIP[0] + 9, G.YC - 6), (70, 12), "#4c2468", 1.0); K.text(70.5, 10.5, "papan sensor (miring 40°)", col="#4c2468", anc="start", sz=13)
     # ukuran
-    K.dimH(0, G.W, 0, K.Y(0) + 40, "86")
-    K.dimH(0, G.XC, 0, K.Y(0) + 76, "pusat lubang 43")
+    K.dimH(0, G.W, 0, K.Y(0) + 40, f1(G.W))
+    K.dimH(0, G.XC, 0, K.Y(0) + 76, "pusat lubang " + f1(G.XC))
     K.dimH(J[0], J[1], G.W, K.Y(G.W) - 18, f"{f1(J[0])} sampai {f1(J[1])}")
-    K.dimV(G.W, 0, G.W, K.X(G.W) + 30, "86")
+    K.dimV(G.W, 0, G.W, K.X(G.W) + 30, f1(G.W))
     K.dimV(G.W, J[2], J[3], K.X(G.W) + 100, f"{f1(J[2])} sampai {f1(J[3])}")
-    K.dimV(0, 0, G.YC, K.X(0) - 30, "43", side="l")
+    K.dimV(0, 0, G.YC, K.X(0) - 30, f1(G.YC), side="l")
     K.text(K.X(-6), K.Y(G.W + 4) + 2, "depan (kait)", anc="start", sz=13, w=600, raw=True, col="#6c6469")
     K.text(K.X(G.W + 4), K.Y(G.W + 4) + 2, "belakang (engsel)", anc="end", sz=13, w=600, raw=True, col="#6c6469")
     open(os.path.join(OUT, "3_denah_lantai_kepala.svg"), "w").write(K.svg("Denah lantai kepala dari atas"))
@@ -204,7 +207,7 @@ def terbuka(sudut=100):
         m = b["mesh"].copy()
         if b["grup"] == "atas": m.apply_transform(Rm)
         M[k] = m
-    K = Kanvas(-8, 170, -42, 96, 5.6, (60, 50, 60, 60))
+    K = Kanvas(-8, 170 + (G.W - 86), -42, 96 + (G.W - 86) + (G.P["kepala_dalam"] - 40), 5.6, (60, 50, 60, 60))
     gambar_irisan(K, G.YC, M=M)
     K.text(43, -48, "daging di atas busa (dilapisi plastik wrap)", sz=14)
     K.text(140, 92, "kepala dibuka ke belakang", sz=14)

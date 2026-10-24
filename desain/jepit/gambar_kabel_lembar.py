@@ -108,7 +108,71 @@ def peta_solder(K, judul, catatan=""):
 
 
 def skema():
+    if G.VARIAN == "breadboard":
+        return peta_breadboard(list(G.KABEL.values()), "Model 2B: peta colokan breadboard dan daftar kabel")
     return peta_solder(list(G.KABEL.values()), "Model 2: peta titik solder dan daftar kabel")
+
+
+def peta_breadboard(K, judul):
+    """Muka breadboard dilihat dari depan alat. Baris 30 di sisi lubang USB (kiri gambar), kolom a di atas."""
+    el = []; W_, S = 1180, 9.0
+    bx, by = 150, 150; Lb, Hb = G.BB["L"] * S, G.BB["H"] * S
+    ymax = G.by0 + G.BB["L"]
+    X = lambda y: bx + (ymax - y) * S
+    Y = lambda z: by + (G.bz1 - z) * S
+    el.append(TX(40, 34, judul, anc="start", sz=17, w=700))
+    el.append(TX(40, 58, "Dilihat dari depan alat. Breadboard ditempel di dinding belakang kepala: baris 30 di sisi lubang USB, kolom a di atas.", anc="start", sz=13, w=500, col="#555"))
+    el.append(TX(40, 78, "Tidak ada yang disolder di sini: kabel dupont jantan dicolok ke lubang, ujung betinanya ke pin sensor dan OLED.", anc="start", sz=13, w=500, col="#555"))
+    el.append(f'<rect x="{bx}" y="{by}" width="{Lb:.0f}" height="{Hb:.0f}" rx="6" fill="#efebe4" stroke="#bdb5a8"/>')
+    el.append(f'<rect x="{bx}" y="{Y(G.zc_bb + 1.9):.1f}" width="{Lb:.0f}" height="{3.8 * S:.1f}" fill="#e0d9ce"/>')
+    for r in range(1, G.BB["baris"] + 1):
+        x = X(G.BARIS_BB(r))
+        for c, z in G.KOLOM_BB.items():
+            el.append(f'<rect x="{x - 2.5:.1f}" y="{Y(z) - 2.5:.1f}" width="5" height="5" fill="#9b958b"/>')
+        if r in (1, 5, 10, 15, 20, 25, 30) or r in [G.lubang(pe, "Sensor")[0] for pe in G.KE_SENSOR.values()]:
+            el.append(TX(x, by - 8, str(r), sz=11, w=700 if r not in (1, 5, 10, 15, 20, 25, 30) else 500, col="#2a2226" if r not in (1, 5, 10, 15, 20, 25, 30) else "#888"))
+    for c, z in G.KOLOM_BB.items():
+        el.append(TX(bx - 12, Y(z) + 4, c, anc="end", sz=12, w=700, col="#555")); el.append(TX(bx + Lb + 12, Y(z) + 4, c, anc="start", sz=12, w=700, col="#555"))
+    el.append(TX(bx, by - 26, "sisi lubang USB (dinding kanan)", anc="start", sz=12, w=700, col="#555"))
+    el.append(TX(bx + Lb, by - 26, "sisi dinding kiri", anc="end", sz=12, w=700, col="#555"))
+    # ESP32
+    zm, hw = G.zpm, G.ESP["W"] / 2
+    el.append(f'<rect x="{X(G.yU):.1f}" y="{Y(zm + hw):.1f}" width="{(G.yU - G.yA) * S:.1f}" height="{G.ESP["W"] * S:.1f}" rx="6" fill="#1d2024" opacity=".88"/>')
+    el.append(f'<rect x="{X(G.yU) - 9:.1f}" y="{Y(zm + 3.75):.1f}" width="20" height="{7.5 * S:.1f}" rx="3" fill="#c0c4c9" stroke="#777"/>')
+    el.append(f'<text x="{(X(G.yU) + X(G.yA)) / 2:.1f}" y="{Y(zm) + 5:.1f}" font-size="13" font-weight="700" fill="#9aa0a6" text-anchor="middle">ESP32 NodeMCU-32S (sisi komponen menghadap kamu)</text>')
+    for b, nama, col in ((1, G.B1, "c"), (0, G.B0, "j")):
+        for i, n in enumerate(nama):
+            x, y = X(G.BARIS_BB(G.baris_pin(i))), Y(G.KOLOM_BB[col]); dip = b == 1 and n in TITIK_ESP
+            el.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{6 if dip else 3.5}" fill="{"#e3b85a" if dip else "#8d939b"}" stroke="{"#2a2226" if dip else "none"}" stroke-width="1.5"/>')
+            if b == 1:
+                el.append(f'<text x="{x:.1f}" y="{y + 20:.1f}" font-size="{10.5 if dip else 9}" font-weight="{700 if dip else 400}" fill="{"#fff3c4" if dip else "#b9bec6"}" text-anchor="middle">{n}</text>')
+    # colokan kabel
+    for kb in K:
+        dev, pin = kb["dari"].split(); r, c = kb["lubang"]
+        x, y = X(G.BARIS_BB(r)), Y(G.KOLOM_BB[c])
+        el.append(f'<rect x="{x - 11:.1f}" y="{y - 11:.1f}" width="22" height="22" rx="3" fill="#202020"/><rect x="{x - 7:.1f}" y="{y - 7:.1f}" width="14" height="14" rx="2" fill="{kb["warna"]}"/>')
+    # keterangan per baris
+    ty0 = by + Hb + 50
+    el.append(TX(40, ty0, "Daftar colokan: kabel dupont jantan-betina 10 cm (9 buah). Urutan mencolok bebas, tetapi periksa nomor baris dua kali.", anc="start", sz=14, w=700))
+    cols = [40, 92, 180, 340, 600, 800]
+    for x, h in zip(cols, ["No", "Warna", "Lubang breadboard", "Pin ESP32 di baris itu", "Ujung betina ke", "Jalur model"]):
+        el.append(TX(x, ty0 + 26, h, anc="start", sz=12.5, w=700, col="#555"))
+    urut = sorted(K, key=lambda kb: (TITIK_ESP.index(kb["ke"]), kb["dari"].startswith("OLED")))
+    for i, kb in enumerate(urut):
+        y = ty0 + 50 + i * 24; dev, pin = kb["dari"].split(); r, c = kb["lubang"]
+        if i % 2 == 0: el.append(f'<rect x="32" y="{y - 16}" width="{W_ - 64}" height="24" fill="#f3efe8"/>')
+        el.append(TX(cols[0], y, str(i + 1), anc="start", sz=12.5, w=600))
+        el.append(f'<rect x="{cols[1]}" y="{y - 11}" width="30" height="12" rx="3" fill="{kb["warna"]}"/>')
+        el.append(TX(cols[1] + 36, y, G.NAMA_WARNA[G.SINYAL[kb["ke"]]], anc="start", sz=12, w=500))
+        el.append(TX(cols[2], y, f"baris {r}, kolom {c}", anc="start", sz=12.5, w=700))
+        el.append(TX(cols[3], y, f"{kb['ke']} (kolom c)", anc="start", sz=12.5, w=500))
+        el.append(TX(cols[4], y, f"{titik_dev(dev, pin)} {dev} {pin}", anc="start", sz=12.5, w=700))
+        el.append(TX(cols[5], y, f1(kb["panjang"]) + " mm", anc="start", sz=12.5, w=500))
+    yb = ty0 + 50 + len(urut) * 24 + 6
+    cat = ["Satu baris breadboard (a sampai e) tersambung di dalam. Jadi kabel di kolom a dan b sebaris tersambung ke pin ESP32 di kolom c baris yang sama.",
+           "Kolom b = kabel ke sensor, kolom a = kabel ke OLED. VIN sensor ke 3V3 (baris 12), BUKAN ke 5V (baris 30). Rel daya breadboard dilepas, tidak dipakai."]
+    for i, t_ in enumerate(cat): el.append(TX(40, yb + i * 21, t_, anc="start", sz=12.5, w=500, col="#555"))
+    return svg(W_, yb + len(cat) * 21 + 10, "".join(el), judul)
 
 
 # ============================================================================ denah jalur kabel (berskala, dari model)
@@ -117,10 +181,15 @@ def denah():
     X = lambda x: m[0] + x * S; Y = lambda y: m[1] + (W - y) * S
     el = [f'<rect x="{X(0)}" y="{Y(W)}" width="{W*S}" height="{W*S}" fill="#f4f0ea" stroke="#6c6469" stroke-width="1.6"/>',
           f'<rect x="{X(G.t)}" y="{Y(W-G.t)}" width="{(W-2*G.t)*S}" height="{(W-2*G.t)*S}" fill="none" stroke="#b5ada2" stroke-dasharray="5 4"/>']
-    E = G.ESP; el.append(f'<rect x="{X(E["x0"])}" y="{Y(E["y0"]+E["L"])}" width="{E["W"]*S}" height="{E["L"]*S}" fill="#1f6f43" opacity=".18" stroke="#1f6f43"/>')
+    E = G.ESP
+    if G.VARIAN == "breadboard":
+        el.append(f'<rect x="{X(G.bx0)}" y="{Y(G.by0 + G.BB["L"])}" width="{G.BB["T"]*S}" height="{G.BB["L"]*S}" fill="#efebe4" stroke="#9b958b"/>')
+        el.append(f'<rect x="{X(G.pp0 - 3.1)}" y="{Y(G.yU)}" width="{(G.bx0 - G.pp0 + 3.1)*S}" height="{(G.yU - G.yA)*S}" fill="#1d2024" opacity=".25" stroke="#1d2024"/>')
+    else:
+        el.append(f'<rect x="{X(E["x0"])}" y="{Y(E["y0"]+E["L"])}" width="{E["W"]*S}" height="{E["L"]*S}" fill="#1f6f43" opacity=".18" stroke="#1f6f43"/>')
     O = G.OLED; el.append(f'<rect x="{X(O["cx"]-O["L"]/2)}" y="{Y(O["cy"]+O["H"]/2)}" width="{O["L"]*S}" height="{O["H"]*S}" fill="#1d4f9c" opacity=".08" stroke="#1d4f9c" stroke-dasharray="3 3"/>')
     J = G.JENDELA; el.append(f'<rect x="{X(J[0])}" y="{Y(J[3])}" width="{(J[1]-J[0])*S}" height="{(J[3]-J[2])*S}" fill="#fff" stroke="#2a2226" stroke-width="1.6"/>')
-    for (n, b), _ in G.ESP_DIPAKAI.items():
+    for (n, b), _ in (G.ESP_DIPAKAI.items() if G.VARIAN == "solder" else []):
         p = G.pin_esp(n, b); el.append(f'<circle cx="{X(p[0])}" cy="{Y(p[1])}" r="{G.R_SAMB*S}" fill="#202020"/>')
     urut = sorted(G.KABEL.items(), key=lambda kv: -kv[1]["titik"][:, 2].mean())
     for k, kb in urut:
@@ -129,12 +198,20 @@ def denah():
         el.append(f'<path d="{d}" fill="none" stroke="#fff" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>')
         el.append(f'<path d="{d}" fill="none" stroke="{kb["warna"]}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>')
     for i, pn in enumerate(TITIK_ESP):
+        if G.VARIAN == "breadboard":
+            r = G.lubang(pn, "Sensor")[0]; p = (G.bx0 - G.DUP_L, G.BARIS_BB(r))
+            el.append(TX(X(G.bx0) + 6, Y(p[1]) + 4, f"baris {r} ({pn})", anc="start", sz=10.5, w=700))
+            continue
         p = G.pin_esp(pn, 1); el.append(f'<circle cx="{X(p[0])}" cy="{Y(p[1])}" r="7" fill="#e3b85a" stroke="#2a2226" stroke-width="2"/>')
         el.append(TX(X(p[0]) - 12, Y(p[1]) + 4, f"E{i + 1} {pn}", anc="end", sz=11, w=700))
-    el.append(TX(X(E["x0"] + E["W"] / 2), Y(E["y0"] + 4), "ESP32 NodeMCU-32S (dibalik)", sz=13, col="#145233"))
+    if G.VARIAN == "breadboard":
+        el.append(f'<text x="{X(G.bx0) - 40}" y="{Y(G.by0 + 4)}" font-size="13" font-weight="600" fill="#2a2226" text-anchor="end">breadboard + ESP32 (tegak)</text>')
+    else:
+        el.append(TX(X(E["x0"] + E["W"] / 2), Y(E["y0"] + 4), "ESP32 NodeMCU-32S (dibalik)", sz=13, col="#145233"))
     el.append(TX(X(O["cx"] + 4), Y(O["cy"] + O["H"] / 2) - 8, "OLED di tutup atas", sz=13, col="#1d4f9c"))
 
-    el.append(TX(X(W / 2), Y(W) - 12, "kanan", sz=13, col="#6c6469")); el.append(TX(X(W / 2), Y(0) + 24, "kiri (takik USB)", sz=13, col="#6c6469"))
+    el.append(TX(X(W / 2), Y(W) - 12, "kanan" + (" (lubang USB)" if G.TAKIK["dinding"] == "kanan" else ""), sz=13, col="#6c6469"))
+    el.append(TX(X(W / 2), Y(0) + 24, "kiri" + (" (takik USB)" if G.TAKIK["dinding"] == "kiri" else ""), sz=13, col="#6c6469"))
     el.append(f'<text x="{X(0)-14}" y="{Y(W/2)}" font-size="13" font-weight="600" fill="#6c6469" text-anchor="middle" transform="rotate(-90 {X(0)-14} {Y(W/2)})">depan (kait)</text>')
     el.append(f'<text x="{X(W)+14}" y="{Y(W/2)}" font-size="13" font-weight="600" fill="#6c6469" text-anchor="middle" transform="rotate(90 {X(W)+14} {Y(W/2)})">belakang (engsel)</text>')
     for k, kb in G.KABEL.items():
@@ -275,8 +352,15 @@ def lembar_kepala():
          Lembar("Dinding depan kepala", W, d, tepi={"bawah": "tepi bawah (ke lantai kepala)"}, catatan="tampak luar; tuas kait 1 mm di bawah tepi ini").kotak(YC - 9, YC + 9, 0, G.Hc + 12 - zk0, "kait", tanda=True),
          Lembar("Dinding belakang kepala", W, d, tepi={"bawah": "tepi bawah"}, catatan="tampak luar; daun engsel turun 3 mm ke tepi lantai")
             .kotak(22 - 12.5, 22 + 12.5, 0, az + 14 - zk0, "engsel", tanda=True).kotak(W - 22 - 12.5, W - 22 + 12.5, 0, az + 14 - zk0, "engsel", tanda=True),
-         Lembar("Dinding kiri kepala", W - 2 * t, d, tepi={"bawah": "tepi bawah", "kiri": "ujung depan"}, catatan="takik USB dipotong dari tepi bawah").kotak(ex - 6.5 - t, ex + 6.5 - t, 0, 10, "USB"),
-         Lembar("Dinding kanan kepala", W - 2 * t, d, tepi={"bawah": "tepi bawah"}, catatan="polos")]
+         ]
+    TK = G.TAKIK
+    if TK["dinding"] == "kiri":
+        L += [Lembar("Dinding kiri kepala", W - 2 * t, d, tepi={"bawah": "tepi bawah", "kiri": "ujung depan"}, catatan="takik USB dipotong dari tepi bawah").kotak(TK["x"] - 6.5 - t, TK["x"] + 6.5 - t, 0, 10, "USB"),
+              Lembar("Dinding kanan kepala", W - 2 * t, d, tepi={"bawah": "tepi bawah"}, catatan="polos")]
+    else:
+        L += [Lembar("Dinding kiri kepala", W - 2 * t, d, tepi={"bawah": "tepi bawah"}, catatan="polos"),
+              Lembar("Dinding kanan kepala", W - 2 * t, d, tepi={"bawah": "tepi bawah", "kiri": "ujung depan"}, catatan="lubang USB 13 x 10 di depan breadboard")
+              .kotak(TK["x"] - 6.5 - t, TK["x"] + 6.5 - t, TK["z0"] - zk0, TK["z1"] - zk0, "USB")]
     return susun(L, "Lembar PVC kepala")
 
 
@@ -301,7 +385,7 @@ def lembar_kecil():
 
 
 if __name__ == "__main__":
-    OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gambar")
+    OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gambar" if G.VARIAN == "solder" else "gambar_bb")
     for nama, isi in (("6_skema_kabel.svg", skema()), ("7_denah_kabel.svg", denah()), ("8_lembar_baki.svg", lembar_baki()), ("9_lembar_kepala.svg", lembar_kepala()), ("10_lembar_kecil.svg", lembar_kecil())):
         open(os.path.join(OUT, nama), "w").write(isi)
     print("ditulis 6..10")

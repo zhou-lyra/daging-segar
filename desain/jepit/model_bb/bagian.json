@@ -1,0 +1,1115 @@
+{
+ "P": {
+  "t": 3.0,
+  "W": 94.0,
+  "F": 35.0,
+  "tutup_D": 65.0,
+  "tutup_Di": 62.0,
+  "tutup_muka": 1.5,
+  "Hc": 22.0,
+  "lubang_D": 14.0,
+  "miring": 40.0,
+  "h": 15.5,
+  "kepala_dalam": 50.0,
+  "busa_lapis": 3,
+  "busa_tebal": 10.0,
+  "daging_tebal": 10.0,
+  "daging_sisi": 50.0
+ },
+ "sumbu_engsel": [
+  96.0,
+  22.0
+ ],
+ "jendela": [
+  51.0,
+  60.0,
+  36.5,
+  57.0
+ ],
+ "chip": [
+  56.96320795014136,
+  47.0,
+  11.873688868344159
+ ],
+ "led": [
+  57.16391159423854,
+  43.781,
+  11.705278514606288
+ ],
+ "kilap_sisa": 3.1939829796461456,
+ "pipi": [
+  [
+   56.124598463841316,
+   19.43075404799476
+  ],
+  [
+   68.99414510824015,
+   8.631922205260901
+  ],
+  [
+   68.99414510824015,
+   22.0
+  ],
+  [
+   56.124598463841316,
+   22.0
+  ]
+ ],
+ "pipi_y": [
+  [
+   33.04,
+   36.04
+  ],
+  [
+   57.36,
+   60.36
+  ]
+ ],
+ "bagian": {
+  "baki_lantai": {
+   "grup": "bawah",
+   "warna": "#d9d4cb",
+   "nama": "Lantai baki",
+   "bahan": "pvc",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     0.0,
+     0.0,
+     -38.0
+    ],
+    [
+     94.0,
+     94.0,
+     -35.0
+    ]
+   ]
+  },
+  "baki_depan": {
+   "grup": "bawah",
+   "warna": "#d9d4cb",
+   "nama": "Dinding depan baki",
+   "bahan": "pvc",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     0.0,
+     0.0,
+     -35.0
+    ],
+    [
+     3.0,
+     94.0,
+     22.0
+    ]
+   ]
+  },
+  "baki_belakang": {
+   "grup": "bawah",
+   "warna": "#d9d4cb",
+   "nama": "Dinding belakang baki",
+   "bahan": "pvc",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     91.0,
+     0.0,
+     -35.0
+    ],
+    [
+     94.0,
+     94.0,
+     22.0
+    ]
+   ]
+  },
+  "baki_kiri": {
+   "grup": "bawah",
+   "warna": "#d9d4cb",
+   "nama": "Dinding kiri baki",
+   "bahan": "pvc",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     3.0,
+     0.0,
+     -35.0
+    ],
+    [
+     91.0,
+     3.0,
+     22.0
+    ]
+   ]
+  },
+  "baki_kanan": {
+   "grup": "bawah",
+   "warna": "#d9d4cb",
+   "nama": "Dinding kanan baki",
+   "bahan": "pvc",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     3.0,
+     91.0,
+     -35.0
+    ],
+    [
+     91.0,
+     94.0,
+     22.0
+    ]
+   ]
+  },
+  "busa_1": {
+   "grup": "bawah",
+   "warna": "#3b3f46",
+   "nama": "Busa lapis 1",
+   "bahan": "busa",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     3.5,
+     3.5,
+     -35.0
+    ],
+    [
+     90.5,
+     90.5,
+     -26.69
+    ]
+   ]
+  },
+  "busa_2": {
+   "grup": "bawah",
+   "warna": "#3b3f46",
+   "nama": "Busa lapis 2",
+   "bahan": "busa",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     3.5,
+     3.5,
+     -26.67
+    ],
+    [
+     90.5,
+     90.5,
+     -18.35
+    ]
+   ]
+  },
+  "busa_3": {
+   "grup": "bawah",
+   "warna": "#3b3f46",
+   "nama": "Busa lapis 3",
+   "bahan": "busa",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     3.5,
+     3.5,
+     -18.33
+    ],
+    [
+     90.5,
+     90.5,
+     -10.02
+    ]
+   ]
+  },
+  "daging": {
+   "grup": "bawah",
+   "warna": "#b5483f",
+   "nama": "Irisan daging 10 mm",
+   "bahan": "daging",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     22.0,
+     24.5,
+     -10.0
+    ],
+    [
+     72.0,
+     69.5,
+     0.0
+    ]
+   ]
+  },
+  "tutup_cat": {
+   "grup": "atas",
+   "warna": "#1e1f22",
+   "nama": "Tutup cat semprot (dipotong 22 mm)",
+   "bahan": "plastik_hitam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     14.5,
+     14.5,
+     0.0
+    ],
+    [
+     79.5,
+     79.5,
+     22.0
+    ]
+   ]
+  },
+  "beludru": {
+   "grup": "atas",
+   "warna": "#0b0b0d",
+   "nama": "Pelapis beludru hitam",
+   "bahan": "beludru",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     16.01,
+     16.01,
+     1.5
+    ],
+    [
+     77.99,
+     77.99,
+     21.99
+    ]
+   ]
+  },
+  "sensor_pcb": {
+   "grup": "atas",
+   "warna": "#6a2c91",
+   "nama": "Papan sensor TCS34725",
+   "bahan": "pcb_ungu",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     49.72,
+     36.54,
+     5.74
+    ],
+    [
+     66.32,
+     56.86,
+     20.03
+    ]
+   ]
+  },
+  "sensor_chip": {
+   "grup": "atas",
+   "warna": "#c9b37a",
+   "nama": "Chip TCS34725",
+   "bahan": "chip",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     56.04,
+     46.0,
+     11.1
+    ],
+    [
+     58.3,
+     48.0,
+     13.14
+    ]
+   ]
+  },
+  "sensor_led": {
+   "grup": "atas",
+   "warna": "#fff4c2",
+   "nama": "LED bawaan (putih)",
+   "bahan": "led",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     56.03,
+     43.08,
+     10.65
+    ],
+    [
+     58.42,
+     44.48,
+     12.91
+    ]
+   ]
+  },
+  "sensor_smd": {
+   "grup": "atas",
+   "warna": "#3a3a3a",
+   "nama": "Komponen kecil di papan",
+   "bahan": "smd",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     52.65,
+     37.82,
+     8.68
+    ],
+    [
+     60.87,
+     55.34,
+     16.07
+    ]
+   ]
+  },
+  "sensor_header": {
+   "grup": "atas",
+   "warna": "#151515",
+   "nama": "Header 7 pin (plastik)",
+   "bahan": "plastik_hitam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     50.94,
+     37.81,
+     18.23
+    ],
+    [
+     54.5,
+     55.59,
+     21.78
+    ]
+   ]
+  },
+  "sensor_pin": {
+   "grup": "atas",
+   "warna": "#d4af37",
+   "nama": "Pin header",
+   "bahan": "emas",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     49.68,
+     38.76,
+     16.47
+    ],
+    [
+     57.63,
+     54.64,
+     25.76
+    ]
+   ]
+  },
+  "sensor_dupont": {
+   "grup": "atas",
+   "warna": "#202020",
+   "nama": "Soket dupont betina di sensor (5)",
+   "bahan": "plastik_hitam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     52.57,
+     37.83,
+     20.16
+    ],
+    [
+     63.48,
+     55.57,
+     32.49
+    ]
+   ]
+  },
+  "sensor_baut": {
+   "grup": "atas",
+   "warna": "#1c1c1c",
+   "nama": "Baut M2,5 x 10 hitam + mur",
+   "bahan": "baja_hitam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     60.52,
+     36.23,
+     4.62
+    ],
+    [
+     69.47,
+     57.17,
+     14.01
+    ]
+   ]
+  },
+  "dudukan_pelat": {
+   "grup": "atas",
+   "warna": "#26272b",
+   "nama": "Pelat dudukan sensor",
+   "bahan": "pvc_hitam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     54.2,
+     33.04,
+     6.33
+    ],
+    [
+     68.99,
+     60.36,
+     19.43
+    ]
+   ]
+  },
+  "dudukan_pipi": {
+   "grup": "atas",
+   "warna": "#26272b",
+   "nama": "Pipi penyangga (2)",
+   "bahan": "pvc_hitam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     56.12,
+     33.04,
+     8.63
+    ],
+    [
+     68.99,
+     60.36,
+     22.0
+    ]
+   ]
+  },
+  "kepala_lantai": {
+   "grup": "atas",
+   "warna": "#e8e3da",
+   "nama": "Lantai kepala (berjendela kabel)",
+   "bahan": "pvc",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     0.0,
+     0.0,
+     22.0
+    ],
+    [
+     94.0,
+     94.0,
+     25.0
+    ]
+   ]
+  },
+  "kepala_depan": {
+   "grup": "atas",
+   "warna": "#e8e3da",
+   "nama": "Dinding depan kepala",
+   "bahan": "pvc",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     0.0,
+     0.0,
+     25.0
+    ],
+    [
+     3.0,
+     94.0,
+     75.0
+    ]
+   ]
+  },
+  "kepala_belakang": {
+   "grup": "atas",
+   "warna": "#e8e3da",
+   "nama": "Dinding belakang kepala",
+   "bahan": "pvc",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     91.0,
+     0.0,
+     25.0
+    ],
+    [
+     94.0,
+     94.0,
+     75.0
+    ]
+   ]
+  },
+  "kepala_kiri": {
+   "grup": "atas",
+   "warna": "#e8e3da",
+   "nama": "Dinding kiri kepala",
+   "bahan": "pvc",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     3.0,
+     0.0,
+     25.0
+    ],
+    [
+     91.0,
+     3.0,
+     75.0
+    ]
+   ]
+  },
+  "kepala_kanan": {
+   "grup": "atas",
+   "warna": "#e8e3da",
+   "nama": "Dinding kanan kepala (lubang USB)",
+   "bahan": "pvc",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     3.0,
+     91.0,
+     25.0
+    ],
+    [
+     91.0,
+     94.0,
+     75.0
+    ]
+   ]
+  },
+  "kepala_tutup": {
+   "grup": "atas",
+   "warna": "#e8e3da",
+   "nama": "Tutup atas (jendela OLED)",
+   "bahan": "pvc",
+   "alpha": 0.45,
+   "bounds": [
+    [
+     0.0,
+     0.0,
+     75.0
+    ],
+    [
+     94.0,
+     94.0,
+     78.0
+    ]
+   ]
+  },
+  "kepala_bibir": {
+   "grup": "atas",
+   "warna": "#e8e3da",
+   "nama": "Bibir tutup atas",
+   "bahan": "pvc",
+   "alpha": 0.45,
+   "bounds": [
+    [
+     3.0,
+     3.3,
+     69.0
+    ],
+    [
+     91.0,
+     90.7,
+     75.0
+    ]
+   ]
+  },
+  "bb_papan": {
+   "grup": "atas",
+   "warna": "#efebe4",
+   "nama": "Breadboard 400 lubang (rel daya dilepas)",
+   "bahan": "plastik_putih",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     82.5,
+     5.5,
+     25.0
+    ],
+    [
+     91.0,
+     90.5,
+     61.0
+    ]
+   ]
+  },
+  "esp_pcb": {
+   "grup": "atas",
+   "warna": "#1d2024",
+   "nama": "ESP32 NodeMCU-32S (38 pin)",
+   "bahan": "pcb_hitam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     78.4,
+     35.22,
+     27.76
+    ],
+    [
+     80.0,
+     86.72,
+     53.16
+    ]
+   ]
+  },
+  "esp_modul": {
+   "grup": "atas",
+   "warna": "#a7adb4",
+   "nama": "Modul ESP-32S (logam)",
+   "bahan": "logam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     75.3,
+     35.72,
+     31.46
+    ],
+    [
+     78.4,
+     61.22,
+     49.46
+    ]
+   ]
+  },
+  "esp_usb": {
+   "grup": "atas",
+   "warna": "#c0c4c9",
+   "nama": "Colokan micro-USB",
+   "bahan": "logam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     75.7,
+     82.12,
+     36.71
+    ],
+    [
+     78.4,
+     87.72,
+     44.21
+    ]
+   ]
+  },
+  "esp_header": {
+   "grup": "atas",
+   "warna": "#151515",
+   "nama": "Header ESP32 (2 x 19)",
+   "bahan": "plastik_hitam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     80.0,
+     37.84,
+     27.76
+    ],
+    [
+     82.5,
+     86.1,
+     53.16
+    ]
+   ]
+  },
+  "esp_pin": {
+   "grup": "atas",
+   "warna": "#d4af37",
+   "nama": "Pin ESP32 (masuk breadboard)",
+   "bahan": "emas",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     77.4,
+     38.79,
+     28.71
+    ],
+    [
+     88.5,
+     85.15,
+     52.21
+    ]
+   ]
+  },
+  "esp_dupont": {
+   "grup": "atas",
+   "warna": "#202020",
+   "nama": "Kabel dupont jantan di breadboard (9)",
+   "bahan": "plastik_hitam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     68.5,
+     37.91,
+     53.23
+    ],
+    [
+     82.5,
+     73.33,
+     58.17
+    ]
+   ]
+  },
+  "oled_kaca": {
+   "grup": "atas",
+   "warna": "#0a0f1e",
+   "nama": "Layar OLED 0,96 inci",
+   "bahan": "kaca",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     46.65,
+     37.35,
+     73.4
+    ],
+    [
+     73.35,
+     56.65,
+     74.8
+    ]
+   ]
+  },
+  "oled_pcb": {
+   "grup": "atas",
+   "warna": "#1d4f9c",
+   "nama": "Papan OLED SSD1306",
+   "bahan": "pcb_biru",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     46.35,
+     33.1,
+     72.2
+    ],
+    [
+     73.65,
+     60.9,
+     73.4
+    ]
+   ]
+  },
+  "oled_header": {
+   "grup": "atas",
+   "warna": "#151515",
+   "nama": "Header OLED (4)",
+   "bahan": "plastik_hitam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     54.92,
+     33.43,
+     69.7
+    ],
+    [
+     65.08,
+     35.97,
+     72.2
+    ]
+   ]
+  },
+  "oled_dupont": {
+   "grup": "atas",
+   "warna": "#202020",
+   "nama": "Soket dupont betina di OLED (4)",
+   "bahan": "plastik_hitam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     54.94,
+     33.45,
+     55.7
+    ],
+    [
+     65.06,
+     35.95,
+     69.7
+    ]
+   ]
+  },
+  "oled_baut": {
+   "grup": "atas",
+   "warna": "#1c1c1c",
+   "nama": "Baut M2 x 10 + mur ganjal + mur pengunci",
+   "bahan": "baja_hitam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     46.35,
+     33.55,
+     69.2
+    ],
+    [
+     73.65,
+     60.45,
+     79.2
+    ]
+   ]
+  },
+  "engsel_bawah": {
+   "grup": "bawah",
+   "warna": "#9a9ea5",
+   "nama": "Engsel 25 mm (daun bawah + poros)",
+   "bahan": "logam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     94.0,
+     9.5,
+     8.0
+    ],
+    [
+     98.0,
+     84.5,
+     24.0
+    ]
+   ]
+  },
+  "engsel_atas": {
+   "grup": "atas",
+   "warna": "#9a9ea5",
+   "nama": "Engsel 25 mm (daun atas)",
+   "bahan": "logam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     94.0,
+     9.5,
+     23.0
+    ],
+    [
+     95.0,
+     84.5,
+     36.0
+    ]
+   ]
+  },
+  "kait_bawah": {
+   "grup": "bawah",
+   "warna": "#9a9ea5",
+   "nama": "Kait kotak (pengait)",
+   "bahan": "logam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     -4.2,
+     38.0,
+     8.0
+    ],
+    [
+     0.0,
+     56.0,
+     20.0
+    ]
+   ]
+  },
+  "kait_atas": {
+   "grup": "atas",
+   "warna": "#9a9ea5",
+   "nama": "Kait kotak (tuas)",
+   "bahan": "logam",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     -5.5,
+     38.0,
+     10.5
+    ],
+    [
+     0.0,
+     56.0,
+     34.0
+    ]
+   ]
+  },
+  "kabel_s_VIN": {
+   "grup": "atas",
+   "warna": "#d62828",
+   "nama": "Kabel Sensor VIN ke ESP32 3V3",
+   "bahan": "kabel",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     52.3,
+     38.41,
+     31.26
+    ],
+    [
+     68.5,
+     55.02,
+     55.1
+    ]
+   ]
+  },
+  "kabel_s_GND": {
+   "grup": "atas",
+   "warna": "#2b2b2b",
+   "nama": "Kabel Sensor GND ke ESP32 GND",
+   "bahan": "kabel",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     54.0,
+     51.08,
+     31.26
+    ],
+    [
+     68.5,
+     72.83,
+     55.1
+    ]
+   ]
+  },
+  "kabel_s_SDA": {
+   "grup": "atas",
+   "warna": "#e8b00c",
+   "nama": "Kabel Sensor SDA ke ESP32 G26",
+   "bahan": "kabel",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     55.7,
+     43.46,
+     31.26
+    ],
+    [
+     68.5,
+     62.67,
+     55.1
+    ]
+   ]
+  },
+  "kabel_s_SCL": {
+   "grup": "atas",
+   "warna": "#1f6fd1",
+   "nama": "Kabel Sensor SCL ke ESP32 G27",
+   "bahan": "kabel",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     57.4,
+     46.0,
+     31.26
+    ],
+    [
+     68.5,
+     65.21,
+     55.1
+    ]
+   ]
+  },
+  "kabel_s_LED": {
+   "grup": "atas",
+   "warna": "#2e8b57",
+   "nama": "Kabel Sensor LED ke ESP32 G25",
+   "bahan": "kabel",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     59.1,
+     38.38,
+     31.26
+    ],
+    [
+     68.5,
+     60.13,
+     55.1
+    ]
+   ]
+  },
+  "kabel_o_VCC": {
+   "grup": "atas",
+   "warna": "#d62828",
+   "nama": "Kabel OLED VCC ke ESP32 3V3",
+   "bahan": "kabel",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     47.0,
+     34.0,
+     48.73
+    ],
+    [
+     68.5,
+     39.81,
+     57.64
+    ]
+   ]
+  },
+  "kabel_o_GND": {
+   "grup": "atas",
+   "warna": "#2b2b2b",
+   "nama": "Kabel OLED GND ke ESP32 GND",
+   "bahan": "kabel",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     45.3,
+     34.0,
+     50.43
+    ],
+    [
+     68.5,
+     72.83,
+     57.64
+    ]
+   ]
+  },
+  "kabel_o_SDA": {
+   "grup": "atas",
+   "warna": "#e8b00c",
+   "nama": "Kabel OLED SDA ke ESP32 G26",
+   "bahan": "kabel",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     50.4,
+     34.0,
+     45.33
+    ],
+    [
+     68.5,
+     62.67,
+     57.64
+    ]
+   ]
+  },
+  "kabel_o_SCL": {
+   "grup": "atas",
+   "warna": "#1f6fd1",
+   "nama": "Kabel OLED SCL ke ESP32 G27",
+   "bahan": "kabel",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     48.7,
+     34.0,
+     47.03
+    ],
+    [
+     68.5,
+     65.21,
+     57.64
+    ]
+   ]
+  },
+  "kal_putih": {
+   "grup": "aksesori",
+   "warna": "#f7f7f2",
+   "nama": "Balok kalibrasi putih",
+   "bahan": "kertas_putih",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     114.0,
+     0.0,
+     -38.0
+    ],
+    [
+     174.0,
+     60.0,
+     -28.0
+    ]
+   ]
+  },
+  "kal_hitam": {
+   "grup": "aksesori",
+   "warna": "#111111",
+   "nama": "Balok kalibrasi hitam",
+   "bahan": "beludru",
+   "alpha": 1.0,
+   "bounds": [
+    [
+     114.0,
+     70.0,
+     -38.0
+    ],
+    [
+     174.0,
+     130.0,
+     -28.0
+    ]
+   ]
+  }
+ }
+}

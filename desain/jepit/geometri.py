@@ -32,6 +32,12 @@ P = dict(
     kepala_dalam=40.0,  # tinggi dalam kotak kepala
     busa_lapis=3, busa_tebal=10.0, daging_tebal=10.0, daging_sisi=50.0,
 )
+VARIAN = os.environ.get("JEPIT_VARIAN", "solder")    # "solder" = Model 2, "breadboard" = Model 2B
+# breadboard 400 lubang 85 x 55 mm; kedua rel daya dilepas (tidak dipakai) -> 85 x 36 x 8,5. [UKUR bagian tengahnya]
+BB = dict(L=85.0, H=36.0, T=8.5, baris=30)
+if VARIAN == "breadboard":
+    P.update(W=94.0, kepala_dalam=50.0)              # breadboard 85 mm berdiri di dinding belakang kepala
+    OUT = os.path.join(HERE, "model_bb"); os.makedirs(OUT, exist_ok=True)
 t, W, F, Hc = P["t"], P["W"], P["F"], P["Hc"]
 XC = YC = W / 2                                   # pusat lubang ukur
 Z_LANTAI_KEPALA = Hc                              # sisi bawah lantai kepala = bibir baki
@@ -166,8 +172,12 @@ tambah("sensor_header", lokal(kotak(xs_pin[-1] - 1.27, xs_pin[0] + 1.27, hy - 1.
 pins = [kotak(x - 0.32, x + 0.32, hy - 0.32, hy + 0.32, -TCS["pcb"] - 2.5 - 6.0, 1.5) for x in xs_pin]
 tambah("sensor_pin", lokal(trimesh.util.concatenate(pins)), "atas", "#d4af37", "Pin header", "emas")
 DIPAKAI = {n: WARNA_SINYAL[SINYAL[pe]] for n, pe in KE_SENSOR.items()}
-dup = [silinder(x, hy, -TCS["pcb"] - 2.5 - SAMB, -TCS["pcb"] - 2.5, R_SAMB, 16) for x, n in zip(xs_pin, TCS["pin"]) if n in DIPAKAI]
-tambah("sensor_dupont", lokal(trimesh.util.concatenate(dup)), "atas", "#202020", "Titik solder sensor + selongsong (5)", "plastik_hitam")
+if VARIAN == "solder":
+    dup = [silinder(x, hy, -TCS["pcb"] - 2.5 - SAMB, -TCS["pcb"] - 2.5, R_SAMB, 16) for x, n in zip(xs_pin, TCS["pin"]) if n in DIPAKAI]
+    tambah("sensor_dupont", lokal(trimesh.util.concatenate(dup)), "atas", "#202020", "Titik solder sensor + selongsong (5)", "plastik_hitam")
+else:
+    dup = [kotak(x - 1.25, x + 1.25, hy - 1.25, hy + 1.25, -TCS["pcb"] - 2.5 - SAMB, -TCS["pcb"] - 2.5) for x, n in zip(xs_pin, TCS["pin"]) if n in DIPAKAI]
+    tambah("sensor_dupont", lokal(trimesh.util.concatenate(dup)), "atas", "#202020", "Soket dupont betina di sensor (5)", "plastik_hitam")
 # baut M2,5 x 10 + mur, kepala di sisi komponen
 baut = []
 for hx, hy_ in TCS["lubang"]:
@@ -207,9 +217,18 @@ usb_y = ESP["y0"]
 tambah("kepala_depan", kotak(0, t, 0, W, zk0, zk1), "atas", PVC_ATAS, "Dinding depan kepala")
 tambah("kepala_belakang", kotak(W - t, W, 0, W, zk0, zk1), "atas", PVC_ATAS, "Dinding belakang kepala")
 ex = ESP["x0"] + ESP["W"] / 2
-tambah("kepala_kiri", kurang(kotak(t, W - t, 0, t, zk0, zk1), kotak(ex - 6.5, ex + 6.5, -1, t + 1, zk0 - 1, zk0 + 10)),
-       "atas", PVC_ATAS, "Dinding kiri kepala (takik USB)")
-tambah("kepala_kanan", kotak(t, W - t, W - t, W, zk0, zk1), "atas", PVC_ATAS, "Dinding kanan kepala")
+if VARIAN == "solder":
+    TAKIK = dict(dinding="kiri", x=ex, z0=zk0, z1=zk0 + 10)
+    tambah("kepala_kiri", kurang(kotak(t, W - t, 0, t, zk0, zk1), kotak(ex - 6.5, ex + 6.5, -1, t + 1, zk0 - 1, zk0 + 10)),
+           "atas", PVC_ATAS, "Dinding kiri kepala (takik USB)")
+    tambah("kepala_kanan", kotak(t, W - t, W - t, W, zk0, zk1), "atas", PVC_ATAS, "Dinding kanan kepala")
+else:
+    # ESP32 tegak di breadboard, colokan USB ke dinding kanan: lubang 13 x 10 di tengah dinding
+    _bx0 = W - t - BB["T"]; _ux = _bx0 - 2.5 - 1.6 - 1.4; _zc = zk0 + BB["H"] / 2; _uz = _zc - 2.54
+    TAKIK = dict(dinding="kanan", x=_ux, z0=_uz - 5.0, z1=_uz + 5.0)
+    tambah("kepala_kiri", kotak(t, W - t, 0, t, zk0, zk1), "atas", PVC_ATAS, "Dinding kiri kepala")
+    tambah("kepala_kanan", kurang(kotak(t, W - t, W - t, W, zk0, zk1), kotak(_ux - 6.5, _ux + 6.5, W - t - 1, W + 1, TAKIK["z0"], TAKIK["z1"])),
+           "atas", PVC_ATAS, "Dinding kanan kepala (lubang USB)")
 ow = (OLED["cx"] - 12.5, OLED["cx"] + 12.5, OLED["cy"] - 7.5, OLED["cy"] + 7.5)   # jendela tampil 25 x 15
 tp = kurang(kotak(0, W, 0, W, Z_ATAS, Z_ATAS + t), kotak(ow[0], ow[1], ow[2], ow[3], Z_ATAS - 1, Z_ATAS + t + 1),
             *[silinder(OLED["cx"] + sx * OLED["lubang"], OLED["cy"] + sy * OLED["lubang"], Z_ATAS - 1, Z_ATAS + t + 1, 1.1, 16) for sx in (-1, 1) for sy in (-1, 1)])
@@ -218,27 +237,63 @@ bib = [kotak(t, 2 * t, t + 0.3, W - t - 0.3, Z_ATAS - 6, Z_ATAS), kotak(W - 2 * 
        kotak(2 * t, W - 2 * t, t + 0.3, 2 * t + 0.3, Z_ATAS - 6, Z_ATAS), kotak(2 * t, W - 2 * t, W - 2 * t - 0.3, W - t - 0.3, Z_ATAS - 6, Z_ATAS)]
 tambah("kepala_bibir", trimesh.util.concatenate(bib), "atas", PVC_ATAS, "Bibir tutup atas", alpha=0.45)
 
-# ---- ESP32 NodeMCU-32S, dibalik (modul ke bawah, pin ke atas) di atas busa
-e0x, e0y, ez = ESP["x0"], ESP["y0"], zk0 + ESP["busa"]
-tambah("esp_busa", kotak(e0x + 4, e0x + ESP["W"] - 4, e0y + 14, e0y + ESP["L"] - 2, zk0, ez), "atas", "#7b7f86", "Busa dobel tape 3 mm", "busa")
-z_pcb0 = ez + ESP["modul"][2]
-mod = kotak(e0x + (ESP["W"] - ESP["modul"][0]) / 2, e0x + (ESP["W"] + ESP["modul"][0]) / 2, e0y + ESP["L"] - ESP["modul"][1] - 0.5, e0y + ESP["L"] - 0.5, ez, z_pcb0)
-tambah("esp_modul", mod, "atas", "#a7adb4", "Modul ESP-32S (logam)", "logam")
-tambah("esp_pcb", kotak(e0x, e0x + ESP["W"], e0y, e0y + ESP["L"], z_pcb0, z_pcb0 + ESP["pcb"]), "atas", "#1d2024", "ESP32 NodeMCU-32S (38 pin)", "pcb_hitam")
-tambah("esp_usb", kotak(ex - 3.75, ex + 3.75, e0y - 1.0, e0y + 4.6, z_pcb0 - 2.7, z_pcb0), "atas", "#c0c4c9", "Colokan micro-USB", "logam")
-zp = z_pcb0 + ESP["pcb"]
-nn = ESP["n"]; py0 = e0y + (ESP["L"] - (nn - 1) * 2.54) / 2 - 1.0
-baris = [e0x + (ESP["W"] - ESP["pin_jarak_baris"]) / 2, e0x + (ESP["W"] + ESP["pin_jarak_baris"]) / 2]
-tambah("esp_header", trimesh.util.concatenate([kotak(bx - 1.27, bx + 1.27, py0 - 1.27, py0 + (nn - 1) * 2.54 + 1.27, zp, zp + ESP["plastik"]) for bx in baris]),
-       "atas", "#151515", "Header ESP32 (2 x 19)", "plastik_hitam")
-tambah("esp_pin", trimesh.util.concatenate([kotak(bx - 0.32, bx + 0.32, py0 + i * 2.54 - 0.32, py0 + i * 2.54 + 0.32, zp - 1, zp + ESP["pin_panjang"]) for bx in baris for i in range(nn)]),
-       "atas", "#d4af37", "Pin ESP32", "emas")
-# Papan dibalik, jadi baris 3V3 (B1) jatuh di sisi x besar (baris[1]) bila dilihat dari atas. [UKUR: cocokkan tulisan di papan]
-def pin_esp(nama, baris_ke):
-    i = (B1 if baris_ke == 1 else B0).index(nama); return np.array([baris[baris_ke], py0 + i * 2.54, zp + ESP["plastik"]])
-ESP_DIPAKAI = {(pe, 1): WARNA_SINYAL[SINYAL[pe]] for pe in dict.fromkeys(list(KE_SENSOR.values()) + list(KE_OLED.values()))}
-tambah("esp_dupont", trimesh.util.concatenate([silinder(*pin_esp(n, b)[:2], zp + ESP["plastik"], zp + ESP["plastik"] + SAMB, R_SAMB, 16) for (n, b) in ESP_DIPAKAI]),
-       "atas", "#202020", f"Titik solder ESP32 + selongsong ({len(ESP_DIPAKAI)})", "plastik_hitam")
+if VARIAN == "solder":
+    # ---- ESP32 NodeMCU-32S, dibalik (modul ke bawah, pin ke atas) di atas busa
+    e0x, e0y, ez = ESP["x0"], ESP["y0"], zk0 + ESP["busa"]
+    tambah("esp_busa", kotak(e0x + 4, e0x + ESP["W"] - 4, e0y + 14, e0y + ESP["L"] - 2, zk0, ez), "atas", "#7b7f86", "Busa dobel tape 3 mm", "busa")
+    z_pcb0 = ez + ESP["modul"][2]
+    mod = kotak(e0x + (ESP["W"] - ESP["modul"][0]) / 2, e0x + (ESP["W"] + ESP["modul"][0]) / 2, e0y + ESP["L"] - ESP["modul"][1] - 0.5, e0y + ESP["L"] - 0.5, ez, z_pcb0)
+    tambah("esp_modul", mod, "atas", "#a7adb4", "Modul ESP-32S (logam)", "logam")
+    tambah("esp_pcb", kotak(e0x, e0x + ESP["W"], e0y, e0y + ESP["L"], z_pcb0, z_pcb0 + ESP["pcb"]), "atas", "#1d2024", "ESP32 NodeMCU-32S (38 pin)", "pcb_hitam")
+    tambah("esp_usb", kotak(ex - 3.75, ex + 3.75, e0y - 1.0, e0y + 4.6, z_pcb0 - 2.7, z_pcb0), "atas", "#c0c4c9", "Colokan micro-USB", "logam")
+    zp = z_pcb0 + ESP["pcb"]
+    nn = ESP["n"]; py0 = e0y + (ESP["L"] - (nn - 1) * 2.54) / 2 - 1.0
+    baris = [e0x + (ESP["W"] - ESP["pin_jarak_baris"]) / 2, e0x + (ESP["W"] + ESP["pin_jarak_baris"]) / 2]
+    tambah("esp_header", trimesh.util.concatenate([kotak(bx - 1.27, bx + 1.27, py0 - 1.27, py0 + (nn - 1) * 2.54 + 1.27, zp, zp + ESP["plastik"]) for bx in baris]),
+           "atas", "#151515", "Header ESP32 (2 x 19)", "plastik_hitam")
+    tambah("esp_pin", trimesh.util.concatenate([kotak(bx - 0.32, bx + 0.32, py0 + i * 2.54 - 0.32, py0 + i * 2.54 + 0.32, zp - 1, zp + ESP["pin_panjang"]) for bx in baris for i in range(nn)]),
+           "atas", "#d4af37", "Pin ESP32", "emas")
+    # Papan dibalik, jadi baris 3V3 (B1) jatuh di sisi x besar (baris[1]) bila dilihat dari atas. [UKUR: cocokkan tulisan di papan]
+    def pin_esp(nama, baris_ke):
+        i = (B1 if baris_ke == 1 else B0).index(nama); return np.array([baris[baris_ke], py0 + i * 2.54, zp + ESP["plastik"]])
+    ESP_DIPAKAI = {(pe, 1): WARNA_SINYAL[SINYAL[pe]] for pe in dict.fromkeys(list(KE_SENSOR.values()) + list(KE_OLED.values()))}
+    tambah("esp_dupont", trimesh.util.concatenate([silinder(*pin_esp(n, b)[:2], zp + ESP["plastik"], zp + ESP["plastik"] + SAMB, R_SAMB, 16) for (n, b) in ESP_DIPAKAI]),
+           "atas", "#202020", f"Titik solder ESP32 + selongsong ({len(ESP_DIPAKAI)})", "plastik_hitam")
+
+else:
+    # ---- breadboard di dinding belakang kepala, ESP32 dicolok tegak (sisi komponen menghadap ke depan)
+    bx1 = W - t; bx0 = bx1 - BB["T"]; by0 = W - t - 0.5 - BB["L"]; bz0, bz1 = zk0, zk0 + BB["H"]
+    tambah("bb_papan", kotak(bx0, bx1, by0, by0 + BB["L"], bz0, bz1), "atas", "#efebe4", "Breadboard 400 lubang (rel daya dilepas)", "plastik_putih")
+    BARIS_BB = lambda r: by0 + (BB["L"] - (BB["baris"] - 1) * 2.54) / 2 + (r - 1) * 2.54
+    zc_bb = (bz0 + bz1) / 2
+    KOLOM_BB = {c: zc_bb + 3.81 + 2.54 * k for k, c in enumerate("edcba")}
+    KOLOM_BB.update({c: zc_bb - 3.81 - 2.54 * m for m, c in enumerate("fghij")})
+    KOL_ESP = {1: "c", 0: "j"}                       # baris 3V3 di kolom c: kolom b dan a bebas untuk kabel
+    nn = ESP["n"]; R_ESP0 = BB["baris"]               # pin ke-0 (5V, ujung USB) di baris 30, dekat dinding kanan
+    def baris_pin(i): return R_ESP0 - i
+    def pin_esp(nama, baris_ke):
+        i = (B1 if baris_ke == 1 else B0).index(nama); return np.array([bx0 - 2.5, BARIS_BB(baris_pin(i)), KOLOM_BB[KOL_ESP[baris_ke]]])
+    ph = bx0 - 2.5; pp0, pp1 = ph - ESP["pcb"], ph                       # plastik header di muka breadboard, lalu PCB
+    yU = BARIS_BB(baris_pin(0)) + (G_PY0 := (ESP["L"] - (nn - 1) * 2.54) / 2 - 1.0)   # tepi papan di ujung USB
+    yA = yU - ESP["L"]
+    zB0, zB1 = KOLOM_BB["j"], KOLOM_BB["c"]; zpm = (zB0 + zB1) / 2
+    tambah("esp_pcb", kotak(pp0, pp1, yA, yU, zpm - ESP["W"] / 2, zpm + ESP["W"] / 2), "atas", "#1d2024", "ESP32 NodeMCU-32S (38 pin)", "pcb_hitam")
+    tambah("esp_modul", kotak(pp0 - ESP["modul"][2], pp0, yA + 0.5, yA + 0.5 + ESP["modul"][1], zpm - ESP["modul"][0] / 2, zpm + ESP["modul"][0] / 2), "atas", "#a7adb4", "Modul ESP-32S (logam)", "logam")
+    tambah("esp_usb", kotak(pp0 - 2.7, pp0, yU - 4.6, yU + 1.0, zpm - 3.75, zpm + 3.75), "atas", "#c0c4c9", "Colokan micro-USB", "logam")
+    tambah("esp_header", trimesh.util.concatenate([kotak(ph, bx0, BARIS_BB(baris_pin(nn - 1)) - 1.27, BARIS_BB(baris_pin(0)) + 1.27, z_ - 1.27, z_ + 1.27) for z_ in (zB0, zB1)]),
+           "atas", "#151515", "Header ESP32 (2 x 19)", "plastik_hitam")
+    tambah("esp_pin", trimesh.util.concatenate([kotak(pp0 - 1.0, bx0 + 6.0, BARIS_BB(baris_pin(i)) - 0.32, BARIS_BB(baris_pin(i)) + 0.32, z_ - 0.32, z_ + 0.32) for z_ in (zB0, zB1) for i in range(nn)]),
+           "atas", "#d4af37", "Pin ESP32 (masuk breadboard)", "emas")
+    ESP_DIPAKAI = {(pe, 1): WARNA_SINYAL[SINYAL[pe]] for pe in dict.fromkeys(list(KE_SENSOR.values()) + list(KE_OLED.values()))}
+    # lubang kabel: sensor di kolom b, OLED di kolom a, sebaris dengan pin ESP32-nya
+    def lubang(pe, dev): return (baris_pin(B1.index(pe)), "b" if dev == "Sensor" else "a")
+    DUP_L = 14.0
+    def ujung_bb(pe, dev):
+        r, c = lubang(pe, dev); return np.array([bx0 - DUP_L, BARIS_BB(r), KOLOM_BB[c]])
+    _dup = [(pe, "Sensor") for pe in KE_SENSOR.values()] + [(pe, "OLED") for pe in KE_OLED.values()]
+    tambah("esp_dupont", trimesh.util.concatenate([kotak(bx0 - DUP_L, bx0, ujung_bb(pe, d)[1] - 1.2, ujung_bb(pe, d)[1] + 1.2, ujung_bb(pe, d)[2] - 1.2, ujung_bb(pe, d)[2] + 1.2) for pe, d in _dup]),
+           "atas", "#202020", f"Kabel dupont jantan di breadboard ({len(_dup)})", "plastik_hitam")
+    zp = ph
 
 # ---- OLED di sisi bawah tutup atas, layar menghadap jendela
 GANJAL_OLED = 1.6                                   # mur M2 sebagai ganjal antara tutup dan PCB OLED
@@ -252,8 +307,12 @@ oy_pin = OLED["cy"] - OLED["H"] / 2 + 1.6
 OLED_PIN = {"GND": OLED["cx"] - 3.81, "VCC": OLED["cx"] - 1.27, "SCL": OLED["cx"] + 1.27, "SDA": OLED["cx"] + 3.81}
 zo = oz0 - OLED["pcb"]
 tambah("oled_header", kotak(OLED["cx"] - 5.08, OLED["cx"] + 5.08, oy_pin - 1.27, oy_pin + 1.27, zo - 2.5, zo), "atas", "#151515", "Header OLED (4)", "plastik_hitam")
-tambah("oled_dupont", trimesh.util.concatenate([silinder(x, oy_pin, zo - 2.5 - SAMB, zo - 2.5, R_SAMB, 16) for x in OLED_PIN.values()]),
-       "atas", "#202020", "Titik solder OLED + selongsong (4)", "plastik_hitam")
+if VARIAN == "solder":
+    tambah("oled_dupont", trimesh.util.concatenate([silinder(x, oy_pin, zo - 2.5 - SAMB, zo - 2.5, R_SAMB, 16) for x in OLED_PIN.values()]),
+           "atas", "#202020", "Titik solder OLED + selongsong (4)", "plastik_hitam")
+else:
+    tambah("oled_dupont", trimesh.util.concatenate([kotak(x - 1.25, x + 1.25, oy_pin - 1.25, oy_pin + 1.25, zo - 2.5 - SAMB, zo - 2.5) for x in OLED_PIN.values()]),
+           "atas", "#202020", "Soket dupont betina di OLED (4)", "plastik_hitam")
 tambah("oled_baut", gabung([silinder(OLED["cx"] + sx * OLED["lubang"], OLED["cy"] + sy * OLED["lubang"], zo - 3.0, Z_ATAS + t + 1.2, 0.95, 12) for sx in (-1, 1) for sy in (-1, 1)]
                                          + [silinder(OLED["cx"] + sx * OLED["lubang"], OLED["cy"] + sy * OLED["lubang"], Z_ATAS + t, Z_ATAS + t + 1.2, 1.8, 16) for sx in (-1, 1) for sy in (-1, 1)]
                                          + [silinder(OLED["cx"] + sx * OLED["lubang"], OLED["cy"] + sy * OLED["lubang"], oz0, Z_ATAS, 2.0, 6) for sx in (-1, 1) for sy in (-1, 1)]
@@ -277,11 +336,17 @@ tambah("kait_atas", gabung([kotak(-1.2, 0, YC - 9, YC + 9, Hc + 2, Hc + 12), kot
 # ---- kabel: disolder langsung. Pin ESP32 yang dipakai dua perangkat (3V3, GND, G26, G27) menerima DUA kabel di satu pin.
 # Jalur Manhattan: tiap kabel punya ketinggian mendatar (lapis) dan lajur x sendiri, jadi tidak ada kabel yang saling memotong.
 ujung_sensor = {n: papan(x, hy, -TCS["pcb"] - 2.5 - SAMB) for x, n in zip(xs_pin, TCS["pin"])}
-Z_SOKET_ESP = zp + ESP["plastik"] + SAMB                # ujung selongsong di pin ESP32
-Z_J = Z_SOKET_ESP + 0.8
-# sensor: (lapis z, lajur x); OLED: (lapis z, lajur x). Urutan lapis OLED: SDA paling bawah, GND paling atas.
-SENSOR_KE = {n: ((pe, 1), L_, x_) for (n, pe), L_, x_ in zip(KE_SENSOR.items(), (57.8, 56.1, 54.4, 52.7, 51.0), (46.8, 45.1, 43.4, 41.7, 40.0))}
-OLED_KE = {n: ((pe, 1), L_, x_) for (n, pe), L_, x_ in zip(KE_OLED.items(), (41.3, 43.0, 37.9, 39.6), (38.1, 36.4, 33.0, 34.7))}
+if VARIAN == "solder":
+    Z_SOKET_ESP = zp + ESP["plastik"] + SAMB                # ujung selongsong di pin ESP32
+    Z_J = Z_SOKET_ESP + 0.8
+    # sensor: (lapis z, lajur x); OLED: (lapis z, lajur x). Urutan lapis OLED: SDA paling bawah, GND paling atas.
+    SENSOR_KE = {n: ((pe, 1), L_, x_) for (n, pe), L_, x_ in zip(KE_SENSOR.items(), (57.8, 56.1, 54.4, 52.7, 51.0), (46.8, 45.1, 43.4, 41.7, 40.0))}
+    OLED_KE = {n: ((pe, 1), L_, x_) for (n, pe), L_, x_ in zip(KE_OLED.items(), (41.3, 43.0, 37.9, 39.6), (38.1, 36.4, 33.0, 34.7))}
+else:
+    Z_SOKET_ESP = Z_J = None
+    # sensor: (lapis z, lajur x); OLED: (lapis z, lajur x). Lapis OLED naik SDA < SCL < VCC < GND.
+    SENSOR_KE = {n: ((pe, 1), L_, x_) for (n, pe), L_, x_ in zip(KE_SENSOR.items(), (37.0, 38.7, 40.4, 42.1, 43.8), (53.0, 54.7, 56.4, 58.1, 59.8))}
+    OLED_KE = {n: ((pe, 1), L_, x_) for (n, pe), L_, x_ in zip(KE_OLED.items(), (49.4, 51.1, 46.0, 47.7), (47.7, 46.0, 51.1, 49.4))}
 CABANG = {pe: (next(n for n, q in KE_SENSOR.items() if q == pe), next(n for n, q in KE_OLED.items() if q == pe))
           for pe in KE_OLED.values() if pe in KE_SENSOR.values()}     # pin ESP32 -> (pin sensor, pin OLED)
 
@@ -310,14 +375,24 @@ def nama_pin(pn, b=1):
 
 KABEL = {}   # nama -> dict(titik, warna, dari, ke (pin ESP32), b, panjang)
 SINYAL_PIN = {"VIN": "3V3", "VCC": "3V3", "GND": "GND", "SDA": "SDA", "SCL": "SCL", "LED": "LED"}
-for n, ((pn, b), L_, xc) in SENSOR_KE.items():
-    E = ujung_sensor[n]; A = E + 4.0 * (-N); T = pin_esp(pn, b)
-    KABEL[f"kabel_s_{n}"] = dict(titik=fillet([E, A, [A[0], A[1], L_], [xc, A[1], L_], [xc, T[1], L_], [xc, T[1], Z_J], [T[0], T[1], Z_J], [T[0], T[1], Z_SOKET_ESP]]),
-                                warna=WARNA_SINYAL[SINYAL[pn]], dari=f"Sensor {n}", ke=pn, b=b)
-for n, ((pn, b), L_, xc) in OLED_KE.items():
-    E = np.array([OLED_PIN[n], oy_pin, zo - 2.5 - SAMB]); T = pin_esp(pn, b)
-    KABEL[f"kabel_o_{n}"] = dict(titik=fillet([E, [E[0], E[1], L_], [E[0], T[1], L_], [xc, T[1], L_], [xc, T[1], Z_J], [T[0], T[1], Z_J], [T[0], T[1], Z_SOKET_ESP]]),
-                                warna=WARNA_SINYAL[SINYAL[pn]], dari=f"OLED {n}", ke=pn, b=b)
+if VARIAN == "solder":
+    for n, ((pn, b), L_, xc) in SENSOR_KE.items():
+        E = ujung_sensor[n]; A = E + 4.0 * (-N); T = pin_esp(pn, b)
+        KABEL[f"kabel_s_{n}"] = dict(titik=fillet([E, A, [A[0], A[1], L_], [xc, A[1], L_], [xc, T[1], L_], [xc, T[1], Z_J], [T[0], T[1], Z_J], [T[0], T[1], Z_SOKET_ESP]]),
+                                    warna=WARNA_SINYAL[SINYAL[pn]], dari=f"Sensor {n}", ke=pn, b=b)
+    for n, ((pn, b), L_, xc) in OLED_KE.items():
+        E = np.array([OLED_PIN[n], oy_pin, zo - 2.5 - SAMB]); T = pin_esp(pn, b)
+        KABEL[f"kabel_o_{n}"] = dict(titik=fillet([E, [E[0], E[1], L_], [E[0], T[1], L_], [xc, T[1], L_], [xc, T[1], Z_J], [T[0], T[1], Z_J], [T[0], T[1], Z_SOKET_ESP]]),
+                                    warna=WARNA_SINYAL[SINYAL[pn]], dari=f"OLED {n}", ke=pn, b=b)
+else:
+    for n, ((pn, b), L_, xc) in SENSOR_KE.items():
+        E = ujung_sensor[n]; A = E + 4.0 * (-N); T = ujung_bb(pn, "Sensor")
+        KABEL[f"kabel_s_{n}"] = dict(titik=fillet([E, A, [A[0], A[1], L_], [xc, A[1], L_], [xc, T[1], L_], [xc, T[1], T[2]], T]),
+                                    warna=WARNA_SINYAL[SINYAL[pn]], dari=f"Sensor {n}", ke=pn, b=b, lubang=lubang(pn, "Sensor"))
+    for n, ((pn, b), L_, xc) in OLED_KE.items():
+        E = np.array([OLED_PIN[n], oy_pin, zo - 2.5 - SAMB]); T = ujung_bb(pn, "OLED")
+        KABEL[f"kabel_o_{n}"] = dict(titik=fillet([T, [xc, T[1], T[2]], [xc, T[1], L_], [xc, E[1], L_], [E[0], E[1], L_], E])[::-1].copy(),
+                                    warna=WARNA_SINYAL[SINYAL[pn]], dari=f"OLED {n}", ke=pn, b=b, lubang=lubang(pn, "OLED"))
 for k, kb in KABEL.items():
     kb["panjang"] = float(np.sum(np.linalg.norm(np.diff(kb["titik"], axis=0), axis=1)))
     tambah(k, pipa(kb["titik"]), "atas", kb["warna"], "Kabel " + kb["dari"] + " ke ESP32 " + kb["ke"], "kabel")
@@ -365,7 +440,8 @@ def periksa(sudut=0.0, keluaran=True):
         M[k] = m
     boleh = {frozenset(p) for p in [("sensor_pin", "sensor_header"), ("sensor_pin", "sensor_pcb"), ("sensor_pin", "sensor_dupont"), ("esp_pin", "esp_header"),
              ("esp_pin", "esp_pcb"), ("esp_pin", "esp_dupont"), ("sensor_baut", "sensor_pcb"), ("sensor_baut", "dudukan_pelat"), ("oled_baut", "oled_pcb"),
-             ("oled_baut", "kepala_tutup"), ("engsel_bawah", "engsel_atas"), ("tutup_cat", "beludru"), ("esp_usb", "esp_pcb")]}
+             ("oled_baut", "kepala_tutup"), ("engsel_bawah", "engsel_atas"), ("tutup_cat", "beludru"), ("esp_usb", "esp_pcb"),
+             ("esp_pin", "bb_papan"), ("esp_dupont", "bb_papan"), ("esp_pin", "esp_modul")]}
     masalah = []
     ks = list(M)
     for i in range(len(ks)):
@@ -460,5 +536,5 @@ if __name__ == "__main__":
         kinfo.append(dict(no=i + 1, judul=judul, bagian=ks, pusat=[cx_, cy_], ukuran=np.round(hi - lo, 1).tolist(), tinggi=float(hi[2] - lo[2])))
     g = kat.copy(); g.apply_transform(rotation_matrix(-math.pi / 2, [1, 0, 0])); g.apply_scale(0.001); g.export(os.path.join(OUT, "katalog.glb"))
     json.dump(kinfo, open(os.path.join(OUT, "katalog.json"), "w"), indent=1, ensure_ascii=False)
-    print(f"ditulis model/katalog.glb: {len(KAT)} kelompok komponen")
-    print(f"ditulis model/jepit.glb ({os.path.getsize(os.path.join(OUT, 'jepit.glb'))//1024} KB), {len(B)} bagian")
+    print(f"ditulis {os.path.basename(OUT)}/katalog.glb: {len(KAT)} kelompok komponen")
+    print(f"ditulis {os.path.basename(OUT)}/jepit.glb ({os.path.getsize(os.path.join(OUT, 'jepit.glb'))//1024} KB), {len(B)} bagian")
