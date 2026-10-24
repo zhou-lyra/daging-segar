@@ -24,7 +24,7 @@ URAI = {"busa_1": 6, "busa_2": 14, "busa_3": 22, "daging": 45, "tutup_cat": 75, 
 def urai(k):
     if k in URAI: return URAI[k]
     if k.startswith("sensor_"): return 92
-    if k.startswith("esp_"): return 145
+    if k.startswith("esp_") or k == "bb_papan": return 145
     if k.startswith("oled_"): return 180
     return 0
 
@@ -51,7 +51,7 @@ GROUPS = [
     dict(nama="Busa 3 lapis", warna="#4a4f57", bagian=pref("busa_"), ringkas="Mendorong daging ke muka tutup cat.",
          teks="Tiga lembar busa hitam 78 x 78 x 10 mm (busa ati atau EVA lunak). Tebal awal 30 mm, tertekan menjadi 25 mm oleh daging 10 mm. Untuk daging 20 mm, ambil satu lapis. Lapisi dengan plastik wrap baru setiap sampel."),
     dict(nama="Baki bawah", warna="#a49d92", bagian=pref("baki_"), ringkas="Rahang bawah, tempat busa dan daging.",
-         teks=f"Kotak terbuka dari PVC 3 mm, luar 86 x 86 x {f1(G.F + G.t + G.Hc)} mm. Bibir atasnya menjadi penahan: kepala tertutup bertumpu di sini, jadi celah dan tekanan busa selalu sama."),
+         teks=f"Kotak terbuka dari PVC 3 mm, luar {f1(G.W)} x {f1(G.W)} x {f1(G.F + G.t + G.Hc)} mm. Bibir atasnya menjadi penahan: kepala tertutup bertumpu di sini, jadi celah dan tekanan busa selalu sama."),
     dict(nama="Tutup cat + beludru", warna="#1e1f22", bagian=["tutup_cat", "beludru"], ringkas="Ruang ukur gelap dengan lubang Ø 14.",
          teks=f"Tutup cat semprot Ø 65 dipotong setinggi {f1(G.Hc)} mm dan direkatkan terbalik di bawah lantai kepala. Muka tutupnya menjadi bidang acuan: daging selalu menempel di sini. Bagian dalamnya dilapisi kertas beludru hitam supaya hampir tidak memantulkan cahaya."),
     dict(nama="Sensor TCS34725", warna="#6a2c91", bagian=pref("sensor_"), ringkas="Miring 40 derajat, LED bawaan menyala.",
@@ -59,7 +59,7 @@ GROUPS = [
     dict(nama="Dudukan miring", warna="#26272b", bagian=pref("dudukan_"), ringkas="Pelat + 2 pipi yang menentukan sudut 40°.",
          teks="Pelat PVC hitam 27,3 x 16,8 mm tempat papan sensor dibaut, ditopang dua pipi berbentuk trapesium yang direkatkan di bawah lantai kepala. Sudutnya ditentukan oleh bentuk pipi, jadi cukup dipotong mengikuti pola 1:1."),
     dict(nama="Lantai kepala", warna="#c9c2b6", bagian=["kepala_lantai"], ringkas=f"Berjendela kabel {f1(J[1]-J[0])} x {f1(J[3]-J[2])} mm.",
-         teks=f"Lembar PVC 86 x 86 mm. Tutup cat menempel di sisi bawahnya. Jendela kabel ({f1(J[1]-J[0])} x {f1(J[3]-J[2])} mm, {f1(J[0])} mm dari depan dan {f1(J[2])} mm dari kiri) dilewati 5 kabel sensor, lalu ditutup selotip hitam dari atas supaya cahaya dari dalam kotak tidak masuk ke ruang ukur."),
+         teks=f"Lembar PVC {f1(G.W)} x {f1(G.W)} mm. Tutup cat menempel di sisi bawahnya. Jendela kabel ({f1(J[1]-J[0])} x {f1(J[3]-J[2])} mm, {f1(J[0])} mm dari depan dan {f1(J[2])} mm dari kiri) dilewati 5 kabel sensor, lalu ditutup selotip hitam dari atas supaya cahaya dari dalam kotak tidak masuk ke ruang ukur."),
     dict(nama="ESP32 NodeMCU-32S", warna="#1d2024", bagian=pref("esp_"), ringkas="Dibalik di atas busa, USB ke takik kiri.",
          teks="Papan ESP32 diletakkan terbalik (modul logam di bawah) di atas busa dobel tape 3 mm, sehingga pin menghadap ke atas dan kabel bisa disolder di ujung pin. Lampu merah dayanya ditutup selotip hitam."),
     dict(nama="OLED 0,96 inci", warna="#1d4f9c", bagian=pref("oled_"), ringkas="Di sisi bawah tutup atas, tampil lewat jendela.",
@@ -75,6 +75,16 @@ GROUPS = [
     dict(nama="Tatakan kalibrasi", warna="#f0efe8", bagian=["kal_putih", "kal_hitam"], ringkas="Balok putih dan hitam 60 x 60 x 10 mm.",
          teks="Dipakai sekali per sesi: balok putih (kertas HVS doff) untuk titik putih, balok hitam (beludru) untuk titik gelap. Tebalnya sama dengan daging (10 mm), jadi ditekan busa ke muka tutup cat dengan cara yang sama."),
 ]
+if G.VARIAN == "breadboard":
+    for g in GROUPS:
+        if g["nama"].startswith("ESP32"):
+            g.update(nama="Breadboard + ESP32", warna="#efebe4", bagian=pref("esp_") + ["bb_papan"], ringkas="Breadboard 400 lubang tegak di dinding belakang.",
+                     teks="Breadboard 400 lubang (rel daya dilepas) ditempel di dinding belakang kepala. ESP32 NodeMCU-32S dicolok tegak: baris pin 3V3 di kolom c, sehingga kolom a dan b di sebelahnya bebas untuk kabel. Colokan USB tepat di lubang dinding kanan.")
+        elif g["nama"] == "Kabel":
+            g.update(ringkas="9 kabel dupont jantan-betina, tanpa solder.",
+                     teks="Ujung jantan dicolok ke breadboard sebaris dengan pin ESP32-nya (kolom b ke sensor, kolom a ke OLED), ujung betina ke pin sensor dan OLED. SDA G26, SCL G27, LED G25, VIN sensor dan VCC OLED ke 3V3. Bisa dibongkar dan diperiksa tanpa solder.")
+        elif g["nama"] == "Kotak kepala":
+            g["teks"] = f"Empat dinding PVC setinggi {f1(G.P['kepala_dalam'])} mm dan tutup atas yang bisa dilepas. Kepala {f1(G.W)} x {f1(G.W)} mm supaya breadboard 85 mm muat. Dinding kanan berlubang USB 13 x 10 mm."
 for g in GROUPS:
     g["ukuran"] = ukuran(g["bagian"]); g["jangkar_bagian"] = g["bagian"][0]
     g["jangkar"] = pusat_atas(g["bagian"])
@@ -84,7 +94,11 @@ GROUPS[6]["jangkar"] = [70, 70, G.Hc + G.t]; GROUPS[9]["jangkar"] = [3, 70, G.Z_
 HINGE = dict(x=G.SUMBU_ENGSEL[0], z=G.SUMBU_ENGSEL[1], yc=G.YC)
 
 T = open(os.path.join(HERE, "penampil_template.html")).read()
-T = T.replace("__PARTS__", json.dumps(PARTS)).replace("__GROUPS__", json.dumps(GROUPS, ensure_ascii=False)).replace("__DATA__", json.dumps(DATA)).replace("__HINGE__", json.dumps(HINGE)).replace("__INTRO__", json.dumps('<h3>BeefFresh Jepit</h3><p class="lead">Penjepit berengsel: daging dijepit antara busa dan tutup cat.</p><p class="body">Geser <b>Buka engsel</b> untuk melihat cara memasukkan daging, <b>Urai</b> untuk memisahkan bagian, dan <b>Potong: tengah (Y)</b> untuk melihat sensor miring di dalam tutup cat. Klik nama bagian untuk penjelasannya.</p>', ensure_ascii=False))
+T = T.replace("__PARTS__", json.dumps(PARTS)).replace("__GROUPS__", json.dumps(GROUPS, ensure_ascii=False)).replace("__DATA__", json.dumps(DATA)).replace("__HINGE__", json.dumps(HINGE)).replace("__INTRO__", json.dumps(('<h3>BeefFresh Jepit + breadboard</h3><p class="lead">Model 2B: penjepit yang sama, ESP32 dicolok di breadboard tanpa solder kabel.</p>' if G.VARIAN == "breadboard" else '<h3>BeefFresh Jepit</h3><p class="lead">Penjepit berengsel: daging dijepit antara busa dan tutup cat.</p>') + '<p class="body">Geser <b>Buka engsel</b> untuk melihat cara memasukkan daging, <b>Urai</b> untuk memisahkan bagian, dan <b>Potong: tengah (Y)</b> untuk melihat sensor miring di dalam tutup cat. Klik nama bagian untuk penjelasannya.</p>', ensure_ascii=False))
+if G.VARIAN == "breadboard":
+    open(os.path.join(HERE, "penampil_3d_bb.html"), "w").write(T)
+    print(f"penampil_3d_bb.html {len(T) // 1024} KB")
+    raise SystemExit
 open(os.path.join(HERE, "penampil_3d.html"), "w").write(T)
 
 # ----------------------------------------------------------------------------- daftar potongan PVC (dari model)

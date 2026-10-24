@@ -41,7 +41,7 @@ nav .lk a.on,nav .lk a:hover{color:var(--ink);background:rgba(255,255,255,.07)}
 .blok{max-width:1180px;margin:0 auto;padding:90px 26px}
 .blok h2{font-size:clamp(30px,4vw,52px);letter-spacing:-.025em;line-height:1.05;margin:10px 0 16px}
 .blok>p{color:#c9c4bd;max-width:720px}
-.dua{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}
+.dua{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:28px}
 .kartu{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 24px}
 .kartu h3{margin:6px 0 8px;font-size:23px;letter-spacing:-.01em}
 .kartu ul{margin:10px 0 0;padding-left:20px;color:#c9c4bd}
@@ -70,17 +70,17 @@ footer{border-top:1px solid var(--line);padding:30px 26px 50px;color:var(--mut);
  td:first-child{width:34%}table{font-size:15px}
  iframe{height:1060px}
 }
-@media(max-width:480px){nav .lk a:nth-child(3){display:none}}
+.pd{display:none}@media(max-width:480px){nav .lk a:nth-child(4){display:none}.pj{display:none}.pd{display:inline}}
 </style>
 </head>
 <body>
 <div id="bar"></div>
-<nav><b>Beef<span>Fresh</span></b><div class="lk"><a href="#e">Jepit</a><a href="#a">Genggam</a><a href="#banding">Banding</a><a href="#tiga-d">3D</a></div></nav>
+<nav><b>Beef<span>Fresh</span></b><div class="lk"><a href="#e">Jepit</a><a href="#eb"><span class="pj">Breadboard</span><span class="pd">2B</span></a><a href="#a">Genggam</a><a href="#banding">Banding</a><a href="#tiga-d">3D</a></div></nav>
 
 <header class="hero">
  <span class="kick">Rancangan alat · tim BeefFresh</span>
  <h1>Warna daging, <em>dibaca</em> dengan cahaya.</h1>
- <p>Dua rancangan alat pengukur kesegaran daging sapi dari lembaran PVC, tanpa printer 3D. Gulir pelan untuk melihat cara kerjanya.</p>
+ <p>Rancangan alat pengukur kesegaran daging sapi dari lembaran PVC, tanpa printer 3D: Jepit, Jepit versi breadboard, dan Genggam. Gulir pelan untuk melihat cara kerjanya.</p>
  <div class="cue"><i></i>gulir ke bawah</div>
 </header>
 
@@ -90,6 +90,15 @@ footer{border-top:1px solid var(--line);padding:30px 26px 50px;color:var(--mut);
   <div class="cap e" data-f="40,78"><span class="kick"><span class="num">E</span>Cara pakai</span><h2>Buka, letakkan, tutup.</h2><p>Daging diiris 10 mm dan diletakkan di atas busa. Kepala ditutup lalu dikunci kait. Dinding kotak menahan cahaya ruangan.</p></div>
   <div class="cap e" data-f="86,116"><span class="kick"><span class="num">E</span>Isi</span><h2>Lapis demi lapis.</h2><p>Busa tiga lapis, tutup cat semprot sebagai ruang ukur gelap, sensor warna TCS34725, ESP32, dan layar OLED. Semua dari PVC 3 mm dan komponen yang sudah ada.</p></div>
   <div class="cap e" data-f="124,155"><span class="kick"><span class="num">E</span>Optik</span><h2>Sensor melihat dari sudut 40°.</h2><p>LED bawaan sensor menyinari daging lewat lubang Ø 14. Karena papannya dimiringkan, kilap dari daging basah jatuh di muka hitam, bukan ke chip.</p></div>
+  <div class="load"></div></div>
+</section>
+
+<section class="film" id="eb" data-film="jepitbb" data-vh="440">
+ <div class="stage"><canvas></canvas>
+  <div class="cap e" data-f="0,34"><span class="kick"><span class="num">2B</span>Jepit + breadboard</span><h2>Luarnya sama, isinya berbeda.</h2><p>Cara pakainya sama dengan Jepit. Kepalanya sedikit lebih besar (94 x 94 mm, tinggi alat 117 mm) dan colokan USB keluar dari dinding kanan.</p></div>
+  <div class="cap e" data-f="40,70"><span class="kick"><span class="num">2B</span>Arsitektur</span><h2>ESP32 berdiri di breadboard.</h2><p>Breadboard 400 lubang, tanpa rel daya, ditempel tegak di dinding belakang kepala. ESP32 dicolok di atasnya dan colokan USB-nya tepat di lubang dinding.</p></div>
+  <div class="cap e" data-f="78,94"><span class="kick"><span class="num">2B</span>Kabel</span><h2>Tanpa solder kabel.</h2><p>Sembilan kabel dupont dicolok di lubang sebelah pin ESP32: kolom b ke sensor, kolom a ke OLED. Rangkaian bisa dibongkar, diperiksa, dan dipindah tanpa memanaskan solder.</p></div>
+  <div class="cap e" data-f="104,118"><span class="kick"><span class="num">2B</span>Sisanya</span><h2>Optik sama dengan Jepit.</h2><p>Tutup cat, sensor miring 40°, busa, dan engsel tidak berubah, jadi bacaan warnanya sebanding dengan Model 2.</p></div>
   <div class="load"></div></div>
 </section>
 
@@ -103,31 +112,33 @@ footer{border-top:1px solid var(--line);padding:30px 26px 50px;color:var(--mut);
 
 <section class="film" id="banding" data-film="banding" data-vh="190">
  <div class="stage"><canvas></canvas>
-  <div class="cap" data-f="0,36"><span class="kick">Banding</span><h2>Dua bentuk, satu tujuan.</h2><p>Jepit untuk data penelitian yang rapi. Genggam untuk mengukur di mana saja. Komponen elektroniknya sama.</p></div>
+  <div class="cap" data-f="0,36"><span class="kick">Banding</span><h2>Dua bentuk, satu tujuan.</h2><p>Jepit untuk data penelitian yang rapi. Genggam untuk mengukur di mana saja. Komponen elektroniknya sama; Jepit juga ada versi breadboard.</p></div>
   <div class="load"></div></div>
 </section>
 
 <section class="blok">
  <span class="kick">Ringkasan</span><h2>Mana yang lebih tepat?</h2>
- <p>Keduanya masih rancangan dan model 3D. Belum ada yang dibuat atau diuji dengan daging. Angka optik di bawah berasal dari hitungan geometri, bukan pengukuran.</p>
+ <p>Semuanya masih rancangan dan model 3D. Belum ada yang dibuat atau diuji dengan daging. Angka optik di bawah berasal dari hitungan geometri, bukan pengukuran.</p>
  <div class="dua">
   <div class="kartu"><span class="kick e">Desain E</span><h3>Jepit</h3><ul><li>Daging diiris 10 mm lalu dimasukkan</li><li>Tekanan dan cahaya paling terkendali</li><li>86 x 86 x 106 mm, 160 sampai 310 g</li><li>Cocok untuk mengumpulkan dataset</li></ul></div>
+  <div class="kartu"><span class="kick e">Model 2B</span><h3>Jepit + breadboard</h3><ul><li>Optik dan cara pakai sama dengan Jepit</li><li>ESP32 dicolok di breadboard, kabel dupont tanpa solder</li><li>104 x 94 x 117 mm, sedikit lebih besar</li><li>Cocok bila rangkaian masih sering diubah atau diperiksa</li></ul></div>
   <div class="kartu"><span class="kick a">Desain A</span><h3>Genggam</h3><ul><li>Ditempel ke daging utuh</li><li>Lebih mudah dirakit: potongan lurus dan pipa 1 inci</li><li>108 x 39 x 52 mm, 65 sampai 120 g</li><li>Cocok untuk dipakai di lapangan</li></ul></div>
  </div>
- <table>
-  <tr><th>Hal</th><th>Jepit (E)</th><th>Genggam (A)</th></tr>
-  <tr><td>Tekanan ke daging</td><td>Selalu sama: busa dan kait</td><td>Bergantung tangan; firmware hanya menyimpan bacaan yang stabil</td></tr>
-  <tr><td>Cahaya luar</td><td>Tertutup kotak</td><td>Ditutup daging dan pelat muka; bacaan ditolak bila masih ada cahaya</td></tr>
-  <tr><td>Kilap daging basah</td><td>3,2 mm di luar lubang</td><td>5,1 mm di luar lubang</td></tr>
-  <tr><td>Kesulitan merakit</td><td>Sedang</td><td>Lebih mudah</td></tr>
-  <tr><td>Keyakinan hasilnya stabil</td><td>sekitar 75 %</td><td>sekitar 60 %</td></tr>
- </table>
+ <div style="overflow-x:auto"><table>
+  <tr><th>Hal</th><th>Jepit (E)</th><th>Jepit + breadboard (2B)</th><th>Genggam (A)</th></tr>
+  <tr><td>Tekanan ke daging</td><td>Selalu sama: busa dan kait</td><td>Sama dengan E</td><td>Bergantung tangan; firmware hanya menyimpan bacaan yang stabil</td></tr>
+  <tr><td>Cahaya luar</td><td>Tertutup kotak</td><td>Sama dengan E</td><td>Ditutup daging dan pelat muka; bacaan ditolak bila masih ada cahaya</td></tr>
+  <tr><td>Kilap daging basah</td><td>3,2 mm di luar lubang</td><td>Sama dengan E</td><td>5,1 mm di luar lubang</td></tr>
+  <tr><td>Kabel</td><td>9 kabel disolder ke pin</td><td>9 kabel dupont dicolok</td><td>9 kabel disolder ke pin</td></tr>
+  <tr><td>Kesulitan merakit</td><td>Sedang</td><td>Sedang, tanpa solder kabel</td><td>Lebih mudah</td></tr>
+  <tr><td>Keyakinan hasilnya stabil</td><td>sekitar 75 %</td><td>sekitar 70 % (colokan bisa longgar karena getaran)</td><td>sekitar 60 %</td></tr>
+ </table></div>
 </section>
 
 <section class="blok" id="tiga-d">
  <span class="kick">Model 3D</span><h2>Putar sendiri.</h2>
  <p>Seret untuk memutar, roda mouse atau cubit untuk zoom. Pilih <b>Potong: tengah (Y)</b> untuk melihat sensor di dalam.</p>
- <div class="tabs"><button class="on" data-f="jepit/penampil_3d.html?tema=gelap">Jepit (E)</button><button data-f="genggam/penampil_3d.html?tema=gelap">Genggam (A)</button></div>
+ <div class="tabs"><button class="on" data-f="jepit/penampil_3d.html?tema=gelap">Jepit (E)</button><button data-f="jepit/penampil_3d_bb.html?tema=gelap">Breadboard (2B)</button><button data-f="genggam/penampil_3d.html?tema=gelap">Genggam (A)</button></div>
  <iframe id="viewer" src="jepit/penampil_3d.html?tema=gelap" title="Model 3D" loading="lazy"></iframe>
  <div class="ajak"><a class="btn" href="pilih.html">Beri pilihanmu</a><a class="btn sek" href="rakit_model1.html">Tur rakit Model 1</a><a class="btn sek" href="rakit_model2.html">Tur rakit Model 2</a><a class="btn sek" href="rakit_model2b.html">Tur rakit Model 2B (breadboard)</a></div>
  <p class="cat">Halaman pilihan memakai tampilan terang dan berisi formulir yang dikirim lewat WhatsApp.</p>
@@ -168,7 +179,7 @@ function langkah(){
   for(const c of f.caps){const [a,b]=c.r,m=4;let o=0;if(f.cur>=a-m&&f.cur<=b+m){o=Math.min(1,(f.cur-(a-m))/m,(b+m-f.cur)/m)}
    if(a===0&&f.cur<m)o=1;if(b>=f.n-1&&f.cur>b-m)o=1;
    c.el.style.opacity=o.toFixed(3);c.el.style.transform=(HP?"translateY(":"translateY(calc(-50% + ")+((1-o)*18).toFixed(1)+"px"+(HP?")":"))")}}
- const ids=["e","a","banding","tiga-d"];let akt="";for(const id of ids){const el=document.getElementById(id);if(el.getBoundingClientRect().top<vh*0.5)akt=id}
+ const ids=["e","eb","a","banding","tiga-d"];let akt="";for(const id of ids){const el=document.getElementById(id);if(el.getBoundingClientRect().top<vh*0.5)akt=id}
  nav.forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#"+akt));
  requestAnimationFrame(langkah)}
 requestAnimationFrame(langkah);

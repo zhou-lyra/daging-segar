@@ -3,6 +3,7 @@
 #   blender -b -P blender_film.py -- jepit   [sampel] [mulai] [akhir] [persen] [GPU|CPU]
 #   blender -b -P blender_film.py -- genggam ...
 #   blender -b -P blender_film.py -- banding ...
+#   blender -b -P blender_film.py -- jepitbb ...   (Model 2B, breadboard; model dari jepit/model_bb)
 import bpy, json, math, os, sys
 from mathutils import Vector
 
@@ -36,10 +37,10 @@ def bahan(nama, hx):
     if nama == "kaca": pb.inputs["Coat Weight"].default_value = 1.0
     MAT[kunci] = m; return m
 
-def impor(folder, glb, geser=(0, 0, 0)):
-    info = json.load(open(os.path.join(DES, folder, "model", "bagian.json")))
+def impor(folder, glb, geser=(0, 0, 0), sub="model"):
+    info = json.load(open(os.path.join(DES, folder, sub, "bagian.json")))
     sebelum = set(bpy.data.objects)
-    bpy.ops.import_scene.gltf(filepath=os.path.join(DES, folder, "model", glb))
+    bpy.ops.import_scene.gltf(filepath=os.path.join(DES, folder, sub, glb))
     obj = {}
     for o in [o for o in bpy.data.objects if o not in sebelum]:
         if o.type != "MESH": bpy.data.objects.remove(o); continue
@@ -185,6 +186,30 @@ elif MODEL == "genggam":
         atur_potong(obj.values(), pot, 0.0, st["c"])
         em.inputs[1].default_value = 2.2 * st["b"]; pl.data.energy = 0.05 * st["b"]
     N = KEYS[-1][0] + 1
+elif MODEL == "jepitbb":
+    # Model 2B: ESP32 tegak di breadboard pada dinding belakang kepala, kabel dupont tanpa solder
+    info, obj = impor("jepit", "jepit.glb", sub="model_bb")
+    ax, az = info["sumbu_engsel"]; W = info["P"]["W"] / 1000; XC = YC = W / 2; Hc = info["P"]["Hc"] / 1000
+    URAI = {"busa_1": 6, "busa_2": 14, "busa_3": 22, "daging": 45, "tutup_cat": 75, "beludru": 75, "dudukan_pelat": 100, "dudukan_pipi": 100, "kepala_lantai": 120,
+            "kepala_depan": 135, "kepala_belakang": 135, "kepala_kiri": 135, "kepala_kanan": 135, "engsel_atas": 135, "kait_atas": 135, "kepala_tutup": 182, "kepala_bibir": 182}
+    def urai(k): return URAI.get(k, 92 if k.startswith("sensor_") else 150 if (k.startswith("esp_") or k == "bb_papan") else 166 if k.startswith("oled_") else 0)
+    asal = {k: o.location.copy() for k, o in obj.items()}
+    BUKA = [k for k in obj if k in ("kepala_tutup", "kepala_bibir", "kepala_depan") or k.startswith("oled_") or k == "kait_atas"]
+    em, pl = sinar(info["led"], (XC * 1000, YC * 1000, 0.0), 0.0072)
+    bb = info["bagian"]["bb_papan"]["bounds"]; BB = ((bb[0][0] + bb[1][0]) / 2000 - 0.004, (bb[0][1] + bb[1][1]) / 2000, (bb[0][2] + bb[1][2]) / 2000)
+    T0 = (XC, YC, 0.035); TI = (XC + 0.018, YC, Hc + 0.018)
+    KEYS = [(0, dict(az=-62, el=24, d=0.46, t=T0, o=0, x=0)), (30, dict(az=-128, el=20, d=0.46, t=T0, o=0, x=0)),
+            (36, dict(az=-128, el=20, d=0.46, t=T0, o=0, x=0)), (40, dict(az=-118, el=30, d=0.44, t=TI, o=1, x=0)),
+            (58, dict(az=-100, el=34, d=0.40, t=TI, o=1, x=0)), (70, dict(az=-84, el=30, d=0.38, t=TI, o=1, x=0)),
+            (84, dict(az=-104, el=16, d=0.27, t=BB, o=1, x=0)), (96, dict(az=-96, el=14, d=0.26, t=BB, o=1, x=0)),
+            (100, dict(az=-70, el=20, d=0.42, t=T0, o=0, x=0)), (112, dict(az=-35, el=16, d=0.74, t=(XC, YC, 0.105), o=0, x=1)),
+            (118, dict(az=-30, el=16, d=0.74, t=(XC, YC, 0.105), o=0, x=1))]
+    def terapkan(st):
+        for k, o in obj.items(): o.location = asal[k] + Vector((0, 0, urai(k) / 1000 * st["x"]))
+        for k in obj:
+            if k.startswith("kabel"): obj[k].hide_render = st["x"] > 0.02
+            if k in BUKA: obj[k].hide_render = st["o"] > 0.5
+    N = KEYS[-1][0] + 1
 else:   # banding: kedua alat berdampingan
     infoE, objE = impor("jepit", "jepit.glb", geser=(-0.043 - 0.100, -0.043, 0))
     infoA, objA = impor("genggam", "genggam.glb", geser=(0.072, 0, -0.038))
@@ -196,7 +221,7 @@ else:   # banding: kedua alat berdampingan
     N = KEYS[-1][0] + 1
 
 # lantai penangkap bayangan
-bpy.ops.mesh.primitive_plane_add(size=4, location=(0, 0, -0.0145 if MODEL == "genggam" else -0.0381 if MODEL == "jepit" else -0.0381)); lt = bpy.context.object; lt.is_shadow_catcher = True
+bpy.ops.mesh.primitive_plane_add(size=4, location=(0, 0, -0.0145 if MODEL == "genggam" else -0.0381)); lt = bpy.context.object; lt.is_shadow_catcher = True
 if MODEL == "banding": lt.location.z = -0.0381
 
 print("JUMLAH_FRAME", MODEL, N, flush=True)

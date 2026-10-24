@@ -7,8 +7,8 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 BG = (15, 16, 18, 255)                      # #0F1012, sama dengan latar halaman
 UKURAN = {"d": ((1024, 768), 72), "m": ((640, 480), 66)}
-man = {}
-for film in ("jepit", "genggam", "banding"):
+man = json.load(open(os.path.join(HERE, "frame", "manifest.json"))) if os.path.exists(os.path.join(HERE, "frame", "manifest.json")) else {}
+for film in ("jepit", "jepitbb", "genggam", "banding"):
     src = sorted(glob.glob(os.path.join(HERE, "frame_mentah", film, "*.png")))
     if not src: continue
     for k, ((w, h), q) in UKURAN.items():
