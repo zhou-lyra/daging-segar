@@ -7,7 +7,7 @@ Pemakaian (tutup dulu aplikasi Qt: satu port serial hanya boleh dipakai satu pro
   python ukur.py ping
   python ukur.py raw                  # rata-rata 5 bacaan MENTAH + gain + referensi putih + keadaan LED
   python ukur.py ambil 0 0            # ambil 1 sampel: kelas 0=segar 1=mulai_membusuk 2=busuk, jenis 0=latih 1=uji
-  python ukur.py led 0                # matikan LED bawaan sensor (GPIO 26), led 1 = nyalakan
+  python ukur.py led 0                # matikan LED bawaan sensor (G25), led 1 = nyalakan
   python ukur.py kalib                # kalibrasi putih (kertas putih HARUS sudah di depan sensor)
   python ukur.py --port COM5 ping     # pilih port sendiri
 Prasyarat: pip install pyserial. Firmware harus yang berisi perintah RAW/LED (jarak_jauh/firmware)."""

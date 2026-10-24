@@ -59,19 +59,19 @@ GROUPS = [
     dict(nama="Dudukan miring", warna="#26272b", bagian=pref("dudukan_"), ringkas="Pelat + 2 pipi yang menentukan sudut 40°.",
          teks="Pelat PVC hitam 27,3 x 16,8 mm tempat papan sensor dibaut, ditopang dua pipi berbentuk trapesium yang direkatkan di bawah lantai kepala. Sudutnya ditentukan oleh bentuk pipi, jadi cukup dipotong mengikuti pola 1:1."),
     dict(nama="Lantai kepala", warna="#c9c2b6", bagian=["kepala_lantai"], ringkas=f"Berjendela kabel {f1(J[1]-J[0])} x {f1(J[3]-J[2])} mm.",
-         teks=f"Lembar PVC 86 x 86 mm. Tutup cat menempel di sisi bawahnya. Jendela kabel ({f1(J[1]-J[0])} x {f1(J[3]-J[2])} mm, {f1(J[0])} mm dari depan dan {f1(J[2])} mm dari kiri) dilewati soket dupont sensor, lalu ditutup selotip hitam dari atas supaya cahaya dari dalam kotak tidak masuk ke ruang ukur."),
-    dict(nama="ESP32 DevKit V1", warna="#1f6f43", bagian=pref("esp_"), ringkas="Dibalik di atas busa, USB ke takik kiri.",
-         teks="Papan ESP32 diletakkan terbalik (modul logam di bawah) di atas busa dobel tape 3 mm, sehingga pin menghadap ke atas dan bisa dicolok kabel dupont. Lampu merah dayanya ditutup selotip hitam."),
+         teks=f"Lembar PVC 86 x 86 mm. Tutup cat menempel di sisi bawahnya. Jendela kabel ({f1(J[1]-J[0])} x {f1(J[3]-J[2])} mm, {f1(J[0])} mm dari depan dan {f1(J[2])} mm dari kiri) dilewati 5 kabel sensor, lalu ditutup selotip hitam dari atas supaya cahaya dari dalam kotak tidak masuk ke ruang ukur."),
+    dict(nama="ESP32 NodeMCU-32S", warna="#1d2024", bagian=pref("esp_"), ringkas="Dibalik di atas busa, USB ke takik kiri.",
+         teks="Papan ESP32 diletakkan terbalik (modul logam di bawah) di atas busa dobel tape 3 mm, sehingga pin menghadap ke atas dan kabel bisa disolder di ujung pin. Lampu merah dayanya ditutup selotip hitam."),
     dict(nama="OLED 0,96 inci", warna="#1d4f9c", bagian=pref("oled_"), ringkas="Di sisi bawah tutup atas, tampil lewat jendela.",
-         teks="Layar dibaut ke tutup atas dengan 4 baut M2 dan ganjal 4 mm, menghadap jendela 25 x 15 mm. Hasil ukur bisa dibaca tanpa membuka alat."),
+         teks="Layar dibaut ke tutup atas dengan 4 baut M2 x 10 (1 mur ganjal 1,6 mm + 1 mur pengunci), menghadap jendela 25 x 15 mm. Hasil ukur bisa dibaca tanpa membuka alat."),
     dict(nama="Kotak kepala", warna="#e8e3da", bagian=["kepala_depan", "kepala_belakang", "kepala_kiri", "kepala_kanan", "kepala_tutup", "kepala_bibir"],
          ringkas="Rahang atas berisi elektronik.", teks=f"Empat dinding PVC setinggi {f1(G.P['kepala_dalam'])} mm dan tutup atas yang bisa dilepas (ditahan bibir di sisi bawahnya). Dinding kiri punya takik USB 13 x 10 mm."),
     dict(nama="Engsel", warna="#9a9ea5", bagian=pref("engsel_"), ringkas="2 engsel 25 mm di sisi belakang.",
          teks="Dua engsel kupu-kupu 25 mm dipasang di sisi belakang dengan baut M3 dan mur, porosnya tepat di garis sambungan baki dan kepala. Pasang tali pembatas supaya kepala tidak terbuka lebih dari sekitar 100 derajat."),
     dict(nama="Kait", warna="#7d838b", bagian=pref("kait_"), ringkas="Mengunci kepala supaya tekanan busa sama.",
          teks="Kait kotak kecil di sisi depan. Busa mendorong kepala ke atas, jadi kepala harus dikunci supaya daging selalu tertekan sama rata ke muka tutup cat."),
-    dict(nama="Kabel dupont", warna="#e67e22", bagian=pref("kabel_"), ringkas="9 kabel, 3 di antaranya bercabang Y.",
-         teks="Sensor: VIN ke 3V3, GND ke GND baris VIN, SDA ke GPIO 21, SCL ke GPIO 22, LED ke GPIO 26. OLED: VCC ke 3V3, GND ke GND baris 3V3, SDA ke GPIO 21, SCL ke GPIO 22. 3V3, GPIO 21, dan GPIO 22 memakai kabel cabang Y (selongsong hitam di atas pin). Tiap kabel berjalan di ketinggiannya sendiri dan tidak menyentuh kabel lain."),
+    dict(nama="Kabel", warna="#e8b00c", bagian=pref("kabel_"), ringkas="9 kabel disolder, 5 titik di ESP32.",
+         teks="Kabel disolder langsung ke pin, tanpa soket. Sensor: VIN ke 3V3, GND ke GND, SDA ke G26, SCL ke G27, LED ke G25. OLED: VCC ke 3V3, GND ke GND, SDA ke G26, SCL ke G27. Semua titik ESP32 di baris 3V3; pin 3V3, GND, G26 dan G27 menerima dua kabel. Tiap kabel berjalan di ketinggiannya sendiri dan tidak menyentuh kabel lain."),
     dict(nama="Tatakan kalibrasi", warna="#f0efe8", bagian=["kal_putih", "kal_hitam"], ringkas="Balok putih dan hitam 60 x 60 x 10 mm.",
          teks="Dipakai sekali per sesi: balok putih (kertas HVS doff) untuk titik putih, balok hitam (beludru) untuk titik gelap. Tebalnya sama dengan daging (10 mm), jadi ditekan busa ke muka tutup cat dengan cara yang sama."),
 ]
@@ -108,9 +108,11 @@ POTONG = sorted(potong.items(), key=lambda x: -float(x[0][1].split(" x ")[0].rep
 luas = sum(float(n[1].split(" x ")[0].replace(",", ".")) * float(n[1].split(" x ")[1].replace(",", ".")) * c for n, c in POTONG) / 100
 rows_potong = "".join(f"<tr><td>{n}{' <span class=mut>(PVC hitam atau dicat hitam doff)</span>' if w=='hitam' else ''}</td><td class=n>{u}</td><td class=n>{c}</td><td class=mut>{cat}</td></tr>" for (n, u, cat, w), c in POTONG)
 
-def dupont(mm): return "10 cm" if mm + 25 <= 100 else ("15 cm" if mm + 25 <= 150 else "20 cm")
-rows_kabel = "".join(f'<tr><td><i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:{kb["warna"]};margin-right:6px"></i>{kb["dari"]}</td><td>{kb["ke"]}' + (" (cabang Y)" if kb["cabang"] else "") + f'</td><td class=n>{f1(kb["panjang"] / 10)} cm</td><td class=n>{dupont(kb["panjang"])}</td></tr>'
-                     for k, kb in G.KABEL.items() if not k.startswith("kabel_y_"))
+import gambar_kabel_lembar as GKL
+rows_kabel = "".join(f'<tr><td><i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:{kb["warna"]};margin-right:6px"></i>'
+                     f'{GKL.titik_dev(*kb["dari"].split())} {kb["dari"]}</td><td>E{GKL.TITIK_ESP.index(kb["ke"]) + 1} {kb["ke"]}</td>'
+                     f'<td class=n>{f1(kb["panjang"] / 10)} cm</td><td class=n>{f1(GKL.potong_cm(kb["panjang"]))} cm</td></tr>'
+                     for kb in sorted(G.KABEL.values(), key=lambda kb: (GKL.TITIK_ESP.index(kb["ke"]), kb["dari"].startswith("OLED"))))
 svg = {f: open(os.path.join(HERE, "gambar", f)).read() for f in os.listdir(os.path.join(HERE, "gambar")) if f.endswith(".svg")}
 pola_w = re.search(r'width="([\d.]+)mm"', svg["5_pola_1banding1.svg"]).group(1)
 sisa = G.kilap()[0]

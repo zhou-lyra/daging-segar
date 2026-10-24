@@ -41,13 +41,13 @@ GROUPS = [
  dict(nama="Sensor TCS34725", warna="#6a2c91", bagian=pref("sensor_") + ["dudukan_cakram"], ringkas="LED bawaan, melihat daging dari sudut 40°.", jangkar=None,
       teks=f"Papan dibaut ke cakram PVC hitam Ø 27,7 yang dilem di dalam tabung, chip berjarak {f1(G.H_CHIP)} mm dari pusat lubang. Kilap dari daging basah jatuh {f1(sisa)} mm di luar tepi lubang, di pelat hitam. Cakram juga menutup tabung dari cahaya di dalam kotak (lubang header ditutup silikon hitam)."),
  dict(nama="ESP32 DevKit V1", warna="#1f6f43", bagian=pref("esp_"), ringkas="Dibalik di atas busa, USB keluar di belakang.", jangkar=None,
-      teks="ESP32 yang sudah ada, dibalik sehingga pin menghadap ke atas untuk soket dupont. Colokan USB keluar lewat takik di dinding belakang; kabel USB sekaligus daya dan jalur data ke laptop. Lampu merah dayanya ditutup selotip hitam."),
+      teks="ESP32 yang sudah ada, dibalik sehingga pin menghadap ke atas; kabel disolder di ujung pin. Colokan USB keluar lewat takik di dinding belakang; kabel USB sekaligus daya dan jalur data ke laptop. Lampu merah dayanya ditutup selotip hitam."),
  dict(nama="OLED", warna="#1d4f9c", bagian=pref("oled_"), ringkas="Di bawah jendela tutup atas.", jangkar=None,
       teks="Layar dipasang diputar 90° di sisi bawah tutup atas dengan 4 baut M2 x 10: satu mur ganjal (1,6 mm) di antara tutup dan PCB, satu mur pengunci di bawah PCB. Layar menghadap jendela 15 x 25 mm."),
  dict(nama="Kotak PVC", warna="#c9c2b6", bagian=pref("dinding_") + ["lantai_belakang", "tutup_atas", "bibir", "tanda_tekan"], ringkas=f"{f1(G.P['panjang'])} x {f1(G.P['lebar'])} x {f1(G.P['tinggi'])} mm.", jangkar=[-60, 18, G.Z_TOP + 3],
       teks="Semua bagian dari lembaran PVC 3 mm yang dipotong lurus: 2 dinding samping berbentuk L (bagian belakang naik 2 mm), dinding depan, dinding belakang bertakik USB, lantai belakang, dan tutup atas yang ditahan bibir. Lingkaran merah di tutup adalah tempat ibu jari menekan."),
- dict(nama="Kabel dupont", warna="#e67e22", bagian=pref("kabel_"), ringkas="9 kabel, 3 bercabang Y.", jangkar=None,
-      teks="Sama dengan desain E: sensor VIN ke 3V3, GND, SDA ke GPIO 21, SCL ke GPIO 22, LED ke GPIO 26; OLED VCC ke 3V3, GND, SDA, SCL. Setiap kabel berjalan di ketinggian sendiri, jarak antarkabel paling dekat 1,7 mm."),
+ dict(nama="Kabel", warna="#e8b00c", bagian=pref("kabel_"), ringkas="9 kabel disolder, 5 titik di ESP32.", jangkar=None,
+      teks="Kabel disolder langsung ke pin, tanpa soket. Sensor: VIN ke 3V3, GND ke GND, SDA ke G26, SCL ke G27, LED ke G25. OLED: VCC ke 3V3, GND ke GND, SDA ke G26, SCL ke G27. Semua titik ESP32 di baris 3V3; pin 3V3, GND, G26 dan G27 menerima dua kabel. Tiap kabel berjalan di ketinggiannya sendiri dan tidak menyentuh kabel lain."),
 ]
 for g in GROUPS:
     g["ukuran"] = uk(g["bagian"]); g["jangkar_bagian"] = g["bagian"][0]

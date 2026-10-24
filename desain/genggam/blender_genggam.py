@@ -18,7 +18,7 @@ BAHAN = {"pvc": ("#d8d1c5", 0.62, 0, {}), "pvc_hitam": ("#1b1c1f", 0.75, 0, {}),
          "daging": ("#9c2f27", 0.42, 0, {"Subsurface Weight": 0.25, "Subsurface Scale": 0.002}), "plastik_hitam": ("#141416", 0.45, 0, {}),
          "beludru": ("#030304", 1.0, 0, {}), "pcb_ungu": ("#5a2380", 0.35, 0, {}), "chip": ("#b9a46a", 0.3, 0, {}),
          "led": ("#fff3c8", 0.2, 0, {"Emission Strength": 3.0}), "smd": ("#2a2a2a", 0.4, 0, {}), "emas": ("#e3b85a", 0.25, 1, {}),
-         "baja_hitam": ("#202022", 0.35, 0.9, {}), "logam": ("#b9bcc1", 0.28, 1, {}), "pcb_hijau": ("#17603a", 0.35, 0, {}),
+         "baja_hitam": ("#202022", 0.35, 0.9, {}), "logam": ("#b9bcc1", 0.28, 1, {}), "pcb_hijau": ("#17603a", 0.35, 0, {}), "pcb_hitam": ("#1a1c20", 0.35, 0, {}),
          "pcb_biru": ("#1b4b98", 0.35, 0, {}), "kaca": ("#05070c", 0.05, 0, {"Coat Weight": 1.0}), "kabel": (None, 0.45, 0, {}), "cat_merah": ("#b3262e", 0.5, 0, {})}
 MAT = {}
 def bahan(nama, hx):

@@ -155,7 +155,7 @@
  },
  {
   "no": 9,
-  "judul": "ESP32 DevKit V1",
+  "judul": "ESP32 NodeMCU-32S",
   "bagian": [
    "esp_modul",
    "esp_pcb",
@@ -168,8 +168,8 @@
    -330.0
   ],
   "ukuran": [
-   28.2,
-   52.8,
+   25.4,
+   52.5,
    13.2
   ],
   "tinggi": 13.200000000000003

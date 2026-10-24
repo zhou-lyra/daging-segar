@@ -48,16 +48,27 @@ def pilih(B, *pola):
     return out
 
 
+def daftar_kabel(KABEL):
+    """Baris tabel kabel dari daftar kabel model, urut titik ESP32 (sama dengan peta titik solder)."""
+    T = GKL.TITIK_ESP; out = []
+    for kb in sorted(KABEL.values(), key=lambda kb: (T.index(kb["ke"]), kb["dari"].startswith("OLED"))):
+        dev, pin = kb["dari"].split()
+        dua = sum(1 for k2 in KABEL.values() if k2["ke"] == kb["ke"]) == 2
+        out.append((kb["warna"], f"{GKL.titik_dev(dev, pin)} {dev} {pin}", f"E{T.index(kb['ke']) + 1} {kb['ke']}", kb["panjang"],
+                    GE.NAMA_WARNA[GE.SINYAL[kb["ke"]]] + ("; 2 kabel di pin ini" if dua else "")))
+    return out
+
+
 def kabel_tabel(daftar):
     """daftar: (warna, dari, ke, panjang_model_mm, catatan)."""
     r = []
     for i, (w, dari, ke, L, cat) in enumerate(daftar, 1):
-        jadi = math.ceil((L + 20) / 5) * 5
-        cara = "kabel 10 cm utuh" if jadi <= 100 else ("kabel 20 cm utuh, lipat sisanya" if jadi <= 200 else "kabel 30 cm")
-        if cat: cara = cat
-        r.append(f'<tr><td><i class="kw" style="background:{w}"></i>{i}</td><td>{dari}</td><td>{ke}</td><td>{f1(L)}</td><td><b>{f1(jadi / 10)} cm</b></td><td>{cara}</td></tr>')
-    return ('<div class="tw"><table class="kt"><tr><th>No</th><th>Dari</th><th>Ke ESP32</th><th>Jalur di model (mm)</th><th>Panjang jadi</th><th>Kabel</th></tr>' + "".join(r) + "</table></div>"
-            '<p class="mut">Panjang jadi = jalur di model + 2 cm cadangan, dari ujung soket ke ujung soket. Kabel Y: tangkai 3 cm di pin ESP32, lalu dua cabang.</p>')
+        jadi = GKL.potong_cm(L)
+        r.append(f'<tr><td><i class="kw" style="background:{w}"></i>{i}</td><td>{ke}</td><td>{dari}</td><td>{f1(L)}</td><td><b>{f1(jadi)} cm</b></td><td>{cat}</td></tr>')
+    total = sum(GKL.potong_cm(d[3]) for d in daftar)
+    return ('<div class="tw"><table class="kt"><tr><th>No</th><th>Titik ESP32</th><th>Titik akhir</th><th>Jalur di model (mm)</th><th>Potong</th><th>Catatan</th></tr>' + "".join(r) + "</table></div>"
+            f'<p class="mut">Potong = jalur di model + 2 cm cadangan, dari titik solder ke titik solder (sudah termasuk kupasan 4 mm di kedua ujung). Total {f1(total)} cm kabel. '
+            'Nomor titik sama dengan peta titik solder: E = ESP32, S = sensor, O = OLED.</p>')
 
 
 def bom(baris):
@@ -89,7 +100,7 @@ CARA_UKUR = ("<p><b>Cara membaca ukuran:</b> semua angka dalam <b>milimeter</b>.
 
 ALAT = ("Cutter besar + penggaris besi 30 cm, penggaris siku, jangka sorong (sangat membantu), spidol halus, selotip kertas, gergaji besi kecil, bor tangan "
         "dengan mata bor 2, 2,5, 3, 4, 8 dan 12 mm (atau mata bor bertingkat), kikir bulat dan setengah bulat, amplas 240, solder 30-60 W + timah 0,8 mm, "
-        "korek atau pemanas untuk selongsong, multimeter, lem PVC atau lem tembak, silikon hitam.")
+        "pemanas atau korek untuk selongsong, tang kupas kabel, penjepit buaya (tangan ketiga), multimeter, lem PVC atau lem tembak, silikon hitam.")
 
 
 # ============================================================================ MODEL 1: GENGGAM
@@ -120,11 +131,7 @@ def model1():
     K = GA.KABEL
     def ln(k): return K[k]["panjang"]
     nama = lambda pn, b: GA.nama_pin(pn, b)
-    kabel = [(K["kabel_s_VIN"]["warna"], "Sensor VIN", "3V3 (Y)", ln("kabel_s_VIN") - 30, "cabang Y 3V3"), (K["kabel_o_VCC"]["warna"], "OLED VCC", "3V3 (Y)", ln("kabel_o_VCC") - 30, "cabang Y 3V3"),
-             (K["kabel_s_SDA"]["warna"], "Sensor SDA", "GPIO 21 (Y)", ln("kabel_s_SDA") - 30, "cabang Y GPIO 21"), (K["kabel_o_SDA"]["warna"], "OLED SDA", "GPIO 21 (Y)", ln("kabel_o_SDA") - 30, "cabang Y GPIO 21"),
-             (K["kabel_s_SCL"]["warna"], "Sensor SCL", "GPIO 22 (Y)", ln("kabel_s_SCL") - 30, "cabang Y GPIO 22"), (K["kabel_o_SCL"]["warna"], "OLED SCL", "GPIO 22 (Y)", ln("kabel_o_SCL") - 30, "cabang Y GPIO 22"),
-             (K["kabel_s_GND"]["warna"], "Sensor GND", nama("GND", 1), ln("kabel_s_GND"), ""), (K["kabel_o_GND"]["warna"], "OLED GND", nama("GND", 0), ln("kabel_o_GND"), ""),
-             (K["kabel_s_LED"]["warna"], "Sensor LED", "GPIO 26", ln("kabel_s_LED"), "")]
+    kabel = daftar_kabel(K)
     L = []
     def langkah(judul, waktu, isi, gambar=(), periksa="", awas="", **v3):
         L.append(dict(judul=judul, waktu=waktu, isi=isi, gambar=list(gambar), periksa=periksa, awas=awas, v3=v3))
@@ -132,9 +139,9 @@ def model1():
         bom([("PVC board 3 mm putih/abu", f"± {math.ceil(luas_putih)} cm²", "dinding, lantai, tutup, bibir; sisa potongan tutup cat tidak dipakai"),
              ("PVC board 3 mm HITAM", f"± {math.ceil(luas_hitam)} cm²", "pelat muka dan cakram; boleh PVC putih yang dicat hitam doff 2 lapis"),
              ("Pipa PVC 1 inci (Ø luar 32)", "4 cm", "potongan sisa sudah cukup"),
-             ("ESP32 DOIT DevKit V1, TCS34725, OLED 0,96 inci I2C", "1 set", "sudah ada"),
+             ("ESP32 NodeMCU-32S 38 pin, TCS34725, OLED 0,96 inci I2C", "1 set", "sudah ada"),
              ("Baut M2,5 x 10 hitam + mur", "2", "papan sensor ke cakram"), ("Baut M2 x 10 + mur", "4 + 8", "OLED: 1 mur ganjal dan 1 mur pengunci per baut"),
-             ("Kabel dupont betina-betina 10 cm dan 20 cm", "± 12", "jumlah tiap panjang: tabel kabel di langkah 14"), ("Selongsong panas Ø 3 mm", "3 x 20 mm", "kabel Y"),
+             ("Kabel serabut 24-26 AWG: merah, hitam, kuning, biru, hijau", f"± {f1(sum(GKL.potong_cm(d[3]) for d in kabel) + 10)} cm total", "boleh kabel dupont yang dipotong soketnya; panjang tiap kabel di tabel kabel"), ("Selongsong panas Ø 2 mm", "14 x 15 mm", "1 per titik solder"),
              ("Busa dobel tape 3 mm", "31 x 20 mm", "alas ESP32"), ("Kertas beludru hitam (flok)", "88 x 26 mm", "pelapis dalam pipa; pengganti: kain flanel hitam"),
              ("Silikon hitam, selotip hitam, cat merah", "sedikit", "penutup celah, lampu ESP32, tanda ibu jari")]),
         f"<p><b>Alat:</b> {ALAT}</p>"], gambar=[("rakit/gambar/cara_baca.svg", "Cara membaca semua gambar kerja")],
@@ -227,19 +234,21 @@ def model1():
         "<li>Cat lingkaran merah Ø 12 tempat ibu jari.</li></ol>"],
         gambar=[("rakit/gambar/m1_oled.svg", "Satu baut OLED")],
         tampil=TUTUP + OLED_ND, baru=OLED_ND + ["bibir"], urai=0.0, pandang=[0.75, -0.6, 1.6])
-    langkah("Kabel Y dan pemasangan kabel", "45 menit", [
-        "<ol><li>Buat 3 kabel Y (3V3, GPIO 21, GPIO 22) sesuai gambar. Selongsong dimasukkan SEBELUM menyolder.</li>"
-        "<li>Colok kabel sesuai tabel dan skema. Warna mengikuti tabel supaya mudah diperiksa.</li>"
-        "<li>Kabel sensor naik dari header lalu ke ESP32; kabel OLED turun dari tutup. Atur supaya kabel tidak menekan modul sensor.</li></ol>",
+    langkah("Solder kabel", "60 menit", [
+        "<ol><li>Potong 9 kabel sesuai tabel (kolom Potong), kupas 4 mm kedua ujung, lapisi timah. Warna mengikuti tabel.</li>"
+        "<li>Sensor dulu (titik S1-S5 di ujung header, di atas cakram): solder satu kabel per pin, tutup selongsong. Pin 3V3 dan INT sensor kosong.</li>"
+        "<li>OLED (titik O1-O4): balik tutup atas di meja, solder di ujung pin header OLED.</li>"
+        "<li>ESP32 (titik E1-E5, semuanya di baris 3V3): urutan G25, G26, G27, GND, 3V3. Pin dengan dua kabel: kedua kabel masuk ke satu selongsong lalu disolder bersama.</li>"
+        "<li>Rapikan jalur seperti model 3D: kabel sensor naik dari ujung pipa lalu ke belakang, kabel OLED turun dari tutup. Kabel tidak boleh menekan modul sensor.</li></ol>",
         kabel_tabel(kabel)],
-        gambar=[("rakit/gambar/kabel_y.svg", "Membuat kabel Y"), ("rakit/gambar/m1_skema.svg", "Skema kabel Model 1")],
-        periksa="Sebelum menyalakan: multimeter mode bunyi antara 3V3 dan GND ESP32 TIDAK boleh berbunyi.",
-        awas="Sensor VIN ke 3V3, bukan ke VIN ESP32. Pin VIN ESP32 berisi 5 V dari USB.",
+        gambar=[("rakit/gambar/m1_skema.svg", "Peta titik solder Model 1"), ("rakit/gambar/solder_pin.svg", "Cara menyolder kabel ke pin")],
+        periksa="Sebelum menyalakan: multimeter mode bunyi antara E1 (3V3) dan E5 (GND) TIDAK boleh berbunyi; tiap kabel berbunyi dari titik awal ke titik akhirnya.",
+        awas="VIN sensor ke 3V3, BUKAN ke 5V. Pin 5V ESP32 berisi 5 V dari USB dan tidak dipakai.",
         tampil=KEPALA + SENS + ["dudukan_cakram"] + BADAN + ESP + OLED + KABEL + ["tutup_atas"], baru=KABEL + ["sensor_dupont", "esp_dupont", "oled_dupont"], samar=["tutup_atas"],
         pandang=[0.75, 0.75, 1.3], label=[])
     langkah("Tutup, unggah firmware, uji", "30 menit", [
         "<ol><li>Pasang tutup (bibir masuk di dalam dinding). Jangan dilem: tutup harus bisa dibuka.</li>"
-        "<li>Unggah firmware Data_Latih_Uji.ino (pin SDA 21, SCL 22, LED 26) lewat USB.</li>"
+        "<li>Unggah firmware Data_Latih_Uji.ino (pin SDA G26, SCL G27, LED G25) lewat USB.</li>"
         "<li>Layar menyala dan perintah RAW di Serial Monitor menampilkan angka sensor: rangkaian benar.</li>"
         "<li>Kalibrasi: tempel alat di kertas HVS putih doff, kalibrasi putih; lalu di beludru hitam, kalibrasi hitam.</li>"
         "<li>Uji ulangan: ukur kertas warna yang sama 10 kali sambil mengangkat dan menempel ulang alat. Simpangan R/G harus 0,03 atau kurang.</li></ol>"],
@@ -274,24 +283,17 @@ def model2():
     J = GE.JENDELA; W = GE.W; YC = GE.YC
     K = GE.KABEL
     def ln(k): return K[k]["panjang"]
-    kabel = []
-    for k, kv in K.items():
-        if k.startswith("kabel_y_"): continue
-        pn, b = (GE.SENSOR_KE if k.startswith("kabel_s_") else GE.OLED_KE)[k[8:]][0]
-        y = pn in GE.CABANG
-        Lk = ln(k) + (ln("kabel_y_" + pn) if y else 0) - (30 if y else 0)
-        kabel.append((kv["warna"], kv["dari"], GE.nama_pin(pn, b) + (" (Y)" if y else ""), Lk, ("cabang Y " + GE.nama_pin(pn, b)) if y else ""))
-    kabel.sort(key=lambda r: (r[4] == "", r[4], r[1]))
+    kabel = daftar_kabel(K)
     L = []
     def langkah(judul, waktu, isi, gambar=(), periksa="", awas="", **v3):
         L.append(dict(judul=judul, waktu=waktu, isi=isi, gambar=list(gambar), periksa=periksa, awas=awas, v3=v3))
     langkah("Siapkan bahan dan alat", "15 menit", [
         bom([("PVC board 3 mm", "± 570 cm² (± 24 x 24 cm)", "15 jenis potongan; pelat dudukan dan pipi dari PVC hitam"),
-             ("Tutup cat semprot Ø 65", "1", "dipotong 22 mm dari muka"), ("ESP32 DOIT DevKit V1, TCS34725, OLED 0,96 inci I2C", "1 set", "sudah ada"),
+             ("Tutup cat semprot Ø 65", "1", "dipotong 22 mm dari muka"), ("ESP32 NodeMCU-32S 38 pin, TCS34725, OLED 0,96 inci I2C", "1 set", "sudah ada"),
              ("Busa ati / EVA lunak hitam", "3 lembar 78 x 78 x 10 mm", "penekan daging"), ("Kertas beludru hitam (flok)", "± 20 x 20 cm", "pelapis tutup cat; pengganti: flanel hitam"),
              ("Engsel kupu-kupu 25 mm", "2", "dengan 8 baut M3 x 10 + mur"), ("Kait kotak kecil", "1", "pengunci depan"), ("Tali nilon", "15 cm", "pembatas buka ± 100°"),
              ("Baut M2,5 x 10 hitam + mur", "2", "sensor"), ("Baut M2 x 10 + mur", "4 + 8", "OLED: 1 mur ganjal + 1 mur pengunci per baut"),
-             ("Kabel dupont betina-betina", "10 cm dan 20 cm", "lihat tabel kabel"), ("Selongsong panas Ø 3 mm", "3 x 20 mm", "kabel Y"),
+             ("Kabel serabut 24-26 AWG: merah, hitam, kuning, biru, hijau", f"± {f1(sum(GKL.potong_cm(d[3]) for d in kabel) + 10)} cm total", "boleh kabel dupont yang dipotong soketnya; panjang tiap kabel di tabel kabel"), ("Selongsong panas Ø 2 mm", "14 x 15 mm", "1 per titik solder"),
              ("Busa dobel tape 3 mm, lem PVC, silikon hitam, selotip hitam", "sedikit", ""), ("Kertas HVS putih doff + beludru hitam", "untuk tatakan kalibrasi", ""),
              ("Plastik wrap", "1 lembar baru per sampel", "pelindung busa")]),
         f"<p><b>Alat:</b> {ALAT}</p>"], gambar=[("rakit/gambar/cara_baca.svg", "Cara membaca semua gambar kerja")],
@@ -326,8 +328,9 @@ def model2():
         tampil=DUD, baru=DUD, pandang=[-0.4, 0.3, 2.0])
     langkah("Solder header dan pasang sensor", "25 menit", [
         "<ol><li>Solder header 7 pin: plastik di punggung papan, solder di sisi komponen.</li>"
-        "<li>Baut papan ke pelat dudukan dengan 2 baut M2,5 hitam dari sisi komponen, mur di punggung pelat. Header menghadap punggung.</li></ol>"],
-        gambar=[("rakit/gambar/header_sensor.svg", "Arah header sensor")],
+        "<li>Baut papan ke pelat dudukan dengan 2 baut M2,5 hitam dari sisi komponen, mur di punggung pelat. Header menghadap punggung.</li>"
+        "<li><b>Solder 5 kabel sensor sekarang</b> (titik S1-S5: LED, SDA, SCL, GND, VIN; pin INT dan 3V3 kosong), karena setelah dudukan dilem pin sulit dijangkau. Panjang dan warna dari tabel kabel di langkah 13.</li></ol>"],
+        gambar=[("rakit/gambar/header_sensor.svg", "Arah header sensor"), ("rakit/gambar/solder_pin.svg", "Cara menyolder kabel ke pin")],
         tampil=DUD + SENS_ND, baru=SENS_ND, pandang=[-0.4, -0.2, 2.0], label=pilih(B, "sensor_pcb", "sensor_header", "sensor_baut", "sensor_chip"))
     langkah("Siapkan lantai kepala", "15 menit", [
         f"<ol><li>Potong jendela kabel {f1(J[1] - J[0])} x {f1(J[3] - J[2])} mm sesuai pola dan denah.</li>"
@@ -335,7 +338,7 @@ def model2():
         gambar=[("jepit/gambar/3_denah_lantai_kepala.svg", "Denah lantai kepala")],
         tampil=["kepala_lantai"], baru=["kepala_lantai"], pandang=[-0.75, 1.1, 1.4])
     langkah("Rekatkan dudukan di bawah lantai", "15 menit + kering", [
-        "<p>Masukkan soket dupont sensor lewat jendela dari bawah, lalu rekatkan sisi atas kedua pipi ke lantai pada posisi denah. Chip menghadap ke depan dan ke bawah, ke arah pusat lubang.</p>"],
+        "<p>Masukkan 5 kabel sensor lewat jendela dari bawah, lalu rekatkan sisi atas kedua pipi ke lantai pada posisi denah. Chip menghadap ke depan dan ke bawah, ke arah pusat lubang.</p>"],
         tampil=["kepala_lantai"] + DUD + SENS, baru=DUD + SENS, pandang=[-0.9, -0.45, 1.2], label=["dudukan_pelat", "sensor_pcb", "sensor_dupont"])
     langkah("Periksa, lalu rekatkan tutup cat", "15 menit", [
         "<ol><li>Letakkan tutup cat di atas tanda pusat, intip lewat lubang Ø 14: chip harus terlihat di sisi belakang lubang.</li>"
@@ -355,13 +358,15 @@ def model2():
         gambar=[("rakit/gambar/m2_oled.svg", "Satu baut OLED")],
         tampil=BAKI + KEP + DUD + SENS + CAT + ESP_ND + OLED_ND + ["kepala_tutup", "kepala_bibir"], baru=ESP_ND + OLED_ND, samar=["kepala_tutup", "kepala_bibir"],
         pandang=[-0.75, 0.8, 1.2], fokus=KEP + ["kepala_tutup"], label=["esp_pcb", "esp_usb", "oled_pcb"])
-    langkah("Kabel Y dan pemasangan kabel", "45 menit", [
-        "<ol><li>Buat 3 kabel Y (3V3, GPIO 21, GPIO 22) sesuai gambar.</li>"
-        "<li>Pasang kabel sesuai tabel, skema, dan denah. Tutup jendela kabel dari atas dengan selotip hitam di sekeliling kabel.</li></ol>",
+    langkah("Solder kabel ke ESP32 dan OLED", "50 menit", [
+        "<ol><li>Potong 4 kabel OLED sesuai tabel, solder ke titik O1-O4 di ujung pin OLED (tutup atas dibalik di meja).</li>"
+        "<li>Angkat ESP32 dari busa supaya mudah disolder. Solder titik E1-E5 (semuanya di baris 3V3) dengan urutan G25, G26, G27, GND, 3V3. "
+        "Pin dengan dua kabel (sensor dan OLED): kedua kabel masuk ke satu selongsong lalu disolder bersama.</li>"
+        "<li>Kembalikan ESP32 ke busa, rapikan jalur seperti denah dan model 3D. Tutup jendela kabel dari atas dengan selotip hitam di sekeliling kabel.</li></ol>",
         kabel_tabel(kabel)],
-        gambar=[("rakit/gambar/kabel_y.svg", "Membuat kabel Y"), ("rakit/gambar/m2_skema.svg", "Skema kabel Model 2"), ("jepit/gambar/7_denah_kabel.svg", "Denah kabel di kepala")],
-        periksa="Sebelum menyalakan: multimeter mode bunyi antara 3V3 dan GND ESP32 TIDAK boleh berbunyi.",
-        awas="Sensor VIN ke 3V3, bukan ke VIN ESP32.",
+        gambar=[("rakit/gambar/m2_skema.svg", "Peta titik solder Model 2"), ("rakit/gambar/solder_pin.svg", "Cara menyolder kabel ke pin"), ("jepit/gambar/7_denah_kabel.svg", "Denah jalur kabel di kepala")],
+        periksa="Sebelum menyalakan: multimeter mode bunyi antara E1 (3V3) dan E5 (GND) TIDAK boleh berbunyi; tiap kabel berbunyi dari titik awal ke titik akhirnya.",
+        awas="VIN sensor ke 3V3, BUKAN ke 5V. Pin 5V ESP32 tidak dipakai.",
         tampil=BAKI + KEP + DUD + SENS + CAT + ESP + OLED + KABEL + ["kepala_tutup", "kepala_bibir"], baru=KABEL + ["sensor_dupont", "esp_dupont", "oled_dupont"],
         samar=["kepala_tutup", "kepala_bibir"], pandang=[-0.75, 0.9, 1.2], fokus=KEP, label=[])
     langkah("Engsel, kait, tali pembatas", "30 menit", [
@@ -371,7 +376,7 @@ def model2():
         periksa="Buka sampai berhenti: alat tidak terguling ke belakang.",
         tampil=[k for k in SEMUA if k not in BUSA + ["daging"]], baru=ENG, engsel=60, pandang=[0.9, 0.3, 1.4], fokus=BAKI + KEP)
     langkah("Busa, firmware, uji", "40 menit", [
-        "<ol><li>Masukkan 3 lapis busa ke baki.</li><li>Unggah firmware (pin 21, 22, 26). Layar menyala dan perintah RAW menampilkan angka.</li>"
+        "<ol><li>Masukkan 3 lapis busa ke baki.</li><li>Unggah firmware (SDA G26, SCL G27, LED G25). Layar menyala dan perintah RAW menampilkan angka.</li>"
         "<li>Kalibrasi sekali per sesi: balok putih di atas busa, tutup, kalibrasi putih; balok hitam, kalibrasi hitam.</li>"
         "<li>Daging diiris 10 mm (minimal 30 x 30 mm), di atas plastik wrap baru, tutup, kunci, tunggu 3 detik, Ambil.</li></ol>"],
         periksa="Uji ulangan 10 kali pada kertas warna yang sama: simpangan R/G 0,03 atau kurang.",

@@ -57,7 +57,7 @@ class Kanvas:
 
 
 ISI = {"pvc": None, "pvc_hitam": "#2b2c30", "busa": "#4a4f57", "daging": "#b5483f", "plastik_hitam": "#1e1f22", "beludru": "#050505", "pcb_ungu": "#6a2c91",
-       "chip": "#c9b37a", "led": "#fff1b8", "smd": "#3a3a3a", "emas": "#d4af37", "baja_hitam": "#111", "logam": "#9aa0a6", "pcb_hijau": "#1f6f43",
+       "chip": "#c9b37a", "led": "#fff1b8", "smd": "#3a3a3a", "emas": "#d4af37", "baja_hitam": "#111", "logam": "#9aa0a6", "pcb_hijau": "#1f6f43", "pcb_hitam": "#1d2024",
        "pcb_biru": "#1d4f9c", "kaca": "#0a0f1e", "kertas_putih": "#fbfbf7"}
 
 

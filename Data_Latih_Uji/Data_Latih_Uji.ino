@@ -3,10 +3,10 @@
   PROGRAM AKUISISI DATA LATIH & DATA UJI - BEEFFRESH
   VERSI KONTROL TOMBOL BOOT (TANPA PERLU MENGETIK)
   ============================================================
-  Board   : ESP32 DOIT DEVKIT V1
+  Board   : ESP32 NodeMCU-32S 38 pin (Arduino: "NodeMCU-32S" atau "ESP32 Dev Module")
   Sensor  : TCS34725 (via library Adafruit_TCS34725)
   Display : OLED SSD1306 (I2C)
-  LED     : LED bawaan papan sensor, pin LED papan ke GPIO 26
+  LED     : LED bawaan papan sensor, pin LED papan ke GPIO 25 (G25)
   Tombol  : BOOT (bawaan board, terhubung ke GPIO 0) - TIDAK PERLU
             tombol tambahan apa pun.
 
@@ -37,7 +37,7 @@
   48 data latih + 12 data uji per kelas = 60 per kelas,
   total 3 kelas = 180 sampel.
 
-  Wiring I2C: SDA = GPIO 21, SCL = GPIO 22
+  Wiring I2C: SDA = GPIO 26 (G26), SCL = GPIO 27 (G27). VIN sensor + VCC OLED ke 3V3, bukan 5V.
   ============================================================
 */
 
@@ -51,9 +51,9 @@
 // ============================================================
 // KONFIGURASI PIN & OLED
 // ============================================================
-#define PIN_SDA     21
-#define PIN_SCL     22
-#define PIN_LED     26    // ke pin LED papan TCS34725 (LED bawaan; HIGH = nyala, LOW = mati)
+#define PIN_SDA     26
+#define PIN_SCL     27
+#define PIN_LED     25    // ke pin LED papan TCS34725 (LED bawaan; HIGH = nyala, LOW = mati)
 #define PIN_TOMBOL  0     // Tombol BOOT bawaan board, aktif LOW
 #define OLED_ADDR   0x3C
 
@@ -445,7 +445,7 @@ void ambilSampelSesuaiPilihan() {
 //   AMBIL <k> <j>   -> ambil 1 sampel; k=0 segar,1 mulai,2 busuk; j=0 latih,1 uji
 //   KALIB           -> kalibrasi ulang (kertas putih harus sudah di depan sensor)
 //   RAW             -> RAW,R,G,B,C,gain,Rputih,Gputih,Bputih,led,Rgelap,Ggelap,Bgelap (mentah LED nyala, lalu bacaan LED mati)
-//   LED 0|1         -> matikan/nyalakan LED bawaan sensor (GPIO 26)
+//   LED 0|1         -> matikan/nyalakan LED bawaan sensor (GPIO 25)
 //   INFO k j p t u  -> isi layar: kelas 0-2, jenis 0-1, potongan, titik, umur daging (detik; -1 = belum diatur)
 // Tombol BOOT di alat tetap berfungsi seperti biasa.
 // ============================================================

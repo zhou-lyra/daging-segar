@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "jepit")); sys.path.insert(0, os.pat
 import geometri as GE
 import geometri_a as GA
 from gambar_kabel_lembar import Lembar, TX, dimH, dimV, svg, susun, BIRU, MERAH, f1
+import gambar_kabel_lembar as GKL
 
 OUT = os.path.join(HERE, "gambar"); os.makedirs(OUT, exist_ok=True)
 TINTA, ABU = "#2a2226", "#6c6469"
@@ -302,93 +303,53 @@ def header_solder():
     return svg(W_, H_, "".join(el), "Header")
 
 
-def kabel_y():
-    W_, H_ = 980, 360; el = []; S = 3.0; y0 = 120
-    def kabel(x0, x1, y, c, soket=None):
-        el.append(f'<line x1="{x0:.1f}" y1="{y:.1f}" x2="{x1:.1f}" y2="{y:.1f}" stroke="{c}" stroke-width="7" stroke-linecap="round"/>')
-        if soket == "kiri": el.append(f'<rect x="{x0 - 44:.1f}" y="{y - 8:.1f}" width="44" height="16" rx="2" fill="#202020"/>')
-        if soket == "kanan": el.append(f'<rect x="{x1:.1f}" y="{y - 8:.1f}" width="44" height="16" rx="2" fill="#202020"/>')
-    # stub dari ESP32
-    xs = 120; xj = xs + 30 * S
-    kabel(xs, xj, y0 + 40, "#e0245e", "kiri")
-    el.append(TX(xs - 22, y0 + 16, "ke pin ESP32", sz=12, w=600))
-    # dua cabang
-    kabel(xj, 820, y0, "#e0245e", "kanan"); kabel(xj, 820, y0 + 80, "#e0245e", "kanan")
-    el.append(f'<path d="M{xj - 20:.1f},{y0 + 40:.1f} L{xj + 4:.1f},{y0 + 40:.1f}" stroke="#c0c4c9" stroke-width="10"/>')
-    el.append(f'<path d="M{xj:.1f},{y0:.1f} C{xj - 10:.1f},{y0 + 20:.1f} {xj - 10:.1f},{y0 + 60:.1f} {xj:.1f},{y0 + 80:.1f}" stroke="#e0245e" stroke-width="7" fill="none"/>')
-    el.append(f'<rect x="{xj - 30:.1f}" y="{y0 - 12:.1f}" width="{20 * S:.1f}" height="104" rx="10" fill="#111" opacity=".35"/>')
-    el.append(TX(xj, y0 - 22, "selongsong panas 20 mm", sz=12, w=700))
-    el.append(TX(870, y0 + 4, "ke sensor", anc="start", sz=12, w=600)); el.append(TX(870, y0 + 84, "ke OLED", anc="start", sz=12, w=600))
-    el += dimH(xs, xj, y0 + 130, "30")
-    el.append(TX(40, 36, "Membuat kabel Y (1 soket ke 2 soket)", anc="start", sz=15, w=700))
-    for i, s_ in enumerate(["1. Potong 1 kabel dupont betina 30 mm dari soketnya (tangkai), dan 2 kabel cabang sepanjang tabel.",
-                            "2. Kupas 6 mm di ujung potongan. MASUKKAN selongsong panas Ø 3 x 20 mm ke tangkai SEBELUM menyolder.",
-                            "3. Pilin ketiga ujung, solder sampai timah meresap, biarkan dingin. Tarik pelan: tidak boleh lepas.",
-                            "4. Geser selongsong menutup sambungan, panaskan dengan solder/korek sampai menciut. Warna kabel sama dengan tabel."]):
-        el.append(TX(40, 270 + i * 22, s_, anc="start", sz=13, w=500))
-    return svg(W_, H_, "".join(el), "Kabel Y")
+def solder_pin():
+    """Cara menyolder kabel langsung ke pin header (ESP32, sensor, OLED), tampak samping, berskala 16 px/mm."""
+    W_, H_ = 980, 640; el = []; S = 16.0; yp = 330
+    def dasar(cx, judul):
+        el.append(f'<rect x="{cx - 60}" y="{yp + 40}" width="120" height="26" fill="#1d2024"/>')
+        el.append(f'<rect x="{cx - 20}" y="{yp}" width="40" height="40" fill="#151515"/>')
+        el.append(f'<rect x="{cx - 5}" y="{yp - 6 * S}" width="10" height="{6 * S + 66}" fill="#d4af37"/>')
+        el.append(TX(cx, yp + 88, "pin header", sz=11, w=600, col=ABU))
+        el.append(TX(cx, 40, judul, sz=14, w=700))
+    def kabel(x, y0, y1, c, kupas):
+        el.append(f'<rect x="{x - 5}" y="{y0}" width="10" height="{y1 - y0}" rx="3" fill="{c}" stroke="#333" stroke-width=".6"/>')
+        el.append(f'<rect x="{x - 3}" y="{y1}" width="6" height="{kupas}" fill="#c87533"/>')
+    def selongsong(x, y0, y1, w, susut):
+        el.append(f'<rect x="{x - w / 2}" y="{y0}" width="{w}" height="{y1 - y0}" rx="4" fill="{"#2a2226" if susut else "#9a958e"}" opacity="{.55 if susut else .35}" stroke="#2a2226" stroke-dasharray="{"0" if susut else "4 3"}"/>')
+    c1, c2, c3 = 160, 480, 800
+    dasar(c1, "1. Siapkan"); dasar(c2, "2. Solder"); dasar(c3, "3. Tutup selongsong")
+    # 1: dua kabel kuning dikupas 4 mm, selongsong sudah masuk
+    for dx in (34, 48): kabel(c1 + dx, 70, yp - 6 * S - 10, "#e8b00c", 4 * S)
+    selongsong(c1 + 41, 80, 80 + 15 * S * 0.55, 34, False)
+    el.append(TX(c1 + 70, 140, "selongsong", anc="start", sz=11, w=600)); el.append(TX(c1 + 70, 154, "masuk dulu", anc="start", sz=11, w=600))
+    el += dimV(c1 + 78, yp - 6 * S - 10, yp - 6 * S - 10 + 4 * S, "kupas 4", kanan=True, kecil=True)
+    # 2: kabel menempel sejajar pin, ujung 1 mm di atas plastik, timah
+    for dx in (11, 22): kabel(c2 + dx, 70, yp - 16 - 4 * S, "#e8b00c", 4 * S)
+    el.append(f'<ellipse cx="{c2 + 9}" cy="{yp - 16 - 2 * S}" rx="24" ry="{2.4 * S}" fill="#b8bcc2" stroke="#7d828a"/>')
+    el.append(TX(c2 + 40, yp - 60, "timah meresap,", anc="start", sz=11, w=600)); el.append(TX(c2 + 40, yp - 46, "kerucut mengilap", anc="start", sz=11, w=600))
+    el += dimV(c2 - 40, yp - 16, yp, "1", kecil=True)
+    # 3: selongsong menutup pin sampai plastik
+    for dx in (11, 22): kabel(c3 + dx, 70, yp - 16 - 4 * S, "#e8b00c", 4 * S)
+    selongsong(c3 + 9, yp - 15 * S, yp, 40, True)
+    el += dimV(c3 + 56, yp - 15 * S, yp, "15", kanan=True)
+    el += dimV(c3 - 34, yp - 6 * S, yp, "pin 6", kecil=True)
+    el.append(TX(c3 - 24, yp - 15 * S + 20, "selongsong Ø 2 mm,", anc="end", sz=11, w=600)); el.append(TX(c3 - 24, yp - 15 * S + 34, "dipanaskan", anc="end", sz=11, w=600))
+    langkah_ = ["1. Potong kabel sepanjang kolom \u201cPotong\u201d di daftar kabel. Kupas 4 mm di kedua ujung, pilin serabutnya, lapisi timah tipis.",
+                "2. Masukkan selongsong panas Ø 2 x 15 mm SEBELUM menyolder. Pin yang menerima dua kabel: kedua kabel masuk ke SATU selongsong.",
+                "3. Tempel ujung kabel sejajar pin, 1 mm di atas plastik header. Solder 330-350 °C selama 2-3 detik sampai timah meresap.",
+                "4. Tunggu dingin, tarik pelan: kabel tidak boleh lepas. Geser selongsong sampai menyentuh plastik, panaskan sampai menciut.",
+                "5. Pin G27, G26, G25 bersebelahan (2,54 mm). Selesaikan satu pin sampai selongsongnya menciut, baru pin berikutnya.",
+                "6. Uji multimeter mode bunyi: kedua ujung tiap kabel berbunyi; dua pin yang bersebelahan TIDAK boleh berbunyi."]
+    for i, t_ in enumerate(langkah_): el.append(TX(40, 470 + i * 26, t_, anc="start", sz=13, w=500))
+    el.append(TX(40, 448, "Sama untuk pin ESP32, header sensor, dan header OLED. Gambar berskala 16 px per mm.", anc="start", sz=13, w=700))
+    return svg(W_, H_, "".join(el), "Menyolder kabel ke pin")
 
 
 def skema(model, judul):
-    """Skema kabel dari daftar kabel model (tidak berskala). model: 'genggam' atau 'jepit'."""
-    if model == "genggam":
-        K = [(kb["dari"], kb["ke"], kb["b"], kb["warna"]) for kb in GA.KABEL.values()]
-    else:
-        K = []
-        for k, kb in GE.KABEL.items():
-            if k.startswith("kabel_s_"): pn, bb = GE.SENSOR_KE[k[8:]][0]
-            elif k.startswith("kabel_o_"): pn, bb = GE.OLED_KE[k[8:]][0]
-            else: continue
-            K.append((kb["dari"], pn, bb, kb["warna"]))
-    W_, H_ = 1180, 760; el = []
-    ex0, ey0, ew, eh = 500, 150, 240, 470
-    el.append(f'<rect x="{ex0}" y="{ey0}" width="{ew}" height="{eh}" rx="10" fill="#1f6f43"/>')
-    el.append(TX(ex0 + ew / 2, ey0 + eh + 26, "ESP32 DOIT V1 (dibalik, pin menghadap ke atas)", sz=13, w=700))
-    pitch = (eh - 50) / 14; py = lambda i: ey0 + 25 + i * pitch; pos = {}
-    for b, nama, x in ((0, GE.B0, ex0 + 22), (1, GE.B1, ex0 + ew - 22)):
-        for i, n in enumerate(nama):
-            pos[(n, b)] = (x, py(i))
-            el.append(f'<circle cx="{x}" cy="{py(i):.1f}" r="5" fill="#7aa58c" stroke="#0d3a22"/>')
-            el.append(f'<text x="{x + (12 if b == 0 else -12)}" y="{py(i) + 4:.1f}" font-size="11" fill="#e6f2ea" text-anchor="{"start" if b == 0 else "end"}">{n}</text>')
-    def header(x0, y0, nama, judul_, warna):
-        w = len(nama) * 34 + 14
-        el.append(f'<rect x="{x0 - 24}" y="{y0 - 36}" width="{w}" height="50" rx="6" fill="{warna}"/>')
-        el.append(TX(x0 - 24 + w / 2, y0 - 46, judul_, sz=13, w=700)); p_ = {}
-        for i, n in enumerate(nama):
-            p_[n] = (x0 + i * 34, y0)
-            el.append(f'<text x="{x0 + i * 34}" y="{y0 - 14}" font-size="11" font-weight="700" text-anchor="middle" fill="#fff">{n}</text>'
-                      f'<rect x="{x0 + i * 34 - 6}" y="{y0 - 6}" width="12" height="12" fill="#e3b85a"/>')
-        return p_
-    sp = header(80, 120, GE.TCS["pin"], "TCS34725 (header)", "#6a2c91")
-    op = header(80, 560, ["GND", "VCC", "SCL", "SDA"], "OLED", "#1d4f9c")
-    jalan = []; nk = 0; nr = 0
-    for dari, ke, b, warna in K:
-        dev, pin = dari.split()
-        a = (sp if dev == "Sensor" else op)[pin]; e = pos[(ke, b)]
-        if b == 0:
-            yl = a[1] + 34 + nk * 9 if dev == "Sensor" else a[1] + 34 + nk * 9
-            xl = ex0 - 40 - nk * 14; nk += 1
-            pts = [(a[0], a[1] + 6), (a[0], yl), (xl, yl), (xl, e[1]), (e[0], e[1])]
-        else:
-            xr = ex0 + ew + 30 + nr * 16
-            if dev == "Sensor":
-                yt = ey0 - 20 - nr * 9; pts = [(a[0], a[1] - 6), (a[0], a[1] - 6), (a[0], yt), (xr, yt), (xr, e[1]), (e[0], e[1])]
-                pts = [(a[0], a[1] + 6), (a[0], a[1] + 30 + nr * 0), (a[0], a[1] + 30)]
-                yt = ey0 - 18 - nr * 8
-                pts = [(a[0], a[1] + 6), (a[0], yt), (xr, yt), (xr, e[1]), (e[0], e[1])] if yt > a[1] + 10 else [(a[0], a[1] + 6), (a[0], a[1] + 14 + nr * 6), (xr, a[1] + 14 + nr * 6), (xr, e[1]), (e[0], e[1])]
-            else:
-                yb = ey0 + eh + 50 + nr * 9
-                pts = [(a[0], a[1] + 6), (a[0], yb), (xr, yb), (xr, e[1]), (e[0], e[1])]
-            nr += 1
-        jalan.append((pts, warna, ke, b))
-    for pts, warna, *_ in jalan:
-        d = "M" + " L".join(f"{x:.1f},{y:.1f}" for x, y in pts)
-        el.append(f'<path d="{d}" fill="none" stroke="#fff" stroke-width="7" stroke-linejoin="round"/><path d="{d}" fill="none" stroke="{warna}" stroke-width="3.5" stroke-linejoin="round"/>')
-    for (n, b), (x, y) in pos.items():
-        if any(j[2] == n and j[3] == b for j in jalan): el.append(f'<circle cx="{x}" cy="{y:.1f}" r="7" fill="#e3b85a" stroke="#0d3a22" stroke-width="1.5"/>')
-    el.append(TX(40, 30, judul, anc="start", sz=15, w=700))
-    el.append(TX(40, 740, "Tidak berskala. Pin yang dipakai dua kabel (3V3, GPIO 21, GPIO 22) memakai kabel Y. INT tidak dipakai.", anc="start", sz=12, col=ABU))
-    return svg(W_, H_, "".join(el), judul)
+    """Peta titik solder dan daftar kabel model (papan berskala, jalur tidak berskala)."""
+    K = list((GA if model == "genggam" else GE).KABEL.values())
+    return GKL.peta_solder(K, judul)
 
 
 def cara_baca():
@@ -444,7 +405,7 @@ def pola_m1_a4():
 
 
 if __name__ == "__main__":
-    tulis = {"cara_baca.svg": cara_baca(), "header_sensor.svg": header_solder(), "kabel_y.svg": kabel_y(),
+    tulis = {"cara_baca.svg": cara_baca(), "header_sensor.svg": header_solder(), "solder_pin.svg": solder_pin(),
              "m1_lembar_badan.svg": m1_lembar_badan(), "m1_lembar_tutup.svg": m1_lembar_tutup()[0], "m1_cakram.svg": m1_lembar_tutup()[1], "m1_pipa.svg": m1_pipa(),
              "m1_lubang.svg": m1_lubang(), "m1_modul_sensor.svg": m1_modul_sensor(),
              "m1_oled.svg": susunan_oled(GA.GANJAL, t, "Model 1: satu baut OLED (potongan)", "mur M2 di antara tutup dan PCB = ganjal 1,6 mm"),
@@ -457,7 +418,7 @@ if __name__ == "__main__":
                                     dict(depan="DEPAN (kait)", belakang="BELAKANG (engsel)", atas="dinding kiri (kepala: takik USB)", bawah="dinding kanan"), "lantai 86 x 86 di bawah semua dinding",
                                     ["Dinding depan dan belakang 86 (luar penuh). Dinding kiri dan kanan 80 mm masuk DI ANTARA keduanya: 86 - 3 - 3 = 80.",
                                      "Sama untuk baki dan kepala. Semua dinding BERDIRI DI ATAS lantainya; lantai tidak dijepit di antara dinding."]),
-            "m1_skema.svg": skema("genggam", "Model 1: skema kabel"), "m2_skema.svg": skema("jepit", "Model 2: skema kabel"),
+            "m1_skema.svg": skema("genggam", "Model 1: peta titik solder dan daftar kabel"), "m2_skema.svg": skema("jepit", "Model 2: peta titik solder dan daftar kabel"),
              "pola_m1_badan_1banding1.svg": pola_m1_a4(), "pola_m1_pipa_1banding1.svg": m1_pipa_pola()}
     for n, s_ in tulis.items(): open(os.path.join(OUT, n), "w").write(s_)
     print("ditulis", len(tulis), "gambar;", f"pipa: panjang {PIPA_PANJANG:.2f}, pendek {PIPA_PENDEK:.2f}, keliling {KELILING:.2f}; elips {2*EL_A:.2f} x {2*TUBE_RO:.0f} pusat +{EL_X:.2f}")

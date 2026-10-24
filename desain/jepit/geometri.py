@@ -52,8 +52,20 @@ SMD = [("C1", 13.242, 7.05, 0, "0805"), ("R1", 14.13, 10.253, 90, "0805"), ("R2"
 PELAT = dict(bx0=-3.5, bx1=23.82, by0=4.5, by1=21.3, tebal=3.0)     # pelat dudukan di punggung papan
 PIPI_BX = [(-3.5, -0.5), (20.82, 23.82)]           # di luar mur M2,5                             # dua pipi penyangga (tebal 3)
 
-ESP = dict(L=51.8, W=28.2, pcb=1.6, x0=6.0, y0=6.0, busa=3.0, modul=(18.0, 25.5, 3.1),
-           pin_jarak_baris=25.4, plastik=2.5, pin_panjang=8.5)
+# ESP32 NodeMCU-32S 38 pin (Ai-Thinker): baris pin berjarak 0,9 inci. [UKUR: panjang dan lebar papanmu]
+ESP = dict(L=51.5, W=25.4, pcb=1.6, x0=6.0, y0=6.0, busa=3.0, modul=(18.0, 25.5, 3.1),
+           pin_jarak_baris=22.86, plastik=2.5, pin_panjang=8.5, n=19)
+# urutan pin dari ujung USB, seperti tulisan di papan. Baris 3V3 memuat semua pin yang dipakai.
+B1 = ["5V", "CMD", "SD3", "SD2", "G13", "GND", "G12", "G14", "G27", "G26", "G25", "G33", "G32", "G35", "G34", "SN", "SP", "EN", "3V3"]
+B0 = ["CLK", "SD0", "SD1", "G15", "G2", "G0", "G4", "G16", "G17", "G5", "G18", "G19", "GND", "G21", "RXD", "TXD", "G22", "G23", "GND"]
+# rangkaian tim (Oktober 2026): semua kabel di baris 3V3. Sensor VIN ke 3V3 agar SDA/SCL tetap 3,3 V.
+KE_SENSOR = {"VIN": "3V3", "GND": "GND", "SDA": "G26", "SCL": "G27", "LED": "G25"}
+KE_OLED = {"VCC": "3V3", "GND": "GND", "SDA": "G26", "SCL": "G27"}
+SINYAL = {"3V3": "3V3", "GND": "GND", "G26": "SDA", "G27": "SCL", "G25": "LED"}
+WARNA_SINYAL = {"3V3": "#d62828", "GND": "#2b2b2b", "SDA": "#e8b00c", "SCL": "#1f6fd1", "LED": "#2e8b57"}
+NAMA_WARNA = {"3V3": "merah", "GND": "hitam", "SDA": "kuning", "SCL": "biru", "LED": "hijau"}
+SAMB = 14.0          # sambungan solder + selongsong panas Ø 2 x 15 mm, diukur dari plastik header
+R_SAMB = 1.1
 OLED = dict(L=27.3, H=27.8, pcb=1.2, kaca=(26.7, 19.3, 1.4), lubang=11.65, cx=60.0, cy=YC)
 
 # ----------------------------------------------------------------------------- arah papan sensor
@@ -153,9 +165,9 @@ tambah("sensor_header", lokal(kotak(xs_pin[-1] - 1.27, xs_pin[0] + 1.27, hy - 1.
        "atas", "#151515", "Header 7 pin (plastik)", "plastik_hitam")
 pins = [kotak(x - 0.32, x + 0.32, hy - 0.32, hy + 0.32, -TCS["pcb"] - 2.5 - 6.0, 1.5) for x in xs_pin]
 tambah("sensor_pin", lokal(trimesh.util.concatenate(pins)), "atas", "#d4af37", "Pin header", "emas")
-DIPAKAI = {"VIN": "#e0245e", "GND": "#2b2b2b", "SCL": "#8e44ad", "SDA": "#e67e22", "LED": "#2e8b57"}
-dup = [kotak(x - 1.25, x + 1.25, hy - 1.25, hy + 1.25, -TCS["pcb"] - 2.5 - 14.0, -TCS["pcb"] - 2.5) for x, n in zip(xs_pin, TCS["pin"]) if n in DIPAKAI]
-tambah("sensor_dupont", lokal(trimesh.util.concatenate(dup)), "atas", "#202020", "Soket dupont (5)", "plastik_hitam")
+DIPAKAI = {n: WARNA_SINYAL[SINYAL[pe]] for n, pe in KE_SENSOR.items()}
+dup = [silinder(x, hy, -TCS["pcb"] - 2.5 - SAMB, -TCS["pcb"] - 2.5, R_SAMB, 16) for x, n in zip(xs_pin, TCS["pin"]) if n in DIPAKAI]
+tambah("sensor_dupont", lokal(trimesh.util.concatenate(dup)), "atas", "#202020", "Titik solder sensor + selongsong (5)", "plastik_hitam")
 # baut M2,5 x 10 + mur, kepala di sisi komponen
 baut = []
 for hx, hy_ in TCS["lubang"]:
@@ -206,31 +218,27 @@ bib = [kotak(t, 2 * t, t + 0.3, W - t - 0.3, Z_ATAS - 6, Z_ATAS), kotak(W - 2 * 
        kotak(2 * t, W - 2 * t, t + 0.3, 2 * t + 0.3, Z_ATAS - 6, Z_ATAS), kotak(2 * t, W - 2 * t, W - 2 * t - 0.3, W - t - 0.3, Z_ATAS - 6, Z_ATAS)]
 tambah("kepala_bibir", trimesh.util.concatenate(bib), "atas", PVC_ATAS, "Bibir tutup atas", alpha=0.45)
 
-# ---- ESP32 DOIT V1, dibalik (modul ke bawah, pin ke atas) di atas busa
+# ---- ESP32 NodeMCU-32S, dibalik (modul ke bawah, pin ke atas) di atas busa
 e0x, e0y, ez = ESP["x0"], ESP["y0"], zk0 + ESP["busa"]
 tambah("esp_busa", kotak(e0x + 4, e0x + ESP["W"] - 4, e0y + 14, e0y + ESP["L"] - 2, zk0, ez), "atas", "#7b7f86", "Busa dobel tape 3 mm", "busa")
 z_pcb0 = ez + ESP["modul"][2]
-mod = kotak(e0x + (ESP["W"] - ESP["modul"][1]) / 2, e0x + (ESP["W"] + ESP["modul"][1]) / 2, e0y + ESP["L"] - ESP["modul"][0] - 0.5, e0y + ESP["L"] - 0.5, ez, z_pcb0)
-tambah("esp_modul", mod, "atas", "#a7adb4", "Modul WROOM-32 (logam)", "logam")
-tambah("esp_pcb", kotak(e0x, e0x + ESP["W"], e0y, e0y + ESP["L"], z_pcb0, z_pcb0 + ESP["pcb"]), "atas", "#1f6f43", "ESP32 DOIT DevKit V1", "pcb_hijau")
+mod = kotak(e0x + (ESP["W"] - ESP["modul"][0]) / 2, e0x + (ESP["W"] + ESP["modul"][0]) / 2, e0y + ESP["L"] - ESP["modul"][1] - 0.5, e0y + ESP["L"] - 0.5, ez, z_pcb0)
+tambah("esp_modul", mod, "atas", "#a7adb4", "Modul ESP-32S (logam)", "logam")
+tambah("esp_pcb", kotak(e0x, e0x + ESP["W"], e0y, e0y + ESP["L"], z_pcb0, z_pcb0 + ESP["pcb"]), "atas", "#1d2024", "ESP32 NodeMCU-32S (38 pin)", "pcb_hitam")
 tambah("esp_usb", kotak(ex - 3.75, ex + 3.75, e0y - 1.0, e0y + 4.6, z_pcb0 - 2.7, z_pcb0), "atas", "#c0c4c9", "Colokan micro-USB", "logam")
 zp = z_pcb0 + ESP["pcb"]
-nn = 15; py0 = e0y + (ESP["L"] - (nn - 1) * 2.54) / 2 - 1.0
+nn = ESP["n"]; py0 = e0y + (ESP["L"] - (nn - 1) * 2.54) / 2 - 1.0
 baris = [e0x + (ESP["W"] - ESP["pin_jarak_baris"]) / 2, e0x + (ESP["W"] + ESP["pin_jarak_baris"]) / 2]
 tambah("esp_header", trimesh.util.concatenate([kotak(bx - 1.27, bx + 1.27, py0 - 1.27, py0 + (nn - 1) * 2.54 + 1.27, zp, zp + ESP["plastik"]) for bx in baris]),
-       "atas", "#151515", "Header ESP32 (2 x 15)", "plastik_hitam")
+       "atas", "#151515", "Header ESP32 (2 x 19)", "plastik_hitam")
 tambah("esp_pin", trimesh.util.concatenate([kotak(bx - 0.32, bx + 0.32, py0 + i * 2.54 - 0.32, py0 + i * 2.54 + 0.32, zp - 1, zp + ESP["pin_panjang"]) for bx in baris for i in range(nn)]),
        "atas", "#d4af37", "Pin ESP32", "emas")
-# nama pin DOIT 30 pin. Baris dengan 3V3 berurutan dari ujung USB: 3V3 GND D15 D2 D4 RX2 TX2 D5 D18 D19 D21 RX0 TX0 D22 D23
-# baris seberang dari ujung USB: VIN GND D13 D12 D14 D27 D26 D25 D33 D32 D35 D34 VN VP EN.
-# Papan dibalik, jadi baris 3V3 jatuh di sisi x besar (baris[1]) bila dilihat dari atas. [UKUR: cocokkan tulisan di papan]
-B1 = ["3V3", "GND", "D15", "D2", "D4", "RX2", "TX2", "D5", "D18", "D19", "D21", "RX0", "TX0", "D22", "D23"]
-B0 = ["VIN", "GND", "D13", "D12", "D14", "D27", "D26", "D25", "D33", "D32", "D35", "D34", "VN", "VP", "EN"]
+# Papan dibalik, jadi baris 3V3 (B1) jatuh di sisi x besar (baris[1]) bila dilihat dari atas. [UKUR: cocokkan tulisan di papan]
 def pin_esp(nama, baris_ke):
     i = (B1 if baris_ke == 1 else B0).index(nama); return np.array([baris[baris_ke], py0 + i * 2.54, zp + ESP["plastik"]])
-ESP_DIPAKAI = {("3V3", 1): "#e0245e", ("GND", 1): "#2b2b2b", ("D21", 1): "#e67e22", ("D22", 1): "#8e44ad", ("GND", 0): "#2b2b2b", ("D26", 0): "#2e8b57"}
-tambah("esp_dupont", trimesh.util.concatenate([kotak(*(pin_esp(n, b)[:1] + [-1.25, 1.25]), *(pin_esp(n, b)[1:2] + [-1.25, 1.25]), zp + ESP["plastik"], zp + ESP["plastik"] + 14) for (n, b) in ESP_DIPAKAI]),
-       "atas", "#202020", "Soket dupont ESP32 (6)", "plastik_hitam")
+ESP_DIPAKAI = {(pe, 1): WARNA_SINYAL[SINYAL[pe]] for pe in dict.fromkeys(list(KE_SENSOR.values()) + list(KE_OLED.values()))}
+tambah("esp_dupont", trimesh.util.concatenate([silinder(*pin_esp(n, b)[:2], zp + ESP["plastik"], zp + ESP["plastik"] + SAMB, R_SAMB, 16) for (n, b) in ESP_DIPAKAI]),
+       "atas", "#202020", f"Titik solder ESP32 + selongsong ({len(ESP_DIPAKAI)})", "plastik_hitam")
 
 # ---- OLED di sisi bawah tutup atas, layar menghadap jendela
 GANJAL_OLED = 1.6                                   # mur M2 sebagai ganjal antara tutup dan PCB OLED
@@ -244,8 +252,8 @@ oy_pin = OLED["cy"] - OLED["H"] / 2 + 1.6
 OLED_PIN = {"GND": OLED["cx"] - 3.81, "VCC": OLED["cx"] - 1.27, "SCL": OLED["cx"] + 1.27, "SDA": OLED["cx"] + 3.81}
 zo = oz0 - OLED["pcb"]
 tambah("oled_header", kotak(OLED["cx"] - 5.08, OLED["cx"] + 5.08, oy_pin - 1.27, oy_pin + 1.27, zo - 2.5, zo), "atas", "#151515", "Header OLED (4)", "plastik_hitam")
-tambah("oled_dupont", trimesh.util.concatenate([kotak(x - 1.25, x + 1.25, oy_pin - 1.25, oy_pin + 1.25, zo - 2.5 - 14, zo - 2.5) for x in OLED_PIN.values()]),
-       "atas", "#202020", "Soket dupont OLED (4)", "plastik_hitam")
+tambah("oled_dupont", trimesh.util.concatenate([silinder(x, oy_pin, zo - 2.5 - SAMB, zo - 2.5, R_SAMB, 16) for x in OLED_PIN.values()]),
+       "atas", "#202020", "Titik solder OLED + selongsong (4)", "plastik_hitam")
 tambah("oled_baut", gabung([silinder(OLED["cx"] + sx * OLED["lubang"], OLED["cy"] + sy * OLED["lubang"], zo - 3.0, Z_ATAS + t + 1.2, 0.95, 12) for sx in (-1, 1) for sy in (-1, 1)]
                                          + [silinder(OLED["cx"] + sx * OLED["lubang"], OLED["cy"] + sy * OLED["lubang"], Z_ATAS + t, Z_ATAS + t + 1.2, 1.8, 16) for sx in (-1, 1) for sy in (-1, 1)]
                                          + [silinder(OLED["cx"] + sx * OLED["lubang"], OLED["cy"] + sy * OLED["lubang"], oz0, Z_ATAS, 2.0, 6) for sx in (-1, 1) for sy in (-1, 1)]
@@ -266,15 +274,16 @@ tambah("kait_bawah", gabung([kotak(-1.2, 0, YC - 9, YC + 9, Hc - 14, Hc - 2), ko
 tambah("kait_atas", gabung([kotak(-1.2, 0, YC - 9, YC + 9, Hc + 2, Hc + 12), kotak(-5.5, -1.2, YC - 6, YC + 6, Hc + 6, Hc + 8),
                                                kotak(-5.5, -1.5, YC - 6, YC + 6, Hc - 11.5, Hc - 9.2), kotak(-5.5, -4.4, YC - 6, YC + 6, Hc - 11.5, Hc + 6)]), "atas", "#9a9ea5", "Kait kotak (tuas)", "logam")
 
-# ---- kabel: jalur Manhattan berlapis (tiap kabel punya ketinggian mendatar sendiri), sudut dibulatkan r 2 mm
-# 3V3, SDA, SCL dipakai sensor DAN OLED -> kabel cabang Y (satu soket di pin ESP32, dua soket di ujung).
-# GND: sensor ke GND baris VIN, OLED ke GND baris 3V3 (ESP32 punya dua pin GND), jadi tanpa cabang.
-ujung_sensor = {n: papan(x, hy, -TCS["pcb"] - 2.5 - 14.0) for x, n in zip(xs_pin, TCS["pin"])}
-Z_SOKET_ESP = zp + ESP["plastik"] + 14.0                 # puncak soket dupont di pin ESP32
-Z_J = Z_SOKET_ESP + 0.8                                  # titik cabang Y tepat di atas soket
-SENSOR_KE = {"LED": (("D26", 0), 50.6), "SDA": (("D21", 1), 52.3), "SCL": (("D22", 1), 54.0), "GND": (("GND", 0), 55.7), "VIN": (("3V3", 1), 57.4)}
-OLED_KE = {"SDA": (("D21", 1), 38.9, 35.5), "SCL": (("D22", 1), 40.6, 37.2), "VCC": (("3V3", 1), 42.3, 38.9), "GND": (("GND", 1), 44.0, 40.6)}
-CABANG = {"3V3": ("VIN", "VCC"), "D21": ("SDA", "SDA"), "D22": ("SCL", "SCL")}   # pin ESP32 -> (pin sensor, pin OLED)
+# ---- kabel: disolder langsung. Pin ESP32 yang dipakai dua perangkat (3V3, GND, G26, G27) menerima DUA kabel di satu pin.
+# Jalur Manhattan: tiap kabel punya ketinggian mendatar (lapis) dan lajur x sendiri, jadi tidak ada kabel yang saling memotong.
+ujung_sensor = {n: papan(x, hy, -TCS["pcb"] - 2.5 - SAMB) for x, n in zip(xs_pin, TCS["pin"])}
+Z_SOKET_ESP = zp + ESP["plastik"] + SAMB                # ujung selongsong di pin ESP32
+Z_J = Z_SOKET_ESP + 0.8
+# sensor: (lapis z, lajur x); OLED: (lapis z, lajur x). Urutan lapis OLED: SDA paling bawah, GND paling atas.
+SENSOR_KE = {n: ((pe, 1), L_, x_) for (n, pe), L_, x_ in zip(KE_SENSOR.items(), (57.8, 56.1, 54.4, 52.7, 51.0), (46.8, 45.1, 43.4, 41.7, 40.0))}
+OLED_KE = {n: ((pe, 1), L_, x_) for (n, pe), L_, x_ in zip(KE_OLED.items(), (41.3, 43.0, 37.9, 39.6), (38.1, 36.4, 33.0, 34.7))}
+CABANG = {pe: (next(n for n, q in KE_SENSOR.items() if q == pe), next(n for n, q in KE_OLED.items() if q == pe))
+          for pe in KE_OLED.values() if pe in KE_SENSOR.values()}     # pin ESP32 -> (pin sensor, pin OLED)
 
 
 def fillet(P_, r=2.0, n=6):
@@ -295,39 +304,30 @@ def pipa(titik, r=0.7, n=10):
     return trimesh.creation.sweep_polygon(lingk, pts)
 
 
-def nama_pin(pn, b):
-    if pn == "GND": return "GND (baris " + ("3V3" if b == 1 else "VIN") + ")"
-    return pn.replace("D", "GPIO ") if pn.startswith("D") else pn
+def nama_pin(pn, b=1):
+    return pn
 
 
-KABEL = {}   # nama -> dict(titik, warna, dari, ke, jenis)
-WARNA_SINYAL = {"3V3": "#e0245e", "GND": "#2b2b2b", "SDA": "#e67e22", "SCL": "#8e44ad", "LED": "#2e8b57"}
+KABEL = {}   # nama -> dict(titik, warna, dari, ke (pin ESP32), b, panjang)
 SINYAL_PIN = {"VIN": "3V3", "VCC": "3V3", "GND": "GND", "SDA": "SDA", "SCL": "SCL", "LED": "LED"}
-for n, ((pn, b), L) in SENSOR_KE.items():
+for n, ((pn, b), L_, xc) in SENSOR_KE.items():
     E = ujung_sensor[n]; A = E + 4.0 * (-N); T = pin_esp(pn, b)
-    zt = Z_J if pn in CABANG else Z_SOKET_ESP
-    KABEL[f"kabel_s_{n}"] = dict(titik=fillet([E, A, [A[0], A[1], L], [T[0], A[1], L], [T[0], T[1], L], [T[0], T[1], zt]]),
-                                warna=WARNA_SINYAL[SINYAL_PIN[n]], dari=f"Sensor {n}", ke="ESP32 " + nama_pin(pn, b), cabang=pn in CABANG)
-for n, ((pn, b), L, xc) in OLED_KE.items():
-    E = np.array([OLED_PIN[n], oy_pin, zo - 2.5 - 14.0]); T = pin_esp(pn, b)
-    zt = Z_J if pn in CABANG else Z_SOKET_ESP
-    KABEL[f"kabel_o_{n}"] = dict(titik=fillet([E, [E[0], E[1], L], [xc, E[1], L], [xc, T[1], L], [xc, T[1], Z_J], [T[0], T[1], Z_J], [T[0], T[1], zt]]),
-                                warna=WARNA_SINYAL[SINYAL_PIN[n]], dari=f"OLED {n}", ke="ESP32 " + nama_pin(pn, b), cabang=pn in CABANG)
-for pn in CABANG:   # ekor kabel Y: soket di pin ESP32 sampai titik cabang
-    T = pin_esp(pn, 1); KABEL[f"kabel_y_{pn}"] = dict(titik=np.array([[T[0], T[1], Z_SOKET_ESP], [T[0], T[1], Z_J]]), warna=WARNA_SINYAL[{"3V3": "3V3", "D21": "SDA", "D22": "SCL"}[pn]],
-                                                     dari="ESP32 " + nama_pin(pn, 1), ke="titik cabang", cabang=True)
+    KABEL[f"kabel_s_{n}"] = dict(titik=fillet([E, A, [A[0], A[1], L_], [xc, A[1], L_], [xc, T[1], L_], [xc, T[1], Z_J], [T[0], T[1], Z_J], [T[0], T[1], Z_SOKET_ESP]]),
+                                warna=WARNA_SINYAL[SINYAL[pn]], dari=f"Sensor {n}", ke=pn, b=b)
+for n, ((pn, b), L_, xc) in OLED_KE.items():
+    E = np.array([OLED_PIN[n], oy_pin, zo - 2.5 - SAMB]); T = pin_esp(pn, b)
+    KABEL[f"kabel_o_{n}"] = dict(titik=fillet([E, [E[0], E[1], L_], [E[0], T[1], L_], [xc, T[1], L_], [xc, T[1], Z_J], [T[0], T[1], Z_J], [T[0], T[1], Z_SOKET_ESP]]),
+                                warna=WARNA_SINYAL[SINYAL[pn]], dari=f"OLED {n}", ke=pn, b=b)
 for k, kb in KABEL.items():
     kb["panjang"] = float(np.sum(np.linalg.norm(np.diff(kb["titik"], axis=0), axis=1)))
-    tambah(k, pipa(kb["titik"]), "atas", kb["warna"], "Kabel " + kb["dari"] + " ke " + kb["ke"], "kabel")
-sambung = [silinder(pin_esp(pn, 1)[0], pin_esp(pn, 1)[1], Z_SOKET_ESP + 0.1, Z_J + 1.4, 1.35, 16) for pn in CABANG]
-tambah("kabel_cabang", trimesh.util.concatenate(sambung), "atas", "#111111", "Selongsong cabang Y (3)", "plastik_hitam")
+    tambah(k, pipa(kb["titik"]), "atas", kb["warna"], "Kabel " + kb["dari"] + " ke ESP32 " + kb["ke"], "kabel")
 
 
 def jarak_kabel():
     """Jarak terdekat antar sumbu kabel yang berbeda sinyal (harus >= 1,6 mm untuk kabel Ø 1,4)."""
     from scipy.spatial import cKDTree
     hasil = []
-    ks = [k for k in KABEL if not k.startswith("kabel_y_")]
+    ks = list(KABEL)
     def padat(P_):
         out = [P_[0]]
         for a_, b_ in zip(P_[:-1], P_[1:]):
@@ -338,7 +338,7 @@ def jarak_kabel():
     for i in range(len(ks)):
         for j in range(i + 1, len(ks)):
             a_, b_ = ks[i], ks[j]
-            if sig(a_) == sig(b_) and sig(a_) != "GND": continue          # cabang yang sama bertemu di titik Y
+            if sig(a_) == sig(b_): continue          # dua kabel satu sinyal bertemu di pin ESP32 yang sama
             d, _ = cKDTree(D[b_]).query(D[a_]); hasil.append((float(d.min()), a_, b_))
     return sorted(hasil)[:5]
 
@@ -404,7 +404,7 @@ if __name__ == "__main__":
         v = B[k]["mesh"].vertices; r_ = np.hypot(v[:, 0] - XC, v[:, 1] - YC).max()
         print(f"  {k}: jari-jari terjauh {r_:.2f} (dinding dalam {Ri - lap:.2f})")
     print("kabel: jarak terdekat antar kabel beda sinyal", [(round(d, 2), a_, b_) for d, a_, b_ in jarak_kabel()[:3]])
-    for k, kb in KABEL.items(): print(f"  {k:16s} {kb['dari']:>12s} -> {kb['ke']:<14s} {kb['panjang']:6.1f} mm")
+    for k, kb in KABEL.items(): print(f"  {k:16s} {kb['dari']:>12s} -> ESP32 {kb['ke']:<5s} {kb['panjang']:6.1f} mm")
     print("tabrakan:")
     for sd in (0, 5, 10, 15, 20, 30, 45, 60, 90, 105): periksa(sd)
     berat = {}
@@ -437,7 +437,7 @@ if __name__ == "__main__":
            ("Lantai kepala", ["kepala_lantai"], None),
            ("Dinding kepala", ["kepala_depan", "kepala_belakang", "kepala_kiri", "kepala_kanan"], None),
            ("Tutup atas", ["kepala_tutup", "kepala_bibir"], "balik"),
-           ("ESP32 DevKit V1", ["esp_modul", "esp_pcb", "esp_usb", "esp_header", "esp_pin"], None),
+           ("ESP32 NodeMCU-32S", ["esp_modul", "esp_pcb", "esp_usb", "esp_header", "esp_pin"], None),
            ("OLED 0,96 inci", ["oled_kaca", "oled_pcb", "oled_header"], "balik"),
            ("Engsel dan kait", ["engsel_bawah", "engsel_atas", "kait_bawah", "kait_atas"], None),
            ("Balok kalibrasi", ["kal_putih", "kal_hitam"], None)]

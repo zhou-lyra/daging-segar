@@ -12,63 +12,103 @@ DEFS = ('<defs><marker id="pa" viewBox="0 0 10 10" refX="5" refY="5" markerWidth
 def svg(w, h, isi, judul): return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w:.0f} {h:.0f}" font-family="system-ui,Segoe UI,Roboto,sans-serif" role="img" aria-label="{judul}">{DEFS}{isi}</svg>'
 
 
-# ============================================================================ skema kabel (tidak berskala)
-def skema():
-    el = []; W_, H_ = 1180, 700
-    ex0, ey0, ew, eh = 130, 60, 220, 500
-    el.append(TX(ex0 + ew / 2, ey0 - 26, "ESP32 DOIT V1, dilihat dari atas (papan dibalik)", sz=15, w=700))
-    el.append(f'<rect x="{ex0}" y="{ey0}" width="{ew}" height="{eh}" rx="10" fill="#1f6f43"/>')
-    el.append(f'<rect x="{ex0 + ew/2 - 22}" y="{ey0 + eh - 6}" width="44" height="24" rx="4" fill="#c0c4c9" stroke="#777"/>')
-    el.append(TX(ex0 + ew / 2 + 30, ey0 + eh + 14, "USB", anc="start", sz=13))
-    pitch = (eh - 70) / 14; pin_y = lambda i: ey0 + eh - 35 - i * pitch
-    xs = {0: ex0 + 22, 1: ex0 + ew - 22}; pos = {}
+# ============================================================================ peta titik solder (tidak berskala, papan berskala)
+TITIK_ESP = ["3V3", "G25", "G26", "G27", "GND"]                 # E1..E5, urut dari atas gambar
+TITIK_SENSOR = ["LED", "SDA", "SCL", "GND", "VIN"]              # S1..S5, urut tulisan di sisi depan papan sensor
+TITIK_OLED = ["GND", "VCC", "SCL", "SDA"]                       # O1..O4, urut tulisan di OLED
+URUT_SENSOR = ["LED", "INT", "SDA", "SCL", "3V3", "GND", "VIN"]    # sisi depan, kiri ke kanan (sama dengan gambar tim)
+
+
+def potong_cm(mm):
+    return math.ceil((mm + 20) / 5) * 5 / 10
+
+
+def titik_dev(dev, pin):
+    return f"S{TITIK_SENSOR.index(pin) + 1}" if dev == "Sensor" else f"O{TITIK_OLED.index(pin) + 1}"
+
+
+def peta_solder(K, judul, catatan=""):
+    """K: daftar dict(dari='Sensor VIN', ke='3V3', warna, panjang). Papan ESP32 digambar berskala dari geometri."""
+    el = []; W_, S = 1180, 8.0
+    E = G.ESP; ex0, ey0 = 70, 110; ew, eh = E["W"] * S, E["L"] * S
+    el.append(TX(40, 34, judul, anc="start", sz=17, w=700))
+    el.append(TX(40, 58, "Titik bernomor = tempat menyolder. Kabel disolder langsung ke pin, tanpa soket dupont. Warna kabel mengikuti kotak warna.", anc="start", sz=13, w=500, col="#555"))
+    el.append(f'<rect x="{ex0}" y="{ey0}" width="{ew:.0f}" height="{eh:.0f}" rx="8" fill="#1d2024"/>')
+    el.append(f'<rect x="{ex0 + ew / 2 - 30:.0f}" y="{ey0 + eh - 8:.0f}" width="60" height="30" rx="4" fill="#c0c4c9" stroke="#777"/>')
+    el.append(TX(ex0 + ew / 2, ey0 + eh + 44, "USB", sz=12, w=600, col="#555"))
+    el.append(f'<text x="{ex0 + ew / 2:.0f}" y="{ey0 + eh - 22:.0f}" font-size="11" font-weight="700" fill="#9aa0a6" text-anchor="middle">NodeMCU-32S</text>')
+    el.append(TX(ex0 + ew / 2, ey0 - 30, "ESP32 terbalik, pin ke atas", sz=13, w=700))
+    off = G.py0 - G.ESP["y0"]
+    py = lambda i: ey0 + eh - (off + i * 2.54) * S
+    xr = {0: ex0 + (E["W"] - E["pin_jarak_baris"]) / 2 * S, 1: ex0 + (E["W"] + E["pin_jarak_baris"]) / 2 * S}
+    pos = {}
     for b, nama in ((0, G.B0), (1, G.B1)):
         for i, n in enumerate(nama):
-            x, y = xs[b], pin_y(i); dip = (n, b) in G.ESP_DIPAKAI
-            el.append(f'<circle cx="{x}" cy="{y}" r="{7 if dip else 4.5}" fill="{"#e3b85a" if dip else "#7aa58c"}" stroke="#0d3a22" stroke-width="1.2"/>')
-            el.append(f'<text x="{x + (16 if b == 0 else -16)}" y="{y + 5}" font-size="{13 if dip else 12}" font-weight="{700 if dip else 400}" fill="{"#fff3c4" if dip else "#cfe6d8"}" text-anchor="{"start" if b == 0 else "end"}">{n}</text>')
+            x, y = xr[b], py(i); dip = b == 1 and n in TITIK_ESP
+            el.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{7 if dip else 4}" fill="{"#e3b85a" if dip else "#6f747c"}" stroke="{"#2a2226" if dip else "none"}" stroke-width="2"/>')
+            el.append(f'<text x="{x + (9 if b == 0 else -11):.1f}" y="{y + 3.8:.1f}" font-size="{11 if dip else 9.5}" font-weight="{700 if dip else 400}" fill="{"#fff3c4" if dip else "#b9bec6"}" text-anchor="{"start" if b == 0 else "end"}">{n}</text>')
             pos[(n, b)] = (x, y)
-    el.append(f'<text x="{xs[0] - 6}" y="{ey0 + 20}" font-size="12" fill="#cfe6d8" text-anchor="start">baris VIN</text><text x="{xs[1] + 6}" y="{ey0 + 20}" font-size="12" fill="#cfe6d8" text-anchor="end">baris 3V3</text>')
-
-    def header(x0, y0, nama, judul, warna):
-        w = len(nama) * 34 + 20
-        el.append(f'<rect x="{x0 - 27}" y="{y0 - 38}" width="{w}" height="54" rx="8" fill="{warna}"/>')
-        el.append(TX(x0 - 27 + w / 2, y0 - 50, judul, sz=15, w=700)); p_ = {}
+    el.append(TX(xr[1], ey0 - 10, "baris 3V3", sz=11, w=700))
+    # keterangan tiap titik ESP32
+    bx, bh, gap = 330, 62, 10
+    y_start = ey0 + 6
+    for i, pn in enumerate(TITIK_ESP):
+        x, y = pos[(pn, 1)]
+        kab = sorted([kb for kb in K if kb["ke"] == pn], key=lambda kb: kb["dari"].startswith("OLED"))
+        h = 30 + 22 * len(kab); by = y_start + sum(30 + 22 * len([kb for kb in K if kb["ke"] == q]) + gap for q in TITIK_ESP[:i])
+        el.append(f'<path d="M{x + 8:.1f},{y:.1f} L{bx - 24:.1f},{y:.1f} L{bx - 8:.1f},{by + 16:.1f} L{bx:.1f},{by + 16:.1f}" fill="none" stroke="#2a2226" stroke-width="1.4"/>')
+        el.append(f'<rect x="{bx}" y="{by}" width="300" height="{h}" rx="8" fill="#f3efe8" stroke="#d8cfc2"/>')
+        el.append(f'<rect x="{bx + 8}" y="{by + 6}" width="32" height="20" rx="10" fill="#2a2226"/><text x="{bx + 24}" y="{by + 20}" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">E{i + 1}</text>')
+        el.append(TX(bx + 48, by + 21, f"pin {pn}" + ("  (2 kabel, 1 selongsong)" if len(kab) == 2 else ""), anc="start", sz=13, w=700))
+        for j, kb in enumerate(kab):
+            dev, pin = kb["dari"].split(); yy = by + 46 + j * 22
+            el.append(f'<rect x="{bx + 12}" y="{yy - 11}" width="30" height="12" rx="3" fill="{kb["warna"]}"/>')
+            el.append(TX(bx + 50, yy, f"ke {titik_dev(dev, pin)} {dev} {pin}, potong {f1(potong_cm(kb['panjang']))} cm", anc="start", sz=12.5, w=500))
+    # perangkat
+    def header(x0, y0, nama, judul_, warna, nomor, dev):
+        w = (len(nama) - 1) * 50 + 60
+        el.append(f'<rect x="{x0 - 30}" y="{y0 - 34}" width="{w}" height="62" rx="8" fill="{warna}"/>')
+        el.append(TX(x0 - 30, y0 - 44, judul_, anc="start", sz=14, w=700))
         for i, n in enumerate(nama):
-            x = x0 + i * 34
-            el.append(f'<text x="{x}" y="{y0 - 18}" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">{n}</text>')
-            el.append(f'<rect x="{x - 7}" y="{y0 - 7}" width="14" height="14" fill="#e3b85a" stroke="#333"/>'); p_[n] = (x, y0 + 7)
-        return p_
-    sp = header(700, 400, G.TCS["pin"], "TCS34725 (dari sisi punggung)", "#6a2c91")
-    op = header(770, 140, ["GND", "VCC", "SCL", "SDA"], "OLED SSD1306", "#1d4f9c")
-    paths = []
-    def jalur(pts, col): paths.append((" ".join(("M" if i == 0 else "L") + f"{x:.0f},{y:.0f}" for i, (x, y) in enumerate(pts)), col))
-    jx = xs[1] + 46
-    WARNA = {"3V3": "#e0245e", "D21": "#e67e22", "D22": "#8e44ad"}
-    for k, (pe, ps, po) in enumerate((("3V3", "VIN", "VCC"), ("D21", "SDA", "SDA"), ("D22", "SCL", "SCL"))):
-        x1, y1 = pos[(pe, 1)]; col = WARNA[pe]
-        jalur([(x1, y1), (jx, y1)], col)
-        xs_, ys_ = sp[ps]; xv, ly = jx + 40 + k * 18, 470 + k * 16
-        jalur([(jx, y1), (xv, y1), (xv, ly), (xs_, ly), (xs_, ys_)], col)
-        xo, yo = op[po]; xv2, ly2 = jx + 150 + k * 18, 200 + k * 16
-        jalur([(jx, y1), (xv2, y1), (xv2, ly2), (xo, ly2), (xo, yo)], col)
-    x1, y1 = pos[("GND", 1)]; xo, yo = op["GND"]; xv2 = jx + 150 + 3 * 18; ly2 = 200 + 3 * 16
-    jalur([(x1, y1), (xv2, y1), (xv2, ly2), (xo, ly2), (xo, yo)], "#2b2b2b")
-    for k, (pin, ps, col) in enumerate(((("GND", 0), "GND", "#2b2b2b"), (("D26", 0), "LED", "#2e8b57"))):
-        x1, y1 = pos[pin]; xs_, ys_ = sp[ps]; xl, ly = ex0 - 40 - k * 18, ey0 + eh + 50 + k * 18
-        jalur([(x1, y1), (xl, y1), (xl, ly), (xs_, ly), (xs_, ys_)], col)
-    for d, col in paths: el.append(f'<path d="{d}" fill="none" stroke="#fff" stroke-width="9" stroke-linejoin="round"/>')
-    for d, col in paths: el.append(f'<path d="{d}" fill="none" stroke="{col}" stroke-width="4" stroke-linejoin="round"/>')
-    for pe in ("3V3", "D21", "D22"):
-        el.append(f'<circle cx="{jx}" cy="{pos[(pe, 1)][1]}" r="8" fill="#111" stroke="#fff" stroke-width="2.5"/>')
-    lx, ly = 975, 300
-    el.append(TX(lx, ly, "titik hitam = cabang Y", anc="start", sz=14, w=700))
-    el.append(f'<circle cx="{lx - 14}" cy="{ly - 5}" r="7" fill="#111"/>')
-    el.append(TX(lx, ly + 20, "1 soket di ESP32,", anc="start", sz=13, w=400)); el.append(TX(lx, ly + 38, "2 soket di ujung", anc="start", sz=13, w=400))
-    for i, (col, t) in enumerate((("#e0245e", "3V3"), ("#2b2b2b", "GND (2 pin)"), ("#e67e22", "SDA, GPIO 21"), ("#8e44ad", "SCL, GPIO 22"), ("#2e8b57", "LED, GPIO 26"))):
-        el.append(f'<line x1="{lx}" y1="{ly + 70 + i*24}" x2="{lx+28}" y2="{ly + 70 + i*24}" stroke="{col}" stroke-width="4"/>'); el.append(TX(lx + 36, ly + 75 + i * 24, t, anc="start", sz=13))
-    el.append(TX(lx, ly + 200, "INT dan 3V3 sensor kosong", anc="start", sz=13, w=400, col="#6c6469"))
-    return svg(W_, H_, "".join(el), "Skema kabel")
+            x = x0 + i * 50; ada = n in nomor
+            el.append(f'<text x="{x}" y="{y0 - 12}" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">{n}</text>')
+            el.append(f'<circle cx="{x}" cy="{y0 + 8}" r="7" fill="{"#e3b85a" if ada else "#8c8f95"}" stroke="#2a2226" stroke-width="{2 if ada else 0}"/>')
+            if ada:
+                kb = next(k for k in K if k["dari"] == f"{dev} {n}")
+                el.append(f'<rect x="{x - 16}" y="{y0 + 36}" width="32" height="20" rx="10" fill="#2a2226"/><text x="{x}" y="{y0 + 50}" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">{titik_dev(dev, n)}</text>')
+                el.append(f'<rect x="{x - 15}" y="{y0 + 62}" width="30" height="10" rx="3" fill="{kb["warna"]}"/>')
+                el.append(TX(x, y0 + 90, f"E{TITIK_ESP.index(kb['ke']) + 1}", sz=12, w=700)); el.append(TX(x, y0 + 106, kb["ke"], sz=11, w=500, col="#555"))
+            else:
+                el.append(TX(x, y0 + 52, "kosong", sz=11, w=600, col="#888"))
+    header(720, 150, URUT_SENSOR, "Sensor TCS34725, dilihat dari depan (tulisan pin)", "#6a2c91", TITIK_SENSOR, "Sensor")
+    header(720, 400, TITIK_OLED, "OLED SSD1306 (tulisan pin)", "#1d4f9c", TITIK_OLED, "OLED")
+    el.append(TX(690, 560, "Baris bawah tiap pin: nomor titik pasangannya di ESP32.", anc="start", sz=12.5, w=500, col="#555"))
+    el.append(TX(690, 580, "Header sensor: plastik di punggung papan, kabel disolder di ujung pin.", anc="start", sz=12.5, w=500, col="#555"))
+    # tabel
+    ty = max(ey0 + eh + 90, 640); cols = [40, 92, 180, 400, 640, 820]
+    el.append(TX(40, ty - 14, "Daftar kabel: potong sepanjang kolom terakhir (jalur di model + 2 cm), kupas 4 mm kedua ujung.", anc="start", sz=14, w=700))
+    for x, h in zip(cols, ["No", "Warna", "Titik awal di ESP32", "Titik akhir", "Jalur model", "Potong"]):
+        el.append(TX(x, ty + 12, h, anc="start", sz=12.5, w=700, col="#555"))
+    urut = sorted(K, key=lambda kb: (TITIK_ESP.index(kb["ke"]), kb["dari"].startswith("OLED")))
+    for r, kb in enumerate(urut):
+        y = ty + 36 + r * 24; dev, pin = kb["dari"].split()
+        if r % 2 == 0: el.append(f'<rect x="32" y="{y - 16}" width="{W_ - 64}" height="24" fill="#f3efe8"/>')
+        el.append(TX(cols[0], y, str(r + 1), anc="start", sz=12.5, w=600))
+        el.append(f'<rect x="{cols[1]}" y="{y - 11}" width="30" height="12" rx="3" fill="{kb["warna"]}"/>')
+        el.append(TX(cols[1] + 36, y, G.NAMA_WARNA[G.SINYAL[kb["ke"]]], anc="start", sz=12, w=500))
+        el.append(TX(cols[2], y, f'E{TITIK_ESP.index(kb["ke"]) + 1}  pin {kb["ke"]}', anc="start", sz=12.5, w=700))
+        el.append(TX(cols[3], y, f"{titik_dev(dev, pin)}  {dev} {pin}", anc="start", sz=12.5, w=700))
+        el.append(TX(cols[4], y, f1(kb["panjang"]) + " mm", anc="start", sz=12.5, w=500))
+        el.append(TX(cols[5], y, f1(potong_cm(kb["panjang"])) + " cm", anc="start", sz=13, w=700, col=MERAH))
+    yb = ty + 36 + len(urut) * 24 + 6
+    cat = ["Pin 3V3, GND, G26 dan G27 menerima DUA kabel (ke sensor dan ke OLED), disolder bersama di satu pin dan ditutup satu selongsong. G25 hanya satu kabel.",
+           "VIN sensor ke 3V3 ESP32, BUKAN ke 5V. Pin 5V ESP32, pin 3V3 sensor, dan INT sensor tidak dipakai."] + ([catatan] if catatan else [])
+    for i, t_ in enumerate(cat): el.append(TX(40, yb + i * 21, t_, anc="start", sz=12.5, w=500, col="#555"))
+    return svg(W_, yb + len(cat) * 21 + 10, "".join(el), judul)
+
+
+def skema():
+    return peta_solder(list(G.KABEL.values()), "Model 2: peta titik solder dan daftar kabel")
 
 
 # ============================================================================ denah jalur kabel (berskala, dari model)
@@ -81,18 +121,19 @@ def denah():
     O = G.OLED; el.append(f'<rect x="{X(O["cx"]-O["L"]/2)}" y="{Y(O["cy"]+O["H"]/2)}" width="{O["L"]*S}" height="{O["H"]*S}" fill="#1d4f9c" opacity=".08" stroke="#1d4f9c" stroke-dasharray="3 3"/>')
     J = G.JENDELA; el.append(f'<rect x="{X(J[0])}" y="{Y(J[3])}" width="{(J[1]-J[0])*S}" height="{(J[3]-J[2])*S}" fill="#fff" stroke="#2a2226" stroke-width="1.6"/>')
     for (n, b), _ in G.ESP_DIPAKAI.items():
-        p = G.pin_esp(n, b); el.append(f'<rect x="{X(p[0]-1.25)}" y="{Y(p[1]+1.25)}" width="{2.5*S}" height="{2.5*S}" fill="#202020"/>')
+        p = G.pin_esp(n, b); el.append(f'<circle cx="{X(p[0])}" cy="{Y(p[1])}" r="{G.R_SAMB*S}" fill="#202020"/>')
     urut = sorted(G.KABEL.items(), key=lambda kv: -kv[1]["titik"][:, 2].mean())
     for k, kb in urut:
         if k.startswith("kabel_y_"): continue
         P = kb["titik"]; d = "M" + " L".join(f"{X(p[0]):.1f},{Y(p[1]):.1f}" for p in P)
         el.append(f'<path d="{d}" fill="none" stroke="#fff" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>')
         el.append(f'<path d="{d}" fill="none" stroke="{kb["warna"]}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>')
-    for pn in G.CABANG:
-        p = G.pin_esp(pn, 1); el.append(f'<circle cx="{X(p[0])}" cy="{Y(p[1])}" r="7" fill="#111" stroke="#fff" stroke-width="2"/>')
-    el.append(TX(X(E["x0"] + E["W"] / 2), Y(E["y0"] + 4), "ESP32 (dibalik)", sz=13, col="#145233"))
+    for i, pn in enumerate(TITIK_ESP):
+        p = G.pin_esp(pn, 1); el.append(f'<circle cx="{X(p[0])}" cy="{Y(p[1])}" r="7" fill="#e3b85a" stroke="#2a2226" stroke-width="2"/>')
+        el.append(TX(X(p[0]) - 12, Y(p[1]) + 4, f"E{i + 1} {pn}", anc="end", sz=11, w=700))
+    el.append(TX(X(E["x0"] + E["W"] / 2), Y(E["y0"] + 4), "ESP32 NodeMCU-32S (dibalik)", sz=13, col="#145233"))
     el.append(TX(X(O["cx"] + 4), Y(O["cy"] + O["H"] / 2) - 8, "OLED di tutup atas", sz=13, col="#1d4f9c"))
-    el.append(TX(X((J[0] + J[1]) / 2), Y(J[2]) + 20, "jendela kabel", sz=13))
+
     el.append(TX(X(W / 2), Y(W) - 12, "kanan", sz=13, col="#6c6469")); el.append(TX(X(W / 2), Y(0) + 24, "kiri (takik USB)", sz=13, col="#6c6469"))
     el.append(f'<text x="{X(0)-14}" y="{Y(W/2)}" font-size="13" font-weight="600" fill="#6c6469" text-anchor="middle" transform="rotate(-90 {X(0)-14} {Y(W/2)})">depan (kait)</text>')
     el.append(f'<text x="{X(W)+14}" y="{Y(W/2)}" font-size="13" font-weight="600" fill="#6c6469" text-anchor="middle" transform="rotate(90 {X(W)+14} {Y(W/2)})">belakang (engsel)</text>')
@@ -104,7 +145,7 @@ def denah():
             el.append(f'<text x="{xx:.1f}" y="{yy:.1f}" font-size="11" font-weight="700" fill="{kb["warna"]}" text-anchor="end" transform="rotate(-90 {xx:.1f} {yy:.1f})" paint-order="stroke" stroke="#fff" stroke-width="3">{lab}</text>')
         else:
             el.append(TX(X(p0[0]) + 12, Y(p0[1]) + 4, lab, anc="start", sz=11, w=700, col=kb["warna"]))
-    el.append(TX(X(G.W) - 6, Y(4), "S = ke sensor (lewat jendela), O = ke OLED", anc="end", sz=12, w=600, col="#555"))
+    el.append(TX(X(G.W) - 6, Y(4), "S = ke sensor (lewat jendela kabel, kotak putih), O = ke OLED", anc="end", sz=12, w=600, col="#555"))
     return svg(W * S + m[0] + m[2] + 40, W * S + m[1] + m[3], "".join(el), "Denah jalur kabel")
 
 
