@@ -324,7 +324,13 @@ def model2(GEm=None, GKLm=None, GD="gambar", NM="2", berkas="penampil_model2.htm
         periksa="Ukur dengan jangka sorong: tinggi 22 mm di keempat sisi (selisih paling banyak 0,5 mm) dan lubang 14 mm. Bila tutupmu bukan Ø 65, kabari Lyra.",
         tampil=["tutup_cat"], baru=["tutup_cat"], potong=[1, YC, 1], pandang=[-0.2, -0.35, 1.4])
     langkah("Lapisi bagian dalam tutup cat", "20 menit", [
-        "<p>Tempel beludru hitam di muka dalam (sisakan lubang Ø 16) dan di dinding dalam. Bila memakai cat doff: 2 lapis tipis, biarkan kering sekitar sehari sampai tidak berbau.</p>"],
+        "<p>Pelapis beludru hitam (kertas flok berperekat) <b>tebalnya sekitar 0,8 mm</b>; di model dipakai 0,8 mm. Kain flanel hitam (1-1,5 mm) juga boleh. "
+        "Angka 62 x 62 x 20,5 di model 3D adalah ukuran luar seluruh pelapis (diameter dalam tutup 62, tinggi 20,5), bukan tebalnya. Pelapis dipotong menjadi 2 bagian:</p>"
+        "<ol><li><b>Cakram muka:</b> lingkaran Ø 62 mm dengan lubang Ø 16 mm di pusatnya. Lubang dibuat 2 mm lebih besar dari lubang tutup (Ø 14) supaya tepi beludru tidak terlihat sensor.</li>"
+        "<li><b>Pita dinding:</b> 192 x 19,7 mm (panjang = keliling dalam, tinggi = dari atas cakram sampai tepi potong). Tempel melingkar di dinding dalam, ujungnya bertemu tanpa tumpang. "
+        "Bila memakai flanel 1,5 mm, potong pita 188 mm.</li>"
+        "<li>Tempel cakram dulu, baru pita di atasnya. Tekan rata, jangan ada lem yang mengilap di permukaan.</li></ol>"
+        "<p>Bila memakai cat hitam doff sebagai pengganti: 2 lapis tipis, biarkan kering sekitar sehari sampai tidak berbau.</p>"],
         tampil=CAT, baru=["beludru"], potong=[1, YC, 1], pandang=[-0.2, 0.5, 1.4])
     langkah("Dudukan miring 40°", "20 menit", [
         "<ol><li>Bor 2 lubang Ø 2,8 di pelat dudukan sesuai pola.</li>"
