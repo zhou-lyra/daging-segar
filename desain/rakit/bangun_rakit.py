@@ -315,10 +315,13 @@ def model2(GEm=None, GKLm=None, GD="gambar", NM="2", berkas="penampil_model2.htm
         periksa="Lantai baki dan lantai kepala ditumpuk: keempat tepinya rata.",
         tampil=PVC, baru=BAKI + KEP + ["kepala_tutup", "kepala_bibir"], urai=0.45, pandang=[-0.75, 0.3, 1.25], label=[])
     langkah("Siapkan tutup cat", "30 menit", [
-        "<ol><li>Lilitkan selotip di sekeliling tutup cat 22 mm dari muka sebagai garis potong, lalu gergaji dan ratakan di amplas.</li>"
-        "<li>Bor lubang ukur di pusat muka bertahap Ø 4, 8, 12, lalu kikir sampai Ø 14. Haluskan tepinya.</li>"
+        "<p>Tutup cat semprot yang dipakai berukuran <b>Ø 65 mm</b> (lebar luar) dan tinggi utuh sekitar 50 mm. "
+        "Tanda <b>Ø</b> (huruf O dicoret, bukan angka nol) artinya <b>diameter</b>: lebar lingkaran diukur melewati pusatnya. Semua angka dalam milimeter.</p>"
+        "<ol><li>Tandai 22 mm dari muka (bagian tutup yang tertutup) di 4 sisi, lilitkan selotip lurus di tanda itu, lalu gergaji. Sisa bagian atas dibuang. Tinggi jadi: <b>22 mm</b>.</li>"
+        "<li>Cari pusat muka dengan 2 garis tengah bersilangan. Bor bertahap Ø 4, 8, 12 mm, lalu kikir bulat sampai <b>Ø 14 mm</b> (lubang selebar 14 mm). Haluskan tepinya.</li>"
         "<li>Jangan cat muka luar: muka luar menyentuh daging lewat plastik wrap.</li></ol>"],
-        gambar=[(f"jepit/{GD}/2_ruang_ukur.svg", "Ruang ukur")],
+        gambar=[("rakit/gambar/tutup_cat.svg", "Tutup cat: potong 22 mm, lubang Ø 14"), (f"jepit/{GD}/2_ruang_ukur.svg", "Ruang ukur")],
+        periksa="Ukur dengan jangka sorong: tinggi 22 mm di keempat sisi (selisih paling banyak 0,5 mm) dan lubang 14 mm. Bila tutupmu bukan Ø 65, kabari Lyra.",
         tampil=["tutup_cat"], baru=["tutup_cat"], potong=[1, YC, 1], pandang=[-0.2, -0.35, 1.4])
     langkah("Lapisi bagian dalam tutup cat", "20 menit", [
         "<p>Tempel beludru hitam di muka dalam (sisakan lubang Ø 16) dan di dinding dalam. Bila memakai cat doff: 2 lapis tipis, biarkan kering sekitar sehari sampai tidak berbau.</p>"],

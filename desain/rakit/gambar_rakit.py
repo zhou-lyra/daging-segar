@@ -352,6 +352,55 @@ def skema(model, judul):
     return GKL.peta_solder(K, judul)
 
 
+def tutup_cat():
+    """Tutup cat semprot Model 2: tampak samping (potong 22 mm) dan tampak muka (lubang Ø 14), berskala 5 px/mm."""
+    P = GE.P; D, Di, Hc, dl, mk = P["tutup_D"], P["tutup_Di"], P["Hc"], P["lubang_D"], P["tutup_muka"]
+    H0 = 50.0                                                  # tinggi tutup utuh (ukuran Zhou: Ø 65 x 50)
+    S = 5.0; W_, H_ = 980, 640; el = []
+    el.append(TX(40, 32, "Tutup cat semprot: dipotong dan dibor (semua angka dalam mm)", anc="start", sz=16, w=700))
+    cx, yb = 250, 400
+    X = lambda x: cx + x * S; Y = lambda z: yb - z * S
+    box = lambda x0, x1, z0, z1, f, st="#111": el.append(f'<rect x="{X(x0):.1f}" y="{Y(z1):.1f}" width="{(x1 - x0) * S:.1f}" height="{(z1 - z0) * S:.1f}" fill="{f}" stroke="{st}" stroke-width="1"/>')
+    # bagian yang dibuang (garis putus)
+    el.append(f'<rect x="{X(-D / 2):.1f}" y="{Y(H0):.1f}" width="{D * S:.1f}" height="{(H0 - Hc) * S:.1f}" fill="#e4dfd7" stroke="#9a958e" stroke-dasharray="5 4"/>')
+    el.append(TX(cx, Y((H0 + Hc) / 2) + 5, "sisa, dibuang", sz=13, w=600, col=ABU))
+    # bagian yang dipakai: dua dinding + muka berlubang (potongan tengah)
+    t_d = (D - Di) / 2
+    box(-D / 2, -D / 2 + t_d, 0, Hc, "#2b2c30"); box(D / 2 - t_d, D / 2, 0, Hc, "#2b2c30")
+    box(-D / 2, -dl / 2, 0, mk, "#2b2c30"); box(dl / 2, D / 2, 0, mk, "#2b2c30")
+    el.append(TX(cx, Y(Hc / 2) + 5, "bagian yang dipakai", sz=13, w=600, col="#555"))
+    # garis potong
+    el.append(f'<line x1="{X(-D / 2) - 20:.1f}" y1="{Y(Hc):.1f}" x2="{X(D / 2) + 20:.1f}" y2="{Y(Hc):.1f}" stroke="{MERAH}" stroke-width="2.4"/>')
+    el.append(TX(X(D / 2) + 24, Y(Hc) - 8, "garis potong", anc="start", sz=13, w=700, col=MERAH))
+    el.append(TX(X(D / 2) + 24, Y(Hc) + 10, "(lilitkan selotip)", anc="start", sz=12, w=500, col=MERAH))
+    # lubang
+    for sx in (-1, 1):
+        el.append(f'<line x1="{X(sx * dl / 2):.1f}" y1="{Y(-4):.1f}" x2="{X(sx * dl / 2):.1f}" y2="{Y(mk + 5):.1f}" stroke="{MERAH}" stroke-dasharray="4 3"/>')
+    # ukuran
+    el += dimV(X(-D / 2) - 34, Y(0), Y(Hc), f1(Hc) + " mm", warna=MERAH)
+    el += dimV(X(D / 2) + 46, Y(Hc), Y(H0), f"+ {f1(H0 - Hc)} = {f1(H0)} utuh", kanan=True, kecil=True)
+    el += dimH(X(-D / 2), X(D / 2), Y(0) + 36, f"Ø {f1(D)} mm (lebar luar)")
+    el += dimH(X(-dl / 2), X(dl / 2), Y(0) + 72, f"Ø {f1(dl)} lubang", warna=MERAH)
+    el.append(TX(cx, Y(0) + 100, "muka tutup (sisi tertutup) ada di bawah, menyentuh daging", sz=12, w=600, col=ABU))
+    el.append(TX(cx, 76, "Tampak samping (dipotong di tengah)", sz=14, w=700))
+    # tampak muka
+    c2x, c2y, r2 = 760, 250, D / 2 * 4.2
+    el.append(TX(c2x, 76, "Tampak muka (dari bawah)", sz=14, w=700))
+    el.append(f'<circle cx="{c2x}" cy="{c2y}" r="{r2:.1f}" fill="#2b2c30" stroke="#111" stroke-width="1.2"/>')
+    rl = dl / 2 * 4.2
+    el.append(f'<circle cx="{c2x}" cy="{c2y}" r="{rl:.1f}" fill="#fff" stroke="{MERAH}" stroke-width="2.4"/>')
+    el.append(f'<path d="M{c2x - 10},{c2y} h20 M{c2x},{c2y - 10} v20" stroke="{MERAH}" stroke-width="1"/>')
+    el.append(f'<line x1="{c2x - r2:.1f}" y1="{c2y}" x2="{c2x + r2:.1f}" y2="{c2y}" stroke="#777" stroke-dasharray="3 3"/><line x1="{c2x}" y1="{c2y - r2:.1f}" x2="{c2x}" y2="{c2y + r2:.1f}" stroke="#777" stroke-dasharray="3 3"/>')
+    el.append(f'<text x="{c2x}" y="{c2y + rl + 24:.1f}" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">lubang Ø {f1(dl)} tepat di pusat</text>')
+    el += dimH(c2x - r2, c2x + r2, c2y + r2 + 30, f"Ø {f1(D)}")
+    el.append(TX(c2x, c2y + r2 + 58, "garis putus = 2 garis tengah untuk mencari pusat", sz=12, w=500, col=ABU))
+    for i, t_ in enumerate([f"1. Tandai {f1(Hc)} mm dari muka di 4 sisi, lilitkan selotip lurus di tanda itu, gergaji di sepanjang tepi selotip.",
+                            "2. Cari pusat muka: tarik 2 garis tengah bersilangan. Bor bertahap Ø 4, 8, 12 mm, lalu kikir bulat sampai Ø 14.",
+                            f"3. Cek dengan jangka sorong: tinggi {f1(Hc)} ± 0,5 mm di keempat sisi, lubang {f1(dl)} ± 0,3 mm. Lubang terlalu besar = cahaya luar bocor."]):
+        el.append(TX(40, 562 + i * 24, t_, anc="start", sz=13, w=500))
+    return svg(W_, H_, "".join(el), "Tutup cat semprot")
+
+
 def cara_baca():
     W_, H_ = 980, 150; el = []
     items = [("#b3262e", "garis merah", "potong atau bor"), ("#6c6469", "garis putus", "tanda untuk menempel"), ("#1f5fa8", "garis biru", "ukuran (mm)")]
@@ -360,7 +409,8 @@ def cara_baca():
         el.append(f'<line x1="{x}" y1="60" x2="{x + 70}" y2="60" stroke="{c}" stroke-width="2.5" {"stroke-dasharray=\"6 4\"" if i == 1 else ""}/>')
         el.append(TX(x + 84, 56, a, anc="start", sz=14, w=700)); el.append(TX(x + 84, 76, b, anc="start", sz=13, w=500, col=ABU))
     el.append(TX(40, 120, "Semua ukuran dalam milimeter. Ukuran berantai diukur dari tepi kiri dan tepi bawah setiap lembar.", anc="start", sz=13, w=500))
-    return svg(W_, H_, "".join(el), "Cara membaca gambar")
+    el.append(TX(40, 144, "Ø (huruf O dicoret, bukan nol) = diameter, garis tengah lingkaran. Ø 14 = lubang bulat selebar 14 mm.", anc="start", sz=13, w=700))
+    return svg(W_, H_ + 14, "".join(el), "Cara membaca gambar")
 
 
 def pola_m1_a4():
@@ -405,7 +455,7 @@ def pola_m1_a4():
 
 
 if __name__ == "__main__":
-    tulis = {"cara_baca.svg": cara_baca(), "header_sensor.svg": header_solder(), "solder_pin.svg": solder_pin(),
+    tulis = {"cara_baca.svg": cara_baca(), "header_sensor.svg": header_solder(), "solder_pin.svg": solder_pin(), "tutup_cat.svg": tutup_cat(),
              "m1_lembar_badan.svg": m1_lembar_badan(), "m1_lembar_tutup.svg": m1_lembar_tutup()[0], "m1_cakram.svg": m1_lembar_tutup()[1], "m1_pipa.svg": m1_pipa(),
              "m1_lubang.svg": m1_lubang(), "m1_modul_sensor.svg": m1_modul_sensor(),
              "m1_oled.svg": susunan_oled(GA.GANJAL, t, "Model 1: satu baut OLED (potongan)", "mur M2 di antara tutup dan PCB = ganjal 1,6 mm"),
